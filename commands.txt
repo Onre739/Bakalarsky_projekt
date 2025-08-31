@@ -1,0 +1,48 @@
+// --------- VENV ----------
+
+// uložíš si aktuální závislosti do souboru
+pip freeze > requirements.txt
+
+// smaže staré venv
+Remove-Item -Recurse -Force coq_blocks_env
+
+// nové venv
+python -m venv coq_blocks_env
+
+// aktivace
+.\coq_blocks_env\Scripts\activate
+
+// instalace
+pip install -r requirements.txt
+
+
+// -------- BĚH --------
+
+// spustit server
+python manage.py runserver
+
+
+// ------ ANTLR ------
+antlr4 -Dlanguage=Python3 COQ.g4  # generace parseru
+antlr4 -Dlanguage=Python3 -visitor COQ.g4 # generace visitora
+python <nazev>.py # spuštění
+CTRL + Z a poté ENTER # Pro ukončující znak
+
+# pokud je nainstalováno antlr4-tools
+antlr4-parse COQ.g4 prog -gui # výstup stromu jako graf
+antlr4-parse COQ.g4 prog -tree # výpis stromu do konzole
+
+
+// ------ DOCKER ------
+docker build -t bakalarka .
+docker run -p 8000:8000 bakalarka
+docker images
+
+// odstranění image
+docker rmi bakalarka:latest
+
+// stop containeru
+docker stop e8bbcdebb61c
+
+// odstranění containeru
+docker rm e8bbcdebb61c

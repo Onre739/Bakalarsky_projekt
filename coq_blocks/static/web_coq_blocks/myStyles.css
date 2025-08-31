@@ -1,0 +1,65 @@
+.deleteButton{
+    width: 20px;
+    height: 20px;
+    background-color: #3ac86500;
+    border: 1px solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    border-radius: 5px;
+}
+
+.block {
+    min-width: 50px;
+    min-height: 50px;
+    position: absolute;
+    border: 2px solid;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.block-dot,
+.block-plug {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.block-plug {
+    border: 2px solid;
+    border-right-color: transparent;
+    background-color: #ffffff;
+    top: 50%;
+    right: -5px; /* polovina šířky kruhu */
+    transform: translateY(-50%);
+}
+
+.block-dot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid;
+    border-right-color: transparent;
+    top: 60%;
+    left: -30px; /* polovina šířky kruhu */
+    transform: translateY(-50%);
+}
+
+.definition{
+    width: 200px;
+    height: 100px;
+    background-color: rgb(128, 128, 128);
+    font-weight: bold;
+    font-size: large;
+    top: 375px;
+    left: 20px;
+}
+
