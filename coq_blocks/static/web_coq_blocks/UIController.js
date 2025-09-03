@@ -231,6 +231,29 @@ export default class UIController {
         });
     }
 
+
+    deleteButtonsControl() {
+        this.addDeleteBtnClass();
+
+        let blocks = Array.from(document.getElementsByClassName("block"));
+        blocks.forEach(function (block) {
+            let deleteBtn = block.querySelector(".deleteButton");
+            if (deleteBtn) {
+                deleteBtn.remove();
+            }
+        });
+
+        let blocksWBtn = Array.from(document.getElementsByClassName("hasDeleteButton"));
+        blocksWBtn.forEach((block) => {
+            let deleteBtn = document.createElement("button");
+            deleteBtn.setAttribute("class", "deleteButton");
+            // deleteBtn.setAttribute("onclick", "deleteBlock(this)");
+            deleteBtn.addEventListener("click", () => this.deleteBlock(deleteBtn));
+            deleteBtn.innerText = "X";
+            block.appendChild(deleteBtn);
+        });
+    }
+
     addDeleteBtnClass() {
         // DELETE BUTTONY
         let blocks = Array.from(document.getElementsByClassName("block"));
@@ -246,24 +269,8 @@ export default class UIController {
         notSnappedBlocks.forEach(block => block.classList.add("hasDeleteButton"));
     }
 
-    deleteButtonsControl() {
-        this.addDeleteBtnClass();
-
-        let blocks = Array.from(document.getElementsByClassName("block"));
-        blocks.forEach(function (block) {
-            let deleteBtn = block.querySelector(".deleteButton");
-            if (deleteBtn) {
-                deleteBtn.remove();
-            }
-        });
-
-        let blocksWBtn = Array.from(document.getElementsByClassName("hasDeleteButton"));
-        blocksWBtn.forEach(function (block) {
-            let deleteBtn = document.createElement("button");
-            deleteBtn.setAttribute("class", "deleteButton");
-            deleteBtn.setAttribute("onclick", "deleteBlock(this)");
-            deleteBtn.innerText = "X";
-            block.appendChild(deleteBtn);
-        });
+    deleteBlock(button) {
+        let parent = button.parentElement;
+        parent.remove();
     }
 }

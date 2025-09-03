@@ -2,11 +2,6 @@ import { AppState } from "./AppState.js";
 
 export default class BlockFactory {
 
-    deleteBlock(button) {
-        let parent = button.parentElement;
-        parent.remove();
-    }
-
     createBlock(data) {
         data.new_types.forEach((newType) => {
             let type_name = newType.name;
