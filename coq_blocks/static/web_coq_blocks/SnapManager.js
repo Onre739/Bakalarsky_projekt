@@ -2,6 +2,43 @@ import { AppState } from "./AppState.js";
 
 export default class SnapManager {
 
+    updateSnapTargets(movedBlock) {
+        let dotElement = movedBlock.querySelector(".block-dot");
+        let requiredType = dotElement.innerText;
+        console.log("Required type:", requiredType);
+
+        // Dynamicky aktualizovat snap body
+        AppState.snapTargets.length = 0;
+
+        $(".block").each(function () {
+            let block = $(this);
+            // .get(0) převede jQuery objekt na DOM objekt
+            let blockElement = block.get(0);
+
+            // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
+            if (blockElement) {
+                let plugs = $(blockElement).find(".block-plug");
+                let i = 0;
+                plugs.each(function () {
+                    let plug = $(this);
+                    let plugType = plug.get(0).innerText;
+                    let plugOffset = plug.offset();
+                    console.log(requiredType + "-vs-" + plugType);
+                    // if (plugType === requiredType) {
+                    AppState.snapTargets.push({
+                        x: plugOffset.left + plug.width() - 1,
+                        y: plugOffset.top + plug.height() / 2 + 2,
+                        block: blockElement,
+                        plug: i,
+                        for: movedBlock
+                    });
+                    // }
+                    i++;
+                });
+            }
+        });
+    }
+
     checkForSnap() { // Kontrola které bloky jsou snapnuty
 
         // Uložení předchozí verze pole
@@ -25,7 +62,8 @@ export default class SnapManager {
         });
     }
 
-    snapOccured(snappedParent, snappedChild, plug) {
+    // snapOccured(snappedParent, snappedChild, plug) { // nvm k čemu tu byly parametry???
+    snapOccured() { // Akce pokud se projevil snap / unsnap
         let arrayCurr = AppState.snappedBlocks.slice();
         let arrayPrev = AppState.previousSnappedBlocks.slice();
 
@@ -41,7 +79,7 @@ export default class SnapManager {
             arrayPrev.some(itemPrev => objectsEqual(itemCurr, itemPrev))
         );
 
-        // Odstranění společných prvků z obou polí
+        // Odstranění společných prvků z obou polí, tedy zůstane mi pouze aktuální snap / unsnap
         let uniqueCurr = arrayCurr.filter(itemCurr =>
             !sameElements.some(itemPrev => objectsEqual(itemCurr, itemPrev))
         );
@@ -49,6 +87,7 @@ export default class SnapManager {
             !sameElements.some(itemCurr => objectsEqual(itemPrev, itemCurr))
         );
 
+        // Když prev == 0 a curr == 1, tak jde o klasický snap
         if (uniquePrev.length === 0 && uniqueCurr.length === 1) {
             console.log("Just normal SNAP +++");
 
@@ -231,6 +270,8 @@ export default class SnapManager {
         }
     }
 
+    // Seřazení snapnutých bloků kvůli změně velikostí
+    // Kvůli změně velikostí musíš znovu rozmístit snapnuté bloky a to musíš udělat od začátku do konce v pořadí
     orderSnappedBlocks() {
         // Najít kořenové bloky (bloky, které nemají rodiče)
         let rootBlocks = AppState.snappedBlocks.filter(block =>
@@ -290,41 +331,4 @@ export default class SnapManager {
         });
     }
 
-    updateSnapTargets(movedBlock) {
-        let dotElement = movedBlock.querySelector(".block-dot");
-        let requiredType = dotElement.innerText;
-        console.log("Required type:", requiredType);
-
-        // Dynamicky aktualizovat snap body
-        AppState.snapTargets.length = 0;
-
-        $(".block").each(function () {
-            let block = $(this);
-            // .get(0) převede jQuery objekt na DOM objekt
-            let blockElement = block.get(0);
-
-            // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
-            if (blockElement) {
-                let plugs = $(blockElement).find(".block-plug");
-                let i = 0;
-                plugs.each(function () {
-                    let plug = $(this);
-                    let plugType = plug.get(0).innerText;
-                    let plugOffset = plug.offset();
-                    console.log(requiredType + "-vs-" + plugType);
-                    if (plugType === requiredType) {
-                        AppState.snapTargets.push({
-                            x: plugOffset.left + plug.width() - 1,
-                            y: plugOffset.top + plug.height() / 2 + 2,
-                            block: blockElement,
-                            plug: i
-                        });
-                    }
-                    i++;
-                });
-            }
-        });
-
-        console.log("Updated snap targets:", AppState.snapTargets);
-    }
 }

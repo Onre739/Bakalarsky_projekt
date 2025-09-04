@@ -68,6 +68,8 @@ export default class UIController {
                         ", Y: " + String(Number(y + AppState.docGroundDiffTop + target.offsetHeight / 2)));
 
                     // Dynamická aktualizace snap targets
+                    // Je to kvůli snapu sám na sebe, takhle se mění snap pozice vždy s pohybem
+                    // Šlo by to bez toho s tím že zakážu snap sám na sebe ?????
                     this.snapManager.updateSnapTargets(target);
 
                     interact('.draggable').draggable({
@@ -184,7 +186,10 @@ export default class UIController {
                         ", Y: " + String(Number(y + AppState.docGroundDiffTop + target.offsetHeight / 2)));
 
                     // Dynamická aktualizace snap targets
+                    // Je to kvůli snapu sám na sebe, takhle se mění snap pozice vždy s pohybem
+                    // Šlo by to bez toho s tím že zakážu snap sám na sebe ?????
                     this.snapManager.updateSnapTargets(target);
+                    console.log("Updated snap targets:", AppState.snapTargets);
 
                     interact('.draggable').draggable({
                         modifiers: [
@@ -204,8 +209,9 @@ export default class UIController {
                 end: (event) => {
                     // Výpis všech snapů do pole snappedBlocks
                     this.snapManager.checkForSnap();
+                    console.log("Snapped blocks:", AppState.snappedBlocks);
 
-                    // Akce s novými snapy
+                    // Akce s novými snapy, zvětšení / změnšení atd...
                     this.snapManager.snapOccured();
 
                     // Pouze krajní bloky mohou mít drag + třídy pro delete buttony

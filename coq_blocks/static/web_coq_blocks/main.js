@@ -10,7 +10,9 @@ var uiController = new UIController();
 var definitionLoader = new DefinitionLoader();
 var blockFactory = new BlockFactory();
 
-// Listeneři
+// ------------ Listeneři ------------
+
+// Tvorba bloků
 document.getElementById("loadBtn").addEventListener("click", async () => {
     // Parsování a načtení dat z inputu
     var data = await definitionLoader.load();
@@ -18,8 +20,10 @@ document.getElementById("loadBtn").addEventListener("click", async () => {
 
     // Tvorba bloků
     blockFactory.createBlock(data);
+    uiController.deleteButtonsControl();
 });
 
+// Tlačítka pro změnu režimu
 document.getElementById("autoBtn").addEventListener("click", () => {
     uiController.switchToAutomatic();
 });
@@ -27,6 +31,8 @@ document.getElementById("autoBtn").addEventListener("click", () => {
 document.getElementById("manualBtn").addEventListener("click", () => {
     uiController.switchToManual();
 });
+
+// -----------------------------------
 
 // Drag controll
 switch (AppState.resizeMode) {

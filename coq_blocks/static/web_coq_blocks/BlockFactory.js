@@ -139,7 +139,6 @@ export default class BlockFactory {
 
         // přidání snap pozice
         // updateSnapTargets();
-        deleteButtonsControl();
     }
 
     getPlugPositions(n) {
