@@ -107,8 +107,8 @@ export default class BlockFactory {
                         typeLabel.style.position = "absolute";
                         typeLabel.style.right = "120%";
                         typeLabel.style.top = "5px";
-                        console.log(typeLabel.offsetWidth + plug.offsetWidth);
-                        console.log(widestLabel);
+                        //console.log(typeLabel.offsetWidth + plug.offsetWidth);
+                        //console.log(widestLabel);
                         if (typeLabel.offsetWidth + plug.offsetWidth > widestLabel) {
                             widestLabel = typeLabel.offsetWidth + plug.offsetWidth + dotLabel.offsetWidth;
                         }

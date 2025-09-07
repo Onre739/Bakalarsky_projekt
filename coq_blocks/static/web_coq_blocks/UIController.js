@@ -209,7 +209,6 @@ export default class UIController {
                 end: (event) => {
                     // Výpis všech snapů do pole snappedBlocks
                     this.snapManager.checkForSnap();
-                    console.log("Snapped blocks:", AppState.snappedBlocks);
 
                     // Akce s novými snapy, zvětšení / změnšení atd...
                     this.snapManager.snapOccured();
@@ -221,6 +220,8 @@ export default class UIController {
                     this.deleteButtonsControl();
 
                     console.log('Drag ended', event);
+                    console.log("Snapped blocks:", AppState.snappedBlocks);
+                    console.log("Ordered snapped blocks:", AppState.orderedSnappedBlocks);
                 }
             },
             modifiers: [

@@ -23,13 +23,14 @@ export default class SnapManager {
                     let plug = $(this);
                     let plugType = plug.get(0).innerText;
                     let plugOffset = plug.offset();
-                    console.log(requiredType + "-vs-" + plugType);
+                    // console.log(requiredType + "-vs-" + plugType);
                     // if (plugType === requiredType) {
                     AppState.snapTargets.push({
                         x: plugOffset.left + plug.width() - 1,
                         y: plugOffset.top + plug.height() / 2 + 2,
                         block: blockElement,
                         plug: i,
+                        // Log snap targetů, pro koho jsou (posledně pohnutý block)
                         for: movedBlock
                     });
                     // }
@@ -123,20 +124,21 @@ export default class SnapManager {
             AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
 
             // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
-            AppState.orderedSnappedBlocks.forEach(function (snappedBlock) {
-                // Zisk pozice plugu pro novou pozici child bloku
-                let currentPlug = $(snappedBlock.plug);
-                let currentPlugOffset = currentPlug.offset();
+            AppState.orderedSnappedBlocks.forEach((snappedDef) => {
+                snappedDef.forEach((snappedBlock) => {
+                    // Zisk pozice plugu pro novou pozici child bloku
+                    let currentPlug = $(snappedBlock.plug);
+                    let currentPlugOffset = currentPlug.offset();
 
-                // Aktualizace pozice potomka
-                let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
-                let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
+                    // Aktualizace pozice potomka
+                    let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
+                    let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
 
-                snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
-                snappedBlock.child.setAttribute('data-x', x);
-                snappedBlock.child.setAttribute('data-y', y);
+                    snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
+                    snappedBlock.child.setAttribute('data-x', x);
+                    snappedBlock.child.setAttribute('data-y', y);
+                });
             });
-
         } else if (uniqueCurr.length === 0 && uniquePrev.length === 1) {
             console.log("Just normal UNSNAP ---");
 
@@ -174,20 +176,22 @@ export default class SnapManager {
             AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
 
             // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
-            AppState.orderedSnappedBlocks.forEach(function (snappedBlock) {
-                if (!objectsEqual(snappedBlock, uniquePrev[0])) {
-                    // Zisk pozice plugu pro novou pozici child bloku
-                    let currentPlug = $(snappedBlock.plug);
-                    let currentPlugOffset = currentPlug.offset();
+            AppState.orderedSnappedBlocks.forEach((snappedDef) => {
+                snappedDef.forEach((snappedBlock) => {
+                    if (!objectsEqual(snappedBlock, uniquePrev[0])) {
+                        // Zisk pozice plugu pro novou pozici child bloku
+                        let currentPlug = $(snappedBlock.plug);
+                        let currentPlugOffset = currentPlug.offset();
 
-                    // Aktualizace pozice potomka
-                    let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
-                    let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
+                        // Aktualizace pozice potomka
+                        let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
+                        let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
 
-                    snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
-                    snappedBlock.child.setAttribute('data-x', x);
-                    snappedBlock.child.setAttribute('data-y', y);
-                }
+                        snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
+                        snappedBlock.child.setAttribute('data-x', x);
+                        snappedBlock.child.setAttribute('data-y', y);
+                    }
+                });
             });
 
         } else if (uniqueCurr.length === 0 && uniquePrev.length === 0) {
@@ -254,49 +258,60 @@ export default class SnapManager {
             // Nové pozice
             AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
 
-            AppState.orderedSnappedBlocks.forEach(function (snappedBlock) {
-                // Zisk pozice plugu pro novou pozici child bloku
-                let currentPlug = $(snappedBlock.plug);
-                let currentPlugOffset = currentPlug.offset();
+            AppState.orderedSnappedBlocks.forEach((snappedDef) => {
+                snappedDef.forEach((snappedBlock) => {
+                    // Zisk pozice plugu pro novou pozici child bloku
+                    let currentPlug = $(snappedBlock.plug);
+                    let currentPlugOffset = currentPlug.offset();
 
-                // Aktualizace pozice potomka
-                let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
-                let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
+                    // Aktualizace pozice potomka
+                    let x = currentPlugOffset.left + currentPlug.width() - AppState.docGroundDiffLeft - 1;
+                    let y = currentPlugOffset.top + currentPlug.height() / 2 - snappedBlock.child.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
 
-                snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
-                snappedBlock.child.setAttribute('data-x', x);
-                snappedBlock.child.setAttribute('data-y', y);
+                    snappedBlock.child.style.transform = `translate(${x}px, ${y}px)`;
+                    snappedBlock.child.setAttribute('data-x', x);
+                    snappedBlock.child.setAttribute('data-y', y);
+                });
             });
         }
     }
 
-    // Seřazení snapnutých bloků kvůli změně velikostí
+    // Seřazení snapnutých bloků kvůli změně velikostí a zpětnému parsování
     // Kvůli změně velikostí musíš znovu rozmístit snapnuté bloky a to musíš udělat od začátku do konce v pořadí
     orderSnappedBlocks() {
-        // Najít kořenové bloky (bloky, které nemají rodiče)
+        // Najdi kořeny = bloky, které nejsou dítětem nikoho jiného
         let rootBlocks = AppState.snappedBlocks.filter(block =>
             !AppState.snappedBlocks.some(otherBlock => otherBlock.child === block.parent)
         );
 
-        let orderedBlocks = [];
-        let queue = rootBlocks.slice(); // Zkopírovat kořenové bloky do fronty
+        let allOrdered = [];
 
-        while (queue.length > 0) {
-            let currentBlock = queue.shift(); // Odebrat první blok z fronty
-            orderedBlocks.push(currentBlock); // Přidat blok do uspořádaného pole
+        // Pro každý kořen. blok je vlastní fronta a pole se seřazenými bloky 
+        rootBlocks.forEach(root => {
+            let ordered = [];
+            let queue = [root];
 
-            // Najít všechny potomky aktuálního bloku
-            let children = AppState.snappedBlocks.filter(block => block.parent === currentBlock.child);
-            queue = queue.concat(children); // Přidat potomky do fronty
-        }
+            while (queue.length > 0) {
+                let currentBlock = queue.shift(); // Odebrat první blok z fronty
+                ordered.push(currentBlock); // Přidat blok do uspořádaného pole
 
-        if (orderedBlocks.length === AppState.snappedBlocks.length) {
-            return orderedBlocks;
-        } else {
+                // Najít všechny potomky aktuálního bloku
+                let children = AppState.snappedBlocks.filter(b => b.parent === currentBlock.child);
+                queue = queue.concat(children); // Přidat potomky do fronty
+            }
+
+            allOrdered.push(ordered);
+        });
+
+        // kontrola, jestli jsme zpracovali všechny
+        let flat = allOrdered.flat();
+        if (flat.length !== AppState.snappedBlocks.length) {
             console.error("ORDERING BLOCK FAIL");
-            return [];
         }
+
+        return allOrdered; // pole polí
     }
+
 
     dragControl() {
         // Nalezení listových snapů
