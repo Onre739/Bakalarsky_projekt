@@ -4,11 +4,13 @@ import SnapManager from "./SnapManager.js";
 import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";
 import UIController from "./UIController.js";
+import { COQExporter } from "./COQExporter.js";
 
 console.log("GROUND OFFSET: " + $("#ground").offset().left + ", " + $("#ground").offset().top);
 var uiController = new UIController();
 var definitionLoader = new DefinitionLoader();
 var blockFactory = new BlockFactory();
+var coqExporter = new COQExporter();
 
 // ------------ Listeneři ------------
 
@@ -30,6 +32,11 @@ document.getElementById("autoBtn").addEventListener("click", () => {
 
 document.getElementById("manualBtn").addEventListener("click", () => {
     uiController.switchToManual();
+});
+
+// Export button
+document.getElementById("exportBtn").addEventListener("click", () => {
+    coqExporter.export();
 });
 
 // -----------------------------------
