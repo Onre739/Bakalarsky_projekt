@@ -23,6 +23,7 @@ document.getElementById("loadBtn").addEventListener("click", async () => {
     // Tvorba bloků
     blockFactory.createBlock(data);
     uiController.deleteButtonsControl();
+    console.log("Block objects: ", AppState.blockObjects);
 });
 
 // Tlačítka pro změnu režimu

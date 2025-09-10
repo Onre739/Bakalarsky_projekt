@@ -16,15 +16,15 @@ export default class DefinitionLoader {
 
         let data = JSON.parse(await response.text());
 
-        data.hypothesis.forEach(hypothes => AppState.hypothesisObjects.push(hypothes));
+        data.hypothesis.forEach(hypothes => AppState.rawHypothesis.push(hypothes));
         data.new_types.forEach(new_type => {
             if (new_type.explicit_constructors.length !== 0) {
                 new_type.explicit_constructors.forEach(constructor =>
-                    AppState.blockObjects.push(constructor)
+                    AppState.rawContructors.push(constructor)
                 );
             } else if (new_type.implicit_constructors.length !== 0) {
                 new_type.implicit_constructors.forEach(constructor =>
-                    AppState.blockObjects.push(constructor)
+                    AppState.rawContructors.push(constructor)
                 );
             }
         });
