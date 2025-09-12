@@ -1,5 +1,5 @@
 import { AppState } from "./AppState.js";
-import Block from "./Block.js";
+import { Block } from "./Block.js";
 import SnapManager from "./SnapManager.js";
 import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";

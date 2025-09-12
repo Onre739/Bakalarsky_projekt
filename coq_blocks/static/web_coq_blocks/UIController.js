@@ -11,11 +11,9 @@ export default class UIController {
         AppState.resizeMode = "Auto";
         console.log(AppState.resizeMode);
 
-        let blocks = Array.from($(".block"));
-        blocks.forEach(function (block) {
-            if (!block.classList.contains("definition")) {
-                block.remove();
-            }
+        let blockObjects = AppState.blockObjects;
+        blockObjects.forEach((blockObject) => {
+            this.removeBlock(blockObject);
         });
 
         // Nová konfigurace
@@ -27,11 +25,9 @@ export default class UIController {
         AppState.resizeMode = "Manual";
         console.log(AppState.resizeMode);
 
-        let blocks = Array.from($(".block"));
-        blocks.forEach(function (block) {
-            if (!block.classList.contains("definition")) {
-                block.remove();
-            }
+        let blockObjects = AppState.blockObjects;
+        blockObjects.forEach((blockObject) => {
+            this.removeBlock(blockObject);
         });
 
         // Nová konfigurace
@@ -98,6 +94,7 @@ export default class UIController {
                     this.deleteButtonsControl();
 
                     console.log('Drag ended', event);
+                    console.log("Snapped blocks:", AppState.snappedBlocks);
                 }
             },
             modifiers: [
@@ -238,46 +235,63 @@ export default class UIController {
         });
     }
 
+    // ------------- Delete buttony
 
     deleteButtonsControl() {
         this.addDeleteBtnClass();
 
-        let blocks = Array.from(document.getElementsByClassName("block"));
-        blocks.forEach(function (block) {
-            let deleteBtn = block.querySelector(".deleteButton");
+        // Prvně odeberu všechny delete buttony
+        let blockObjects = AppState.blockObjects;
+        blockObjects.forEach((blockObject) => {
+            let deleteBtn = blockObject.element.querySelector(".deleteButton");
             if (deleteBtn) {
                 deleteBtn.remove();
             }
         });
 
-        let blocksWBtn = Array.from(document.getElementsByClassName("hasDeleteButton"));
-        blocksWBtn.forEach((block) => {
-            let deleteBtn = document.createElement("button");
-            deleteBtn.setAttribute("class", "deleteButton");
-            // deleteBtn.setAttribute("onclick", "deleteBlock(this)");
-            deleteBtn.addEventListener("click", () => this.deleteBlock(deleteBtn));
-            deleteBtn.innerText = "X";
-            block.appendChild(deleteBtn);
+        // Přidám delete buttony tam kam patří
+        blockObjects.forEach((blockObject) => {
+            if (blockObject.element.classList.contains("hasDeleteButton")) {
+
+                let deleteBtn = document.createElement("button");
+                deleteBtn.setAttribute("class", "deleteButton");
+                deleteBtn.addEventListener("click", () => this.removeBlock(blockObject));
+                deleteBtn.innerText = "X";
+                blockObject.element.appendChild(deleteBtn);
+
+            }
         });
     }
 
     addDeleteBtnClass() {
         // DELETE BUTTONY
-        let blocks = Array.from(document.getElementsByClassName("block"));
+        let blockObjects = AppState.blockObjects;
 
-        let notSnappedBlocks = blocks.filter(
-            block1 => !AppState.snappedBlocks.some(block2 => block1 === block2.parent) &&
-                !AppState.snappedBlocks.some(block3 => block1 === block3.child)
+        let notSnappedBlocks = blockObjects.filter(
+            b1 => !AppState.snappedBlocks.some(b2 => b1 === b2.parent) &&
+                !AppState.snappedBlocks.some(b3 => b1 === b3.child)
         );
 
-        notSnappedBlocks = notSnappedBlocks.filter(block => !block.classList.contains("definition"));
-
-        blocks.forEach(block => block.classList.remove("hasDeleteButton"));
-        notSnappedBlocks.forEach(block => block.classList.add("hasDeleteButton"));
+        blockObjects.forEach(b => b.element.classList.remove("hasDeleteButton"));
+        notSnappedBlocks.forEach(b => b.element.classList.add("hasDeleteButton"));
     }
 
-    deleteBlock(button) {
-        let parent = button.parentElement;
-        parent.remove();
+    removeBlock(block) {
+        // 1) smazat DOM element
+        block.element.remove();
+
+        // 2) smazat z blockObjects
+        AppState.blockObjects = AppState.blockObjects.filter(b => b !== block);
+
+        // // 3) smazat snapy
+        // AppState.snappedBlocks = AppState.snappedBlocks.filter(
+        //     s => s.parent !== block && s.child !== block
+        // );
+
+        // // 4) případně přepočítat snapTargets
+        // AppState.snapTargets = AppState.snapTargets.filter(
+        //     t => t.block !== block && t.plug.parentBlock !== block
+        // );
     }
+
 }

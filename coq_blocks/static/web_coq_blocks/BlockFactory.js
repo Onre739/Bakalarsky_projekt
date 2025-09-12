@@ -1,11 +1,12 @@
 import { AppState } from "./AppState.js";
-import Block from "./Block.js";
+import { Block } from "./Block.js";
 
 export default class BlockFactory {
 
     createBlock(data) {
 
         data.new_types.forEach((newType) => {
+            let blockSort = "Constructor";
             let type_name = newType.name;
             let type_parameters = newType.type_parameters;
             let explicit_constructors = newType.explicit_constructors;
@@ -15,7 +16,7 @@ export default class BlockFactory {
             let constructors = explicit_constructors.length > implicit_constructors.length ? explicit_constructors : implicit_constructors
 
             constructors.forEach((newConstructor) => {
-                let newBlockObj = new Block(newConstructor, type_name, type_parameters);
+                let newBlockObj = new Block(newConstructor, type_name, type_parameters, blockSort);
                 newBlockObj.createElement();
                 AppState.blockObjects.push(newBlockObj)
 
@@ -25,6 +26,12 @@ export default class BlockFactory {
 
         // přidání snap pozice
         // updateSnapTargets();
+    }
+
+    // Bere id (block:0) a vrací block objekt
+    static getBlockObjFromId(id) {
+        let i = id.split(":")[1];
+        return AppState.blockObjects[i];
     }
 
 }
