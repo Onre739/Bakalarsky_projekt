@@ -1,4 +1,4 @@
-.deleteButton{
+.deleteButton {
     width: 20px;
     height: 20px;
     background-color: #3ac86500;
@@ -38,7 +38,8 @@
     border-right-color: transparent;
     background-color: #ffffff;
     top: 50%;
-    right: -5px; /* polovina šířky kruhu */
+    right: -5px;
+    /* polovina šířky kruhu */
     transform: translateY(-50%);
 }
 
@@ -49,17 +50,15 @@
     border: 2px solid;
     border-right-color: transparent;
     top: 60%;
-    left: -30px; /* polovina šířky kruhu */
+    left: -30px;
+    /* polovina šířky kruhu */
     transform: translateY(-50%);
 }
 
-.definition{
+/* .definition {
     width: 200px;
     height: 100px;
     background-color: rgb(128, 128, 128);
     font-weight: bold;
     font-size: large;
-    top: 375px;
-    left: 20px;
-}
-
+} */

@@ -22,8 +22,7 @@ export const AppState = {
     docGroundDiffTop: $("#ground").offset().top,
 
     // Při různém zoomu stránky se mění velikost borderu !!! Počítám velikost podle Definition bloku
-    defBlock: $(".definition").get(0),
-    borderSize: $(".definition").get(0).getBoundingClientRect().width - $(".definition").get(0).clientWidth,
+    //borderSize: $(".definition").get(0).getBoundingClientRect().width - $(".definition").get(0).clientWidth,
     resizeMode: "Auto",
     blockColors: ["rgb(255, 0, 0)", "rgb(0, 102, 255)", "rgb(255, 255, 0)", "rgb(0, 128, 0)", "rgb(227, 117, 0)", "rgb(0, 238, 255)", "rgb(234, 0, 255)", "rgb(111, 255, 0)", "rgb(170, 11, 64)", "rgb(98, 47, 0)", "rgb(66, 0, 190)"],
     blockColorsCount: 11,

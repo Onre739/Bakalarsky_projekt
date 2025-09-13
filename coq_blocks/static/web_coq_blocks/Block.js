@@ -1,17 +1,17 @@
 import { AppState } from "./AppState.js";
 
-export class Dot {
-    constructor(type, parentBlock, color) {
+class Dot {
+    constructor(type, parentBlockEl, color) {
         this.type = type; // datový typ
         this.color = color; // barva
-        this.parentBlock = parentBlock; // reference na rodičovský blok
+        this.parentBlockEl = parentBlockEl; // reference na rodičovský blok
         this.dotLabelWidth = 0; // šířka dot label pro šířku bloku
         this.element = document.createElement("div"); // DOM element
     }
 
     createElement() {
         let dot = this.element;
-        this.parentBlock.appendChild(dot);
+        this.parentBlockEl.appendChild(dot);
 
         dot.setAttribute("class", "block-dot");
         dot.style.backgroundColor = this.color;
@@ -29,10 +29,10 @@ export class Dot {
         this.element = dot;
     }
 }
-export class Plug {
-    constructor(type, parentBlock, index, plugPosition) {
+class Plug {
+    constructor(type, parentBlockEl, index, plugPosition) {
         this.type = type; // datový typ
-        this.parentBlock = parentBlock; // reference na rodičovský blok
+        this.parentBlockEl = parentBlockEl; // reference na rodičovský blok
         this.index = index; // pořadí
         this.width = 0; // šířka = plug + plug label
         this.plugPosition = plugPosition; // pozice pro plug
@@ -41,7 +41,7 @@ export class Plug {
 
     createElement() {
         let plug = this.element;
-        this.parentBlock.appendChild(plug);
+        this.parentBlockEl.appendChild(plug);
         plug.setAttribute("class", "block-plug");
 
         plug.style.top = this.plugPosition + "%";
@@ -60,15 +60,97 @@ export class Plug {
     }
 }
 
-export class Block {
-    constructor(constructor, type_name, type_parameters, blockSort) {
-        this.blockSort = blockSort; // Typ bloku: Definition | Konstruktor| Atomic | Hypotéza
-        this.id = "block:" + AppState.blockCount;
+// Základní blok pro různé typy: Definition | Konstruktor| Atomic | Hypotéza
+class BaseBlock {
+    constructor(id, color) {
+        this.id = id; // unikátní ID
+        this.color = color; // barva bloku
+        this.element = document.createElement("div"); // DOM element
+    }
+
+    createElement() {
+        throw new Error("Must be implemented by subclass");
+    }
+
+    // Zisk pozicí pro N počet plugů
+    getPlugPositions(n) {
+        // Výpočet je od 0 do 90%, ke konci posunu výsledek o 10% kvůli nadpisu
+
+        if (n === 0) {
+            return [];
+        }
+        else if (n === 1) {
+            return [String(50 + 10)];  // Pokud je pouze jeden prvek, vrátíme střed.
+        }
+
+        let margin = 45 / n;  // Vypočítáme margin na základě počtu prvků.
+        let positions = [];
+
+        for (let i = 1; i <= n; i++) {
+            // Vypočítáme pozici každého prvku
+            let position = ((i - 1) * (90 - 2 * margin) / (n - 1)) + margin;
+            positions.push(String(position + 10));
+        }
+
+        return positions;
+    }
+}
+
+export class DefinitionBlock extends BaseBlock {
+    constructor() {
+        super("block:" + AppState.blockCount, "rgb(128, 128, 128)");
+        this.plugObjects = [];
+    }
+
+    createElement() {
+
+        // Append DOM, jelikož element musí být prvně napojený na dom a až pak se může stylovat a používat offsetWidth atd ...
+        let groundElement = document.getElementById("ground");
+        groundElement.appendChild(this.element);
+
+        let newBlock = this.element
+        newBlock.setAttribute("id", this.id);
+        newBlock.setAttribute("class", "block draggable");
+        newBlock.style.backgroundColor = this.color;
+
+        // Název bloku
+        let blockNameEl = document.createElement("div");
+        blockNameEl.setAttribute("class", "blockName");
+        blockNameEl.innerText = "Definition";
+        blockNameEl.style.position = "absolute";
+        blockNameEl.style.top = "10px";
+        blockNameEl.style.left = "40px";
+        blockNameEl.style.fontWeight = "bold";
+
+        newBlock.appendChild(blockNameEl);
+
+        // ------ PLUGY
+
+        let aktPlug = 0; // Aktuální plug
+        this.plugsCount = 1;
+        let plugPositions = this.getPlugPositions(this.plugsCount); // Zisk pozice pro plug
+
+        // Tvorba plug objektu
+        let plugObject = new Plug("any", newBlock, aktPlug, plugPositions[aktPlug]);
+
+        // Tvorba plug elementu pro DOM
+        plugObject.createElement()
+
+        this.plugObjects.push(plugObject);
+
+        newBlock.style.width = String(150) + "px";
+        newBlock.style.height = String(this.plugsCount * 50 + 20) + "px";
+    }
+}
+
+export class ConstructorBlock extends BaseBlock {
+    constructor(constructor, type_name, type_parameters) {
+        super("block:" + AppState.blockCount, AppState.blockColors[AppState.typeCount % AppState.blockColors.length]);
+
         this.typeName = type_name; // Název datového typu
         this.constructorName = constructor.name; // Název konstruktoru
         this.typeParameters = type_parameters; // Parametry datového typu
         this.constructorParameters = constructor.parameters; // Parametry konstruktoru
-        this.color = AppState.blockColors[AppState.typeCount % AppState.blockColors.length]; // Barva bloku
         this.blockName = type_name + "\u00A0:\u00A0" + constructor.name; // Název celého bloku
         this.height = 0;
 
@@ -89,8 +171,6 @@ export class Block {
 
         // Object dot
         this.dotObject = null;
-
-        this.element = document.createElement("div"); // DOM element
     }
 
     createElement() {
@@ -187,29 +267,6 @@ export class Block {
 
         this.height = this.element.offsetHeight;
 
-    }
-
-    // Zisk pozicí pro N počet plugů
-    getPlugPositions(n) {
-        // Výpočet je od 0 do 90%, ke konci posunu výsledek o 10% kvůli nadpisu
-
-        if (n === 0) {
-            return [];
-        }
-        else if (n === 1) {
-            return [String(50 + 10)];  // Pokud je pouze jeden prvek, vrátíme střed.
-        }
-
-        let margin = 45 / n;  // Vypočítáme margin na základě počtu prvků.
-        let positions = [];
-
-        for (let i = 1; i <= n; i++) {
-            // Vypočítáme pozici každého prvku
-            let position = ((i - 1) * (90 - 2 * margin) / (n - 1)) + margin;
-            positions.push(String(position + 10));
-        }
-
-        return positions;
     }
 
     resize() {

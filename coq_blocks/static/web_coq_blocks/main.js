@@ -1,6 +1,4 @@
 import { AppState } from "./AppState.js";
-import { Block } from "./Block.js";
-import SnapManager from "./SnapManager.js";
 import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";
 import UIController from "./UIController.js";
@@ -38,6 +36,10 @@ document.getElementById("manualBtn").addEventListener("click", () => {
 // Export button
 document.getElementById("exportBtn").addEventListener("click", () => {
     coqExporter.export();
+});
+
+document.getElementById("newDefBtn").addEventListener("click", () => {
+    blockFactory.createDefinitionBlock();
 });
 
 // -----------------------------------

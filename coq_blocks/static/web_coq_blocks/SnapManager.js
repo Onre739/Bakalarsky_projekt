@@ -1,45 +1,47 @@
 import { AppState } from "./AppState.js";
-import BlockFactory from "./BlockFactory.js";
-import { Block } from "./Block.js";
+import { ConstructorBlock } from "./Block.js";
 export default class SnapManager {
     // Unifikování přístupu, přístup k elementům pouze přes AppState.blockObjects -> .element
 
-    updateSnapTargets(movedBlockEl) {
-        // Zisk block objektu z id elementu
-        let movedBlockObject = BlockFactory.getBlockObjFromId(movedBlockEl.id);
-        let requiredType = movedBlockObject.dotObject.type;
-        console.log("Required type:", requiredType);
-
+    updateSnapTargets(movedBlockObject) {
         // Dynamicky aktualizovat snap body
         AppState.snapTargets.length = 0;
 
-        AppState.blockObjects.forEach((blockObject) => {
-            let blockElement = blockObject.element;
+        if (movedBlockObject instanceof ConstructorBlock) {
 
-            // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
-            if (blockElement) {
-                let plugObjects = blockObject.plugObjects;
+            // Zisk block objektu z id elementu
+            let requiredType = movedBlockObject.dotObject.type;
+            console.log("Required type:", requiredType);
 
-                plugObjects.forEach((plugObject, i) => {
-                    let plugElement = $(plugObject.element); // JQUERY element pro .offset()
+            AppState.blockObjects.forEach((blockObject) => {
+                let blockElement = blockObject.element;
 
-                    let plugType = plugObject.type;
-                    let plugOffset = plugElement.offset();
+                // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
+                if (blockElement) {
+                    let plugObjects = blockObject.plugObjects;
 
-                    // console.log(requiredType + "-vs-" + plugType);
-                    // if (plugType === requiredType) {
-                    AppState.snapTargets.push({
-                        x: plugOffset.left + plugElement.width() - 1,
-                        y: plugOffset.top + plugElement.height() / 2 + 2,
-                        block: blockObject,
-                        plug: plugObject,
-                        // Log snap targetů, pro koho jsou (posledně pohnutý block)
-                        for: movedBlockObject
+                    plugObjects.forEach((plugObject) => {
+                        let plugElement = $(plugObject.element); // JQUERY element pro .offset()
+
+                        let plugType = plugObject.type;
+                        let plugOffset = plugElement.offset();
+
+                        // console.log(requiredType + "-vs-" + plugType);
+                        // if (plugType === requiredType) {
+                        AppState.snapTargets.push({
+                            x: plugOffset.left + plugElement.width() - 1,
+                            y: plugOffset.top + plugElement.height() / 2 + 2,
+                            block: blockObject,
+                            plug: plugObject,
+                            // Log snap targetů, pro koho jsou (posledně pohnutý block)
+                            for: movedBlockObject
+                        });
+                        // }
                     });
-                    // }
-                });
-            }
-        });
+                }
+            });
+        }
+
     }
 
     checkForSnap() { // Kontrola které bloky jsou snapnuty
@@ -99,8 +101,16 @@ export default class SnapManager {
         const resizeParents = (block, heightValue) => {
             // Pokud block nemá jen 1 plug
             if (block.plugsCount !== 1) {
+
+                // Při různém zoomu stránky se mění velikost borderu!!!
+                // offsetHeight zahrnuje obsah + padding + border, proto odečítám border
+                let style = getComputedStyle(block.element);
+                let borderTop = parseFloat(style.borderTopWidth);
+                let borderBottom = parseFloat(style.borderBottomWidth);
+                let borderSize = borderTop + borderBottom;
+
                 block.element.style.height =
-                    `${block.element.offsetHeight - AppState.borderSize + heightValue}px`;
+                    `${block.element.offsetHeight - borderSize + heightValue}px`;
             }
             let snap = AppState.snappedBlocks.find(s => s.child === block);
             if (snap) resizeParents(snap.parent, heightValue); // rekurze
