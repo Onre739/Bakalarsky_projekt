@@ -43,6 +43,15 @@ export default class UIController {
                     let target = event.target;
                     target.style.zIndex = AppState.zIndexCount;
                     AppState.zIndexCount += 1;
+
+                    // Najít BlockObject podle target elementu
+                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
+                    if (movedBlockObject) {
+                        // Nové snap targety
+                        this.snapManager.updateSnapTargets(movedBlockObject);
+                        console.log("Updated snap targets:", AppState.snapTargets);
+                    }
+                    else console.log("Moved block not found in AppState");
                 },
 
                 move: (event) => {
@@ -54,40 +63,6 @@ export default class UIController {
                     target.style.transform = `translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
-
-                    // Log pro nové pozice
-                    // console.log(" ------------------ MOVE ------------------ ");
-                    // console.log("new X: " + x + ", Y: " + y +
-                    //     ", X+DiffLeft: " + String(Number(x + AppState.docGroundDiffLeft)) +
-                    //     ", Y+DiffTop: " + String(Number(y + AppState.docGroundDiffTop)));
-                    // console.log("Position of DOT X: " + String(Number(x + AppState.docGroundDiffLeft)) +
-                    //     ", Y: " + String(Number(y + AppState.docGroundDiffTop + target.offsetHeight / 2)));
-
-                    // Dynamická aktualizace snap targets
-                    // Je to kvůli snapu sám na sebe, takhle se mění snap pozice vždy s pohybem
-                    // Šlo by to bez toho s tím že zakážu snap sám na sebe ?????
-
-                    // Najít BlockObject podle target elementu
-                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
-                    if (movedBlockObject) {
-                        this.snapManager.updateSnapTargets(movedBlockObject);
-                        console.log("Updated snap targets:", AppState.snapTargets);
-                    }
-                    else console.log("Moved block not found in AppState");
-
-                    interact('.draggable').draggable({
-                        modifiers: [
-                            interact.modifiers.snap({
-                                targets: AppState.snapTargets, // Nové nastavení snapTargets
-                                range: 30,
-                                relativePoints: [{ x: 0, y: AppState.plugInBlockPos }]
-                            }),
-                            interact.modifiers.restrictRect({
-                                restriction: 'document',
-                                endOnly: true
-                            })
-                        ]
-                    });
                 },
 
                 end: (event) => {
@@ -169,6 +144,15 @@ export default class UIController {
                     let target = event.target;
                     target.style.zIndex = AppState.zIndexCount;
                     AppState.zIndexCount += 1;
+
+                    // Najít BlockObject podle target elementu
+                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
+                    if (movedBlockObject) {
+                        // Najít snap targety
+                        this.snapManager.updateSnapTargets(movedBlockObject);
+                        console.log("Updated snap targets:", AppState.snapTargets);
+                    }
+                    else console.log("Moved block not found in AppState");
                 },
 
                 move: (event) => {
@@ -180,41 +164,6 @@ export default class UIController {
                     target.style.transform = `translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
-
-                    // Log pro nové pozice
-                    // console.log(" ------------------ MOVE ------------------ ");
-                    // console.log("new X: " + x + ", Y: " + y +
-                    //     ", X+DiffLeft: " + String(Number(x + AppState.docGroundDiffLeft)) +
-                    //     ", Y+DiffTop: " + String(Number(y + AppState.docGroundDiffTop)));
-                    // console.log("Position of DOT X: " + String(Number(x + AppState.docGroundDiffLeft)) +
-                    //     ", Y: " + String(Number(y + AppState.docGroundDiffTop + target.offsetHeight / 2)));
-
-                    // Dynamická aktualizace snap targets
-                    // Je to kvůli snapu sám na sebe, takhle se mění snap pozice vždy s pohybem
-                    // Šlo by to bez toho s tím že zakážu snap sám na sebe ?????
-
-                    // Najít BlockObject podle target elementu
-                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
-                    if (movedBlockObject) {
-                        this.snapManager.updateSnapTargets(movedBlockObject);
-                        console.log("Updated snap targets:", AppState.snapTargets);
-                    }
-                    else console.log("Moved block not found in AppState");
-
-
-                    interact('.draggable').draggable({
-                        modifiers: [
-                            interact.modifiers.snap({
-                                targets: AppState.snapTargets, // Nové nastavení snapTargets
-                                range: 30,
-                                relativePoints: [{ x: 0, y: AppState.plugInBlockPos }]
-                            }),
-                            interact.modifiers.restrictRect({
-                                restriction: 'document',
-                                endOnly: true
-                            })
-                        ]
-                    });
                 },
 
                 end: (event) => {
@@ -302,10 +251,13 @@ export default class UIController {
             s => s.parent !== block && s.child !== block
         );
 
-        // 4) případně přepočítat snapTargets
-        AppState.snapTargets = AppState.snapTargets.filter(
-            t => t.block !== block && t.plug.parentBlock !== block
-        );
+        // DŮLEŽITÉ !!!
+        // - NESMÍŠ VYTVÁŘET NOVÝ AppState.snapTargets !!! PROTOŽE ZTRATÍŠ REFERENCI PRO INTERACT JS
+
+        // // 4) případně přepočítat snapTargets
+        // AppState.snapTargets = AppState.snapTargets.filter(
+        //     t => t.block !== block && t.plug.parentBlock !== block
+        // );
 
         AppState.orderedSnappedBlocks = AppState.orderedSnappedBlocks.filter(
             b => b !== block

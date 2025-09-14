@@ -7,6 +7,7 @@ export default class SnapManager {
         // Dynamicky aktualizovat snap body
         AppState.snapTargets.length = 0;
 
+        // Konstructor block se nemůže snapovat
         if (movedBlockObject instanceof ConstructorBlock) {
 
             // Zisk block objektu z id elementu
@@ -14,31 +15,36 @@ export default class SnapManager {
             console.log("Required type:", requiredType);
 
             AppState.blockObjects.forEach((blockObject) => {
-                let blockElement = blockObject.element;
 
-                // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
-                if (blockElement) {
-                    let plugObjects = blockObject.plugObjects;
+                // Zákaz snapu sám na sebe
+                if (blockObject != movedBlockObject) {
+                    let blockElement = blockObject.element;
 
-                    plugObjects.forEach((plugObject) => {
-                        let plugElement = $(plugObject.element); // JQUERY element pro .offset()
+                    // Zkontrolovat, zda první potomek existuje a má třídu 'block-plug'
+                    if (blockElement) {
+                        let plugObjects = blockObject.plugObjects;
 
-                        let plugType = plugObject.type;
-                        let plugOffset = plugElement.offset();
+                        plugObjects.forEach((plugObject) => {
+                            let plugElement = $(plugObject.element); // JQUERY element pro .offset()
 
-                        // console.log(requiredType + "-vs-" + plugType);
-                        // if (plugType === requiredType) {
-                        AppState.snapTargets.push({
-                            x: plugOffset.left + plugElement.width() - 1,
-                            y: plugOffset.top + plugElement.height() / 2 + 2,
-                            block: blockObject,
-                            plug: plugObject,
-                            // Log snap targetů, pro koho jsou (posledně pohnutý block)
-                            for: movedBlockObject
+                            let plugType = plugObject.type;
+                            let plugOffset = plugElement.offset();
+
+                            // console.log(requiredType + "-vs-" + plugType);
+                            // if (plugType === requiredType) {
+                            AppState.snapTargets.push({
+                                x: plugOffset.left + plugElement.width() - 1,
+                                y: plugOffset.top + plugElement.height() / 2 + 2,
+                                block: blockObject,
+                                plug: plugObject,
+                                // Log snap targetů, pro koho jsou (posledně pohnutý block)
+                                for: movedBlockObject
+                            });
+                            // }
                         });
-                        // }
-                    });
+                    }
                 }
+
             });
         }
 
