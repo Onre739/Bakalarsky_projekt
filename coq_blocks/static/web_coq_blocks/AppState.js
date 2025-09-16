@@ -1,4 +1,5 @@
 
+// Návrhový vzor Singleton
 export const AppState = {
     blockCount: 0,
     typeCount: 0,
@@ -11,10 +12,18 @@ export const AppState = {
     blockObjects: [],
     hypothesisObjects: [],
 
+    // Pole možných snapů pro dragovaný blok: x, y, block, plug, for
     snapTargets: [],
+
+    // Pole snapnutých bloků: parent, plugIndex, plug, child
     snappedBlocks: [],
+
+    // Pole seřazených snapnutých bloků pro zvětšování a zmenšování, NEJSOU SEŘAZENY PODLE PLUGŮ !!! (1,2,...)
     orderedSnappedBlocks: [],
+
+    // Pole předchozích snapnutých bloků, pro zjištění rozdílu / změny
     previousSnappedBlocks: [],
+
     zIndexCount: 1,
 
     // Rozdíl mezi pozicí 0,0 stránky a 0,0 ground elementu, protože interact.js bere 0,0 z groundu

@@ -97,9 +97,10 @@ class BaseBlock {
 }
 
 export class DefinitionBlock extends BaseBlock {
-    constructor() {
+    constructor(varName) {
         super("block:" + AppState.blockCount, "rgb(128, 128, 128)");
         this.plugObjects = [];
+        this.varName = varName; // Název proměnné pro definici: Definition a: nat := ......
     }
 
     createElement() {

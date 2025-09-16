@@ -29,8 +29,9 @@ export default class BlockFactory {
 
     createDefinitionBlock() {
 
+        let varName = "a";
 
-        let newBlockObj = new DefinitionBlock();
+        let newBlockObj = new DefinitionBlock(varName);
         newBlockObj.createElement();
         AppState.blockObjects.push(newBlockObj);
     }
