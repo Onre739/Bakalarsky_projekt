@@ -1,4 +1,5 @@
 import { AppState } from "./AppState.js";
+import { ConstructorBlock } from "./Block.js";
 import SnapManager from "./SnapManager.js";
 
 export default class UIController {
@@ -156,10 +157,12 @@ export default class UIController {
                 },
 
                 move: (event) => {
+                    // DŮLEŽITÉ, x a y se počítají od GROUND ELEMENTU !! ne od začátku dokumentu
                     let target = event.target;
                     let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
+                    console.log("Curr x y: ", x, y);
                     // Zapsání změny pozice
                     target.style.transform = `translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);
@@ -188,7 +191,7 @@ export default class UIController {
                 interact.modifiers.snap({
                     targets: AppState.snapTargets,
                     range: 30,
-                    relativePoints: [{ x: 0, y: AppState.plugInBlockPos }]
+                    relativePoints: [{ x: 0, y: AppState.plugInBlockPos }] // Pozice i s borderem
                 }),
                 interact.modifiers.restrictRect({
                     restriction: 'document',

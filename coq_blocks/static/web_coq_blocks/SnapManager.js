@@ -25,18 +25,23 @@ export default class SnapManager {
                         let plugObjects = blockObject.plugObjects;
 
                         plugObjects.forEach((plugObject) => {
-                            let plugElement = $(plugObject.element); // JQUERY element pro .offset()
-
                             let plugType = plugObject.type;
-                            let plugOffset = plugElement.offset();
+
+                            let plugEl = plugObject.element;
+                            let rect = plugEl.getBoundingClientRect();
 
                             // console.log(requiredType + "-vs-" + plugType);
                             // if (plugType === requiredType) {
                             AppState.snapTargets.push({
-                                x: plugOffset.left + plugElement.width() - 1,
-                                y: plugOffset.top + plugElement.height() / 2 + 2,
+
+                                // getBoundingClientRect() dává souřadnice vůči viewportu (oknu)
+                                // Pro absolutními souřadnice v dokumentu se musí přičíst scroll offset
+                                x: rect.left + rect.width + window.scrollX - 3,
+                                y: rect.top + rect.height / 2 + window.scrollY,
+
                                 block: blockObject,
                                 plug: plugObject,
+
                                 // Log snap targetů, pro koho jsou (posledně pohnutý block)
                                 for: movedBlockObject
                             });
@@ -60,14 +65,28 @@ export default class SnapManager {
 
         // Kontrola pozic každého bloku se snap pozicemi
         blockObjects.forEach(blockObject => {
-            let blockOffset = $(blockObject.element).offset();
+            let rect = blockObject.element.getBoundingClientRect();
+            let blockLeft = rect.left + window.scrollX;
+            let blockTop = rect.top + window.scrollY;
+            let blockHeight = rect.height;
+
+            console.log("xxx: ", blockLeft);
+            console.log("yyy: ", blockTop);
+
             AppState.snapTargets.forEach(snapTarget => {
-                let deltaX = Math.abs(snapTarget.x - blockOffset.left);
-                let deltaY = Math.abs(snapTarget.y - (blockOffset.top + $(blockObject.element).height() * AppState.plugInBlockPos));
+                let deltaX = Math.abs(snapTarget.x - blockLeft);
+                let deltaY = Math.abs(snapTarget.y - (blockTop + blockHeight * AppState.plugInBlockPos));
+
                 if (deltaX < 4 && deltaY < 4) { // tolerance 4 px
                     console.log("delta: " + deltaX + ", " + deltaY);
                     let plugObject = snapTarget.plug;
-                    AppState.snappedBlocks.push({ parent: snapTarget.block, plugIndex: plugObject.index, plug: plugObject, child: blockObject });
+
+                    AppState.snappedBlocks.push({
+                        parent: snapTarget.block,
+                        plugIndex: plugObject.index,
+                        plug: plugObject,
+                        child: blockObject
+                    });
                 }
             });
         });
@@ -110,13 +129,8 @@ export default class SnapManager {
 
                 // Při různém zoomu stránky se mění velikost borderu!!!
                 // offsetHeight zahrnuje obsah + padding + border, proto odečítám border
-                let style = getComputedStyle(block.element);
-                let borderTop = parseFloat(style.borderTopWidth);
-                let borderBottom = parseFloat(style.borderBottomWidth);
-                let borderSize = borderTop + borderBottom;
-
                 block.element.style.height =
-                    `${block.element.offsetHeight - borderSize + heightValue}px`;
+                    `${block.element.offsetHeight + heightValue}px`;
             }
             let snap = AppState.snappedBlocks.find(s => s.child === block);
             if (snap) resizeParents(snap.parent, heightValue); // rekurze
@@ -127,13 +141,31 @@ export default class SnapManager {
         const setNewPosition = () => {
             AppState.orderedSnappedBlocks.forEach((snappedDef) => {
                 snappedDef.forEach((snappedBlock) => {
-                    // Zisk pozice plugu pro novou pozici child bloku
-                    let currentPlugEl = $(snappedBlock.plug.element);
-                    let currentPlugElOffset = currentPlugEl.offset();
 
-                    // Aktualizace pozice potomka
-                    let x = currentPlugElOffset.left + currentPlugEl.width() - AppState.docGroundDiffLeft - 1;
-                    let y = currentPlugElOffset.top + currentPlugEl.height() / 2 - snappedBlock.child.element.offsetHeight * AppState.plugInBlockPos - AppState.docGroundDiffTop + 2;
+                    // Zisk pozice plugu pro novou pozici child bloku
+                    let plugEl = snappedBlock.plug.element;
+
+                    let plugRect = plugEl.getBoundingClientRect();
+                    let plugLeft = plugRect.left + window.scrollX;
+                    let plugTop = plugRect.top + window.scrollY;
+                    let plugWidth = plugRect.width;
+                    let plugHeight = plugRect.height;
+
+                    // Rozdíl mezi pozicí 0,0 stránky a 0,0 ground elementu, protože interact.js bere 0,0 z groundu
+                    // getBoundingClientRect je pozice před borderem a paddingem -> proto je musím přičíst
+                    let groundEl = document.getElementById("ground");
+                    let groundRect = groundEl.getBoundingClientRect();
+                    let groundStyle = getComputedStyle(groundEl);
+
+                    let docGroundDiffLeft = groundRect.left + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
+                    let docGroundDiffTop = groundRect.top + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
+
+                    // Nová pozice child bloku
+                    let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
+                    let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * AppState.plugInBlockPos - docGroundDiffTop;
+
+                    console.log("AAAAAA: ", snappedBlock.child.element.offsetHeight);
+                    console.log("new x y: ", x, y);
 
                     snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
                     snappedBlock.child.element.setAttribute('data-x', x);
@@ -150,7 +182,7 @@ export default class SnapManager {
 
             let parentCurr = uniqueCurr[0].parent;
             let childCurr = uniqueCurr[0].child;
-            let heightValueCurr = childCurr.height;
+            let heightValueCurr = childCurr.element.offsetHeight;
 
             // Změna velikosti snapnutých bloků
             resizeParents(parentCurr, +heightValueCurr);
@@ -168,7 +200,7 @@ export default class SnapManager {
 
             let parentPrev = uniquePrev[0].parent;
             let childPrev = uniquePrev[0].child;
-            let heightValuePrev = childPrev.height;
+            let heightValuePrev = childPrev.element.offsetHeight;
 
             // Změna velikosti snapnutých bloků
             resizeParents(parentPrev, -heightValuePrev);
@@ -192,11 +224,11 @@ export default class SnapManager {
 
             let parentCurr = uniqueCurr[0].parent;
             let childCurr = uniqueCurr[0].child;
-            let heightValueCurr = childCurr.height;
+            let heightValueCurr = childCurr.element.offsetHeight;
 
             let parentPrev = uniquePrev[0].parent;
             let childPrev = uniquePrev[0].child;
-            let heightValuePrev = childPrev.height;
+            let heightValuePrev = childPrev.element.offsetHeight;
 
             // Prvně zmenšení původních bloků, proto použiju previousSnappedBlocks
             resizeParents(parentPrev, -heightValuePrev);

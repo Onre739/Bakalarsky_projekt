@@ -31,6 +31,8 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
+    /* polovina šířky kruhu */
+    transform: translateY(-50%);
 }
 
 .block-plug {
@@ -39,8 +41,6 @@
     background-color: #ffffff;
     top: 50%;
     right: -5px;
-    /* polovina šířky kruhu */
-    transform: translateY(-50%);
 }
 
 .block-dot {
@@ -50,9 +50,7 @@
     border: 2px solid;
     border-right-color: transparent;
     top: 60%;
-    left: -30px;
-    /* polovina šířky kruhu */
-    transform: translateY(-50%);
+    left: -28px;
 }
 
 /* .definition {

@@ -23,6 +23,7 @@ class Dot {
         dotLabel.innerText = this.type;
         dotLabel.style.position = "absolute";
         dotLabel.style.left = "25px";
+        dotLabel.style.top = "0";
 
         this.dotLabelWidth = dotLabel.offsetWidth;
 
@@ -52,7 +53,7 @@ class Plug {
         typeLabel.innerText = this.type;
         typeLabel.style.position = "absolute";
         typeLabel.style.right = "120%";
-        typeLabel.style.top = "5px";
+        typeLabel.style.top = "2px";
 
         this.width = typeLabel.offsetWidth + plug.offsetWidth;
 
@@ -153,7 +154,6 @@ export class ConstructorBlock extends BaseBlock {
         this.typeParameters = type_parameters; // Parametry datového typu
         this.constructorParameters = constructor.parameters; // Parametry konstruktoru
         this.blockName = type_name + "\u00A0:\u00A0" + constructor.name; // Název celého bloku
-        this.height = 0;
 
         // Pokud má konstruktor hodnotu type, tak jde o konstruktor explicitním návratovým dat. typem, jinak se vždy vrací název datového typu
         // + kontrola jestli je typ složen t 1 nebo 2 slov
@@ -200,7 +200,7 @@ export class ConstructorBlock extends BaseBlock {
         let blockNameEl = document.createElement("div");
         blockNameEl.setAttribute("class", "blockName");
         blockNameEl.style.position = "absolute";
-        blockNameEl.style.top = "10px";
+        blockNameEl.style.top = "6px";
         blockNameEl.style.left = "40px";
         blockNameEl.style.fontWeight = "bold";
         blockNameEl.innerText = this.blockName;
@@ -265,8 +265,6 @@ export class ConstructorBlock extends BaseBlock {
         else {
             newBlock.style.height = String(this.plugsCount * 50 + 20) + "px";
         }
-
-        this.height = this.element.offsetHeight;
 
     }
 
