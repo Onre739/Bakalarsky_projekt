@@ -2,7 +2,7 @@ import { AppState } from "./AppState.js";
 import { DefinitionBlock } from "./Block.js";
 
 
-export class COQExporter {
+export default class COQExporter {
     constructor() {
     }
 

@@ -8,7 +8,7 @@ export default class UIController {
     }
 
     switchToAutomatic() {
-        document.getElementById("resizeHeader").innerText = "Automatic Resize";
+        document.getElementById("resizeHeader").innerText = "Resize mode: Automatic";
         AppState.resizeMode = "Auto";
         console.log(AppState.resizeMode);
 
@@ -22,7 +22,7 @@ export default class UIController {
     }
 
     switchToManual() {
-        document.getElementById("resizeHeader").innerText = "Manual Resize";
+        document.getElementById("resizeHeader").innerText = "Resize mode: Manual";
         AppState.resizeMode = "Manual";
         console.log(AppState.resizeMode);
 

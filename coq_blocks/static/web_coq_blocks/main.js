@@ -2,13 +2,15 @@ import { AppState } from "./AppState.js";
 import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";
 import UIController from "./UIController.js";
-import { COQExporter } from "./COQExporter.js";
+import COQExporter from "./COQExporter.js";
+import SavedTypeManager from "./savedTypeManager.js";
 
 console.log("GROUND OFFSET: " + $("#ground").offset().left + ", " + $("#ground").offset().top);
 var uiController = new UIController();
 var definitionLoader = new DefinitionLoader();
 var blockFactory = new BlockFactory();
 var coqExporter = new COQExporter();
+var savedTypeManager = new SavedTypeManager();
 
 // ------------ Listeneři ------------
 
@@ -18,10 +20,13 @@ document.getElementById("loadBtn").addEventListener("click", async () => {
     var data = await definitionLoader.load();
     console.log("Dataaaa: ", data);
 
+    // Odeslání dat
+    savedTypeManager.getData(data);
+
     // Tvorba bloků
-    blockFactory.createBlock(data);
-    uiController.deleteButtonsControl();
-    console.log("Block objects: ", AppState.blockObjects);
+    // blockFactory.createBlock(data);
+    // uiController.deleteButtonsControl();
+    // console.log("Block objects: ", AppState.blockObjects);
 });
 
 // Tlačítka pro změnu režimu
@@ -43,6 +48,9 @@ document.getElementById("newDefBtn").addEventListener("click", () => {
 });
 
 // -----------------------------------
+
+// Vykreslení uložených typů
+savedTypeManager.printList();
 
 // Drag controll
 switch (AppState.resizeMode) {

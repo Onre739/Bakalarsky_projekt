@@ -26,9 +26,12 @@ export const AppState = {
 
     zIndexCount: 1,
 
+    // Uložené definice bloků pro spawn
+    savedBlockDefinitions: [],
+
     // Rozdíl mezi pozicí 0,0 stránky a 0,0 ground elementu, protože interact.js bere 0,0 z groundu
-    docGroundDiffLeft: $("#ground").offset().left,
-    docGroundDiffTop: $("#ground").offset().top,
+    // docGroundDiffLeft: $("#ground").offset().left,
+    // docGroundDiffTop: $("#ground").offset().top,
 
     // Při různém zoomu stránky se mění velikost borderu !!! Počítám velikost podle Definition bloku
     //borderSize: $(".definition").get(0).getBoundingClientRect().width - $(".definition").get(0).clientWidth,

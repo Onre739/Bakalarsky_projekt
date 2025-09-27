@@ -53,10 +53,8 @@
     left: -28px;
 }
 
-/* .definition {
-    width: 200px;
-    height: 100px;
-    background-color: rgb(128, 128, 128);
-    font-weight: bold;
-    font-size: large;
-} */
+#accordionSetting {
+    position: absolute;
+    bottom: 0;
+    width: 94%;
+}
