@@ -28,11 +28,11 @@ def new_definition(request):
     elif request.method == 'POST':
         # Zpracování dat a volání funkce main
         try:
-            text_data = request.body.decode('utf-8')
-            print("Text data: ", text_data)
+            textData = request.body.decode('utf-8')
+            print("Text data: ", textData)
 
             # Vrací pole hypotéz a nových typů (objektů) 
-            ObjResponse = COQMain.main(text_data)
+            ObjResponse = COQMain.main(textData)
 
             hypothesis = []
             newTypes = []
@@ -43,17 +43,17 @@ def new_definition(request):
                     newTypes.append(obj)
 
             # Převod python objektu na JSON objekt/slovník
-            hypothesis_data = HypothesisSerializer(hypothesis, many=True).data
-            new_types_data = NewTypeSerializer(newTypes, many=True).data
+            hypothesisData = HypothesisSerializer(hypothesis, many=True).data
+            newTypesData = NewTypeSerializer(newTypes, many=True).data
 
             # Spojení 2 JSONů
-            json_response = {
-                "hypothesis": hypothesis_data,
-                "new_types": new_types_data
+            jsonResponse = {
+                "hypothesis": hypothesisData,
+                "newTypes": newTypesData
             }
 
             # Vracím přímo JSON slovník a ne JSON string bo to dělá Django automaticky
-            return Response(json_response, content_type='application/json', status=status.HTTP_201_CREATED)
+            return Response(jsonResponse, content_type='application/json', status=status.HTTP_201_CREATED)
         
         except Exception as e:
             import traceback

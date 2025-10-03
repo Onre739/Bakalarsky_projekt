@@ -99,7 +99,7 @@ class BaseBlock {
 
 export class DefinitionBlock extends BaseBlock {
     constructor(varName) {
-        super("block:" + AppState.blockCount, "rgb(128, 128, 128)");
+        super(`defBlock:${AppState.definitionBlockCount}`, "rgb(128, 128, 128)");
         this.plugObjects = [];
         this.varName = varName; // Název proměnné pro definici: Definition a: nat := ......
     }
@@ -146,19 +146,19 @@ export class DefinitionBlock extends BaseBlock {
 }
 
 export class ConstructorBlock extends BaseBlock {
-    constructor(constructor, type_name, type_parameters) {
-        super("block:" + AppState.blockCount, AppState.blockColors[AppState.typeCount % AppState.blockColors.length]);
+    constructor(constructor, typeName, typeParameters, id) {
+        super(`${id}:${AppState.typeBlockCount.get(id)}`, AppState.blockColors[0]);
 
-        this.typeName = type_name; // Název datového typu
+        this.typeName = typeName; // Název datového typu
         this.constructorName = constructor.name; // Název konstruktoru
-        this.typeParameters = type_parameters; // Parametry datového typu
+        this.typeParameters = typeParameters; // Parametry datového typu
         this.constructorParameters = constructor.parameters; // Parametry konstruktoru
-        this.blockName = type_name + "\u00A0:\u00A0" + constructor.name; // Název celého bloku
+        this.blockName = typeName + "\u00A0:\u00A0" + constructor.name; // Název celého bloku
 
         // Pokud má konstruktor hodnotu type, tak jde o konstruktor explicitním návratovým dat. typem, jinak se vždy vrací název datového typu
         // + kontrola jestli je typ složen t 1 nebo 2 slov
         this.returnType = "type" in constructor ?
-            (constructor.type.length == 2 ? constructor.type[0] + "\u00A0" + constructor.type[1] : constructor.type[0]) : (type_name);
+            (constructor.type.length == 2 ? constructor.type[0] + "\u00A0" + constructor.type[1] : constructor.type[0]) : (typeName);
 
         // Má konstruktor explicitní datový typ?
         this.explicitConstructorType = "type" in constructor ? true : false;
@@ -249,8 +249,6 @@ export class ConstructorBlock extends BaseBlock {
             };
 
         });
-
-        AppState.blockCount += 1;
 
         // Pokud má blok 1 plug, tak se nezvětšuje
         if (this.plugsCount == 1) {

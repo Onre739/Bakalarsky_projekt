@@ -1,8 +1,11 @@
 
 // Návrhový vzor Singleton
 export const AppState = {
-    blockCount: 0,
-    typeCount: 0,
+    // Počet typů a jeho bloků pomocí Map.set(), get(), has(), delete()
+    typeBlockCount: new Map(),
+
+    // Počet bloků definic
+    definitionBlockCount: 0,
 
     // zparsovaná (raw) data z DefinitionLoader.js, teď to nikde nepoužívám 
     rawContructors: [],

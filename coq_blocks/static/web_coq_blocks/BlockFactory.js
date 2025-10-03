@@ -3,28 +3,16 @@ import { ConstructorBlock, DefinitionBlock } from "./Block.js";
 
 export default class BlockFactory {
 
-    createBlock(data) {
+    createBlock(newConstructor, typeName, typeParameters, id) {
 
-        data.new_types.forEach((newType) => {
-            let type_name = newType.name;
-            let type_parameters = newType.type_parameters;
-            let explicit_constructors = newType.explicit_constructors;
-            let implicit_constructors = newType.implicit_constructors;
+        let newBlockObj = new ConstructorBlock(newConstructor, typeName, typeParameters, id);
+        newBlockObj.createElement();
+        AppState.blockObjects.push(newBlockObj);
+        let blockCount = AppState.typeBlockCount.has(id) ? AppState.typeBlockCount.get(id) : -1;
 
-            // Ternární operátor
-            let constructors = explicit_constructors.length > implicit_constructors.length ? explicit_constructors : implicit_constructors
-
-            constructors.forEach((newConstructor) => {
-                let newBlockObj = new ConstructorBlock(newConstructor, type_name, type_parameters);
-                newBlockObj.createElement();
-                AppState.blockObjects.push(newBlockObj);
-
-            });
-            AppState.typeCount += 1;
-        });
-
-        // přidání snap pozice
-        // updateSnapTargets();
+        // Kontrola existence záznamu o typu
+        if (blockCount >= 0) AppState.typeBlockCount.set(id, blockCount + 1);
+        else console.error(`There is no record for id ${id}!`);
     }
 
     createDefinitionBlock() {
@@ -34,6 +22,8 @@ export default class BlockFactory {
         let newBlockObj = new DefinitionBlock(varName);
         newBlockObj.createElement();
         AppState.blockObjects.push(newBlockObj);
+
+        AppState.definitionBlockCount += 1;
     }
 
 }

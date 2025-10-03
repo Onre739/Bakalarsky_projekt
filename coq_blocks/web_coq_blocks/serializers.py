@@ -18,9 +18,9 @@ class ImplicitConstructorSerializer(serializers.Serializer):
 
 class NewTypeSerializer(serializers.Serializer):
     name = serializers.CharField()
-    type_parameters = ExplicitParameterSerializer(many=True)
-    explicit_constructors = ExplicitConstructorSerializer(many=True, required=False)
-    implicit_constructors = ImplicitConstructorSerializer(many=True, required=False)
+    typeParameters = ExplicitParameterSerializer(many=True)
+    explicitConstructors = ExplicitConstructorSerializer(many=True, required=False)
+    implicitConstructors = ImplicitConstructorSerializer(many=True, required=False)
 
 class HypothesisSerializer(serializers.Serializer):
     name = serializers.CharField()

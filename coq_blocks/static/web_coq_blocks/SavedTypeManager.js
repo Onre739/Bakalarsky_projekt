@@ -1,35 +1,14 @@
-
+import { AppState } from "./AppState.js";
+import BlockFactory from "./BlockFactory.js";
 
 export default class SavedTypeManager {
     constructor() {
-
+        this.blockFactory = new BlockFactory();
     }
 
     getData(data) {
-
-        data.new_types.forEach((newType) => {
-
+        data.newTypes.forEach((newType) => {
             this.addItem(newType);
-
-
-
-
-
-            // let type_name = newType.name;
-            // let type_parameters = newType.type_parameters;
-            // let explicit_constructors = newType.explicit_constructors;
-            // let implicit_constructors = newType.implicit_constructors;
-
-            // // Ternární operátor
-            // let constructors = explicit_constructors.length > implicit_constructors.length ? explicit_constructors : implicit_constructors
-
-            // constructors.forEach((newConstructor) => {
-            //     let newBlockObj = new ConstructorBlock(newConstructor, type_name, type_parameters);
-            //     newBlockObj.createElement();
-            //     AppState.blockObjects.push(newBlockObj);
-
-            // });
-            // AppState.typeCount += 1;
         });
 
         this.printList();
@@ -39,15 +18,15 @@ export default class SavedTypeManager {
     printList() {
         let data = this.getAllItems();
         let typeListEl = document.getElementById("savedTypesList");
-        //typeListEl.children = 0;
+        typeListEl.innerHTML = "";
 
         data.forEach(val => {
             // Hodnoty
             let newTypeObj = val.type;
             let typeName = newTypeObj.name;
-            let typeParameters = newTypeObj.type_parameters;
-            let explicitConstructors = newTypeObj.explicit_constructors;
-            let implicitConstructors = newTypeObj.implicit_constructors;
+            let typeParameters = newTypeObj.typeParameters;
+            let explicitConstructors = newTypeObj.explicitConstructors;
+            let implicitConstructors = newTypeObj.implicitConstructors;
 
             // Ternární operátor
             let constructors = explicitConstructors.length > implicitConstructors.length ? explicitConstructors : implicitConstructors
@@ -61,13 +40,13 @@ export default class SavedTypeManager {
             let contentEl = document.createElement("div");
             typeEl.appendChild(headerEl);
             typeEl.appendChild(contentEl);
-            headerEl.setAttribute("class", "accordion-header d-flex");
+            headerEl.setAttribute("class", "accordion-header d-flex bg-success-subtle");
             contentEl.setAttribute("class", "accordion-collapse collapse");
             contentEl.setAttribute("id", val.id);
 
             let headerButtonEl = document.createElement("button");
             headerEl.appendChild(headerButtonEl);
-            headerButtonEl.setAttribute("class", "accordion-button bg-success-subtle");
+            headerButtonEl.setAttribute("class", "accordion-button collapsed bg-success-subtle px-2 py-1");
             headerButtonEl.setAttribute("data-bs-toggle", "collapse");
             headerButtonEl.setAttribute("data-bs-target", "#" + val.id);
             headerButtonEl.style.fontWeight = "bold";
@@ -79,12 +58,12 @@ export default class SavedTypeManager {
                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
                 </svg>`
             deleteBtnEl.setAttribute("class", "btn btn-danger btn-sm d-flex align-items-center mx-1 my-2");
-
+            deleteBtnEl.setAttribute("id", `delBtn:${val.id}`);
 
 
             let contentElBody = document.createElement("div");
             contentEl.appendChild(contentElBody);
-            contentElBody.setAttribute("class", "accordion-body");
+            contentElBody.setAttribute("class", "accordion-body p-0");
 
             let constructorListEl = document.createElement("ul");
             contentElBody.appendChild(constructorListEl);
@@ -93,7 +72,7 @@ export default class SavedTypeManager {
             constructors.forEach(constructor => {
                 let listItemEl = document.createElement("li");
                 constructorListEl.appendChild(listItemEl);
-                listItemEl.setAttribute("class", "list-group-item d-flex justify-content-between");
+                listItemEl.setAttribute("class", "list-group-item d-flex justify-content-between border-0 ");
 
                 let constructorNameEl = document.createElement("div");
                 listItemEl.appendChild(constructorNameEl)
@@ -107,11 +86,20 @@ export default class SavedTypeManager {
                 spawnBtnEl.setAttribute("class", "btn btn-success btn-sm d-flex align-items-center");
 
 
-
-
-
-
+                // Listeneři pro add
+                spawnBtnEl.addEventListener("click", () => {
+                    this.blockFactory.createBlock(constructor, typeName, typeParameters, val.id);
+                });
             });
+
+            // Listener pro delete
+            document.getElementById(`delBtn:${val.id}`).addEventListener("click", () => {
+                this.removeItem(val.id);
+                this.printList();
+            });
+
+            // Nový záznam pro počet bloků daného typu
+            AppState.typeBlockCount.set(val.id, 0);
 
         });
     }

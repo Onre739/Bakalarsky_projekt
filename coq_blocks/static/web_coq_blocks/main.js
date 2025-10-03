@@ -18,15 +18,10 @@ var savedTypeManager = new SavedTypeManager();
 document.getElementById("loadBtn").addEventListener("click", async () => {
     // Parsování a načtení dat z inputu
     var data = await definitionLoader.load();
-    console.log("Dataaaa: ", data);
+    console.log("Data: ", data);
 
     // Odeslání dat
     savedTypeManager.getData(data);
-
-    // Tvorba bloků
-    // blockFactory.createBlock(data);
-    // uiController.deleteButtonsControl();
-    // console.log("Block objects: ", AppState.blockObjects);
 });
 
 // Tlačítka pro změnu režimu

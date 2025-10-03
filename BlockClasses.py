@@ -74,36 +74,36 @@ class ImplicitConstructor:
         return f'ImplicitConstructor Name: {self.name}\n    Parameters: {params_str}'
 
 class NewType:
-    def __init__(self, name, type_parameters, implicit_constructors, explicit_constructors):
+    def __init__(self, name, typeParameters, implicitConstructors, explicitConstructors):
         self._name = name
-        self._type_parameters = type_parameters
-        self._implicit_constructors = implicit_constructors
-        self._explicit_constructors = explicit_constructors
+        self._typeParameters = typeParameters
+        self._implicitConstructors = implicitConstructors
+        self._explicitConstructors = explicitConstructors
 
     @property
     def name(self):
         return self._name
     
     @property
-    def type_parameters(self):
-        return self._type_parameters
+    def typeParameters(self):
+        return self._typeParameters
     
     @property
-    def implicit_constructors(self):
-        return self._implicit_constructors
+    def implicitConstructors(self):
+        return self._implicitConstructors
     
     @property
-    def explicit_constructors(self):
-        return self._explicit_constructors
+    def explicitConstructors(self):
+        return self._explicitConstructors
 
     def __str__(self):
-        type_params_str = '\n  '.join(str(tp) for tp in self.type_parameters)
-        impl_constructors_str = '\n  '.join(str(c) for c in self.implicit_constructors)
-        expl_constructors_str = '\n  '.join(str(c) for c in self.explicit_constructors)
+        typeParamsStr = '\n  '.join(str(tp) for tp in self.typeParameters)
+        implConstructorsStr = '\n  '.join(str(c) for c in self.implicitConstructors)
+        explConstructorsStr = '\n  '.join(str(c) for c in self.explicitConstructors)
         return (f'Type Name: {self.name}\n'
-                f'Type Parameters:\n  {type_params_str}\n'
-                f'ImplicitConstructors:\n  {impl_constructors_str}\n'
-                f'ExplicitConstructors:\n  {expl_constructors_str}')
+                f'Type Parameters:\n  {typeParamsStr}\n'
+                f'ImplicitConstructors:\n  {implConstructorsStr}\n'
+                f'ExplicitConstructors:\n  {explConstructorsStr}')
 
 class Hypothesis:
     def __init__(self, name):
