@@ -162,7 +162,6 @@ export default class UIController {
                     let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                    console.log("Curr x y: ", x, y);
                     // Zapsání změny pozice
                     target.style.transform = `translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);

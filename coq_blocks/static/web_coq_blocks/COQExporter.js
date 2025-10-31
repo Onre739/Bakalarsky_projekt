@@ -23,6 +23,7 @@ export default class COQExporter {
             block => block instanceof DefinitionBlock
         );
 
+        // Pro každý root blok získej objektový strom
         rootBlocks.forEach(rootBlock => {
             let defObj = this.traverseBlock(rootBlock);
             definitions.push(defObj);
@@ -38,9 +39,11 @@ export default class COQExporter {
         };
     }
 
-    // Rekurzivní průchod bloky a plnìní stromové struktury
+    // Rekurzivní průchod bloky a plnění stromové struktury
     traverseBlock(block) {
+        // Objekt pro stromovou strukturu k návratu
         let ret = {
+            // Automatický název konstruktoru, něco jako instanceof
             kind: block.constructor.name,   // třeba "DefinitionBlock", "ConstructorBlock"
             block: block,
             children: []
@@ -64,14 +67,36 @@ export default class COQExporter {
             .filter(p => p !== null)
             .map(p => this.stringifyDefinition(p, i + 1));
 
+        if (def.kind == "DefinitionBlock") {
+            return `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`;
+        }
 
-        return def.kind == "DefinitionBlock" ? // Pokud jde o blok definice
-            `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`
-            :
-            i == 1 ? // Pokud jde o 1 blok po definici, nedávám závorky (...)
-                `: ${def.block.typeName} := ${def.block.constructorName}${children.length ? " " + children.join(" ") : ""}`
-                :
-                `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
+        // Pokud jde o 1 blok po definici, nedávám závorky (...)
+        else if (i == 1) {
+            if (def.kind == "AtomicBlock") {
+                return `${def.block.dataType} ${def.block.value}`;
+            }
+            else {
+                return `: ${def.block.typeName} := ${def.block.constructorName}${children.length ? " " + children.join(" ") : ""}`;
+            }
+        }
+
+        else {
+            if (def.kind == "AtomicBlock") {
+                return `(${def.block.dataType} ${def.block.value})`;
+            }
+            else {
+                return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
+            }
+        }
+
+        // return def.kind == "DefinitionBlock" ? // Pokud jde o blok definice
+        //     `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`
+        //     :
+        //     i == 1 ? // Pokud jde o 1 blok po definici, nedávám závorky (...)
+        //         `: ${def.block.typeName} := ${def.block.constructorName}${children.length ? " " + children.join(" ") : ""}`
+        //         :
+        //         `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
     }
 
 

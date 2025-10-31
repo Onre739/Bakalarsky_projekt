@@ -4,7 +4,11 @@ export default class DefinitionLoader {
 
     // Načtení dat
     async load() {
-        let definition = $("#defInput").val();
+        // Zisk dat
+        let definition = document.getElementById("defInput").value;
+
+        // Vymazání inputu
+        document.getElementById("defInput").value = "";
 
         let response = await fetch("http://127.0.0.1:8000/api/newdef/", {
             method: "POST",

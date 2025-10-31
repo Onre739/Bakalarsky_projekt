@@ -1,9 +1,9 @@
 import { AppState } from "./AppState.js";
-import { ConstructorBlock, DefinitionBlock } from "./Block.js";
+import { ConstructorBlock, DefinitionBlock, AtomicBlock } from "./Block.js";
 
 export default class BlockFactory {
 
-    createBlock(newConstructor, typeName, typeParameters, id) {
+    createConstructorBlock(newConstructor, typeName, typeParameters, id) {
 
         let newBlockObj = new ConstructorBlock(newConstructor, typeName, typeParameters, id);
         newBlockObj.createElement();
@@ -24,6 +24,14 @@ export default class BlockFactory {
         AppState.blockObjects.push(newBlockObj);
 
         AppState.definitionBlockCount += 1;
+    }
+
+    createAtomicBlock(dataType, id) {
+        let newBlockObj = new AtomicBlock(dataType, id);
+        newBlockObj.createElement();
+        AppState.blockObjects.push(newBlockObj);
+
+        AppState.atomicBlockCount += 1;
     }
 
 }

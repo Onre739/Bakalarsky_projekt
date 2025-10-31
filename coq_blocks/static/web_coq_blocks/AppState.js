@@ -7,6 +7,9 @@ export const AppState = {
     // Počet bloků definic
     definitionBlockCount: 0,
 
+    // Počet atomických bloků
+    atomicBlockCount: 0,
+
     // zparsovaná (raw) data z DefinitionLoader.js, teď to nikde nepoužívám 
     rawContructors: [],
     rawHypothesis: [],

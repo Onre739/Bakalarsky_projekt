@@ -265,13 +265,81 @@ export class ConstructorBlock extends BaseBlock {
         }
 
     }
+}
 
-    resize() {
-        // přepočítá velikost podle obsahu
+export class AtomicBlock extends BaseBlock {
+    constructor(dataType, id) {
+        super(id, "rgb(128, 128, 128)");
+
+        this.dataType = dataType;
+
+        // Hodnota
+        this.value = null;
+
+        // Object dot
+        this.dotObject = null;
+
+        // Pole plug objektů, bude prázdné
+        this.plugObjects = [];
+
     }
 
-    setPosition(x, y) {
-        this.element.style.transform = `translate(${x}px, ${y}px)`;
+    createElement() {
+        // Append DOM, jelikož element musí být prvně napojený na dom a až pak se může stylovat a používat offsetWidth atd ...
+        let groundElement = document.getElementById("ground");
+        groundElement.appendChild(this.element);
+
+        // ------------------------ New block
+
+        let newBlock = this.element
+        newBlock.setAttribute("id", this.id);
+        newBlock.setAttribute("class", "block draggable");
+        newBlock.style.backgroundColor = this.color;
+
+        let boxDiv1 = document.createElement("div");
+        boxDiv1.setAttribute("class", "d-flex justify-content-center");
+
+        let boxDiv2 = document.createElement("div");
+        boxDiv2.setAttribute("class", "d-flex justify-content-center");
+
+        // Název bloku
+        let blockNameEl = document.createElement("div");
+        blockNameEl.setAttribute("class", "blockName");
+        blockNameEl.style.position = "relative";
+        blockNameEl.style.fontWeight = "bold";
+        blockNameEl.innerText = this.dataType;
+
+        boxDiv1.appendChild(blockNameEl);
+
+        // Input
+        let inputEl = document.createElement("input");
+        inputEl.setAttribute("class", "form-control p-0 w-50");
+        inputEl.setAttribute("id", "atomicInput");
+
+        boxDiv2.appendChild(inputEl);
+        newBlock.appendChild(boxDiv1);
+        newBlock.appendChild(boxDiv2);
+
+        // ------------------------ Dot
+
+        let dot = new Dot(this.dataType, newBlock, this.color);
+
+        // Tvorba dot elementu pro DOM
+        dot.createElement();
+
+        this.dotObject = dot;
+
+        // Listener na input
+        inputEl.addEventListener("input", () => {
+            let value = inputEl.value;
+            this.value = value;
+            console.log("atomic value: ", value);
+            console.log("atomic value: ", this.value);
+        });
+
+        // Výška a šířka
+        newBlock.style.width = String(150) + "px";
+        newBlock.style.height = String(50 + 20) + "px";
     }
 
 }

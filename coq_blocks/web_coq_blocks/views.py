@@ -5,8 +5,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import NewTypeSerializer, HypothesisSerializer
 import json
-import sys
-sys.path.append('F:/Ondra_Local/Projekty/Bakalářská práce/bakalarka')
+import os, sys
+# Dynamicky přidej hlavní složku projektu do sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '..'))  # jedna úroveň výš, kde máš BlockClasses.py
+sys.path.append(PROJECT_ROOT)
+
 from antlr import COQMain
 
 from BlockClasses import *

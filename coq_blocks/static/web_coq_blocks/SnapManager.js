@@ -1,5 +1,5 @@
 import { AppState } from "./AppState.js";
-import { ConstructorBlock } from "./Block.js";
+import { ConstructorBlock, AtomicBlock, DefinitionBlock } from "./Block.js";
 export default class SnapManager {
     // Unifikování přístupu, přístup k elementům pouze přes AppState.blockObjects -> .element
 
@@ -7,8 +7,8 @@ export default class SnapManager {
         // Dynamicky aktualizovat snap body
         AppState.snapTargets.length = 0;
 
-        // Konstructor block se nemůže snapovat
-        if (movedBlockObject instanceof ConstructorBlock) {
+        // Definition block se nemůže snapovat
+        if (!(movedBlockObject instanceof DefinitionBlock)) {
 
             // Zisk block objektu z id elementu
             let requiredType = movedBlockObject.dotObject.type;
@@ -70,15 +70,11 @@ export default class SnapManager {
             let blockTop = rect.top + window.scrollY;
             let blockHeight = rect.height;
 
-            console.log("xxx: ", blockLeft);
-            console.log("yyy: ", blockTop);
-
             AppState.snapTargets.forEach(snapTarget => {
                 let deltaX = Math.abs(snapTarget.x - blockLeft);
                 let deltaY = Math.abs(snapTarget.y - (blockTop + blockHeight * AppState.plugInBlockPos));
 
                 if (deltaX < 4 && deltaY < 4) { // tolerance 4 px
-                    console.log("delta: " + deltaX + ", " + deltaY);
                     let plugObject = snapTarget.plug;
 
                     AppState.snappedBlocks.push({
@@ -163,9 +159,6 @@ export default class SnapManager {
                     // Nová pozice child bloku
                     let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
                     let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * AppState.plugInBlockPos - docGroundDiffTop;
-
-                    console.log("AAAAAA: ", snappedBlock.child.element.offsetHeight);
-                    console.log("new x y: ", x, y);
 
                     snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
                     snappedBlock.child.element.setAttribute('data-x', x);

@@ -3,7 +3,7 @@ import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";
 import UIController from "./UIController.js";
 import COQExporter from "./COQExporter.js";
-import SavedTypeManager from "./savedTypeManager.js";
+import SavedTypeManager from "./SavedTypeManager.js";
 
 console.log("GROUND OFFSET: " + $("#ground").offset().left + ", " + $("#ground").offset().top);
 var uiController = new UIController();
@@ -21,25 +21,32 @@ document.getElementById("loadBtn").addEventListener("click", async () => {
     console.log("Data: ", data);
 
     // Odeslání dat
-    savedTypeManager.getData(data);
+    savedTypeManager.getClasicData(data);
 });
 
 // Tlačítka pro změnu režimu
-document.getElementById("autoBtn").addEventListener("click", () => {
-    uiController.switchToAutomatic();
-});
+// document.getElementById("autoBtn").addEventListener("click", () => {
+//     uiController.switchToAutomatic();
+// });
 
-document.getElementById("manualBtn").addEventListener("click", () => {
-    uiController.switchToManual();
-});
+// document.getElementById("manualBtn").addEventListener("click", () => {
+//     uiController.switchToManual();
+// });
 
 // Export button
 document.getElementById("exportBtn").addEventListener("click", () => {
     coqExporter.export();
 });
 
+// Nový block definice
 document.getElementById("newDefBtn").addEventListener("click", () => {
     blockFactory.createDefinitionBlock();
+});
+
+// Nový atomický typ
+document.getElementById("atomicCreateBtn").addEventListener("click", () => {
+    let dataType = document.getElementById("atomicCreateInput").value.trim();
+    savedTypeManager.getAtomicData(dataType);
 });
 
 // -----------------------------------
