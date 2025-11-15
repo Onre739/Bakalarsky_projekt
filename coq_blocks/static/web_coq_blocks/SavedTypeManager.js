@@ -1,9 +1,16 @@
-import { AppState } from "./AppState.js";
 import BlockFactory from "./BlockFactory.js";
+import UIController from "./UIController.js";
+import {
+    initTypeBlockCount,
+    initAtomicBlockCount,
+    deleteTypeBlockCount,
+    deleteAtomicBlockCount
+} from "./store/appStoreActions.js";
 
 export default class SavedTypeManager {
     constructor() {
         this.blockFactory = new BlockFactory();
+        this.uiController = new UIController();
     }
 
     getClasicData(data) {
@@ -29,6 +36,15 @@ export default class SavedTypeManager {
         importedTypeListEl.innerHTML = "";
         let atomicTypeListEl = document.getElementById("atomicTypesList");
         atomicTypeListEl.innerHTML = "";
+
+        // Inicializace počítadel pro všechny typy (při načtení ze localStorage)
+        data.forEach(val => {
+            if (val.sort === "atomic") {
+                initAtomicBlockCount(val.id);
+            } else if (val.sort === "clasic") {
+                initTypeBlockCount(val.id);
+            }
+        });
 
         data.forEach(val => {
 
@@ -115,7 +131,7 @@ export default class SavedTypeManager {
                     headerButtonEl.style.fontWeight = "500";
                     headerButtonEl.innerText = typeName;
 
-                    // Setting button
+                    // -------------- Setting button
                     let settingBtnEl = document.createElement("button");
                     headerEl.appendChild(settingBtnEl);
                     settingBtnEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
@@ -127,7 +143,64 @@ export default class SavedTypeManager {
                     settingBtnEl.setAttribute("data-bs-toggle", "modal");
                     settingBtnEl.setAttribute("data-bs-target", `#settingModal`);
 
-                    // Delete button
+                    // Setting button click handler
+                    settingBtnEl.addEventListener("click", () => {
+                        // Nastavení titulu modalu
+                        document.getElementById("settingModalTitle").innerText = `Settings for type: ${typeName}`;
+
+                        // Získání a vyčištění těla modalu
+                        let settingModalBody = document.getElementById("settingModalBody");
+                        settingModalBody.innerHTML = "";  // Clear previous content
+
+                        // Kontrola parametrů
+                        if (typeParameters.length === 0) {
+                            settingModalBody.innerText = "This type has no type parameters.";
+                            document.getElementById("settingModalWarnDiv").style.display = "none";
+                            return;
+                        }
+                        else {
+                            document.getElementById("settingModalWarnDiv").style.display = "block";
+                        }
+                        // Vytvoření inputů pro každý typový parametr
+                        typeParameters.forEach((param, index) => {
+                            // Každý param je teď objekt s jedním typem
+                            const type = Object.keys(param)[0]; // Získáme název typu
+                            let paramDivLabel = document.createElement("label");
+                            let paramDivInput = document.createElement("input");
+                            settingModalBody.appendChild(paramDivLabel);
+                            settingModalBody.appendChild(paramDivInput);
+
+                            paramDivLabel.innerText = `Type parameter ${type}: `;
+                            paramDivInput.setAttribute("class", "form-control mb-3");
+                            paramDivInput.setAttribute("id", `typeParamInput:${val.id}:${type}:${index}`);
+                            // Pokud existuje uložená hodnota, nastavíme ji
+                            if (param[type] !== null) {
+                                paramDivInput.value = param[type];
+                            }
+                        });
+
+                        // Přidání handleru pro save tlačítko
+                        const saveBtn = document.querySelector("#settingModalSaveBtn");
+
+                        // Odstranění starých listenerů
+                        const newSaveBtn = saveBtn.cloneNode(true);
+                        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+
+                        // Přidání nového listeneru pro uložení změn 
+                        newSaveBtn.addEventListener("click", () => {
+                            // Vytvoření nových parametrů ze všech inputů
+                            const updatedParameters = typeParameters.map((param, idx) => {
+                                const type = Object.keys(param)[0];
+                                const input = document.getElementById(`typeParamInput:${val.id}:${type}:${idx}`);
+                                return { [type]: input.value || null };
+                            });
+
+                            // Uložení nových hodnot
+                            this.updateTypeParameters(val.id, updatedParameters);
+                        });
+                    });
+
+                    // -------------- Delete button
                     let deleteBtnEl = document.createElement("button");
                     headerEl.appendChild(deleteBtnEl);
                     deleteBtnEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
@@ -174,10 +247,6 @@ export default class SavedTypeManager {
                         this.printList();
                     });
 
-
-                    // Nový záznam pro počet bloků daného typu
-                    AppState.typeBlockCount.set(val.id, 0);
-
                     break;
 
             }
@@ -185,39 +254,81 @@ export default class SavedTypeManager {
         });
     }
 
-    // Funkce pro načtení uložených dat
+    // Load data from localStorage
     loadData() {
         const data = localStorage.getItem("myData");
         return data ? JSON.parse(data) : [];
     }
 
-    // Funkce pro uložení dat
+    // Save data to localStorage
     saveData(data) {
         localStorage.setItem("myData", JSON.stringify(data));
     }
 
-    // Přidání nové položky
+    // Add new item
     addItem(value, sort) {
         const data = this.loadData();
+        const newId = crypto.randomUUID();  // unikátní ID
+
         data.push({
-            id: crypto.randomUUID(),  // unikátní ID
+            id: newId,
             sort: sort,
-            dataType: value
+            dataType: sort === "atomic" ? value :
+                {
+                    explicitConstructors: value.explicitConstructors,
+                    implicitConstructors: value.implicitConstructors,
+                    name: value.name,
+                    typeParameters: value.typeParameters.flatMap(param => {
+                        // Pro každý typ v poli vytvoříme samostatný objekt
+                        return param.type.map(t => ({ [t]: null }));
+                    })
+                }
         });
         this.saveData(data);
+
+        // Inicializace počítadla bloků v store
+        if (sort === "atomic") {
+            initAtomicBlockCount(newId);
+        } else if (sort === "clasic") {
+            initTypeBlockCount(newId);
+        }
     }
 
-    // Smazání konkrétní položky podle ID
+    // Remove item by ID
     removeItem(id) {
         let data = this.loadData();
         data = data.filter(item => item.id !== id);
         this.saveData(data);
+
+        // Smazání záznamů z počítadel
+        deleteAtomicBlockCount(id);
+        deleteTypeBlockCount(id);
     }
 
-    // Vypsání všech hodnot
+    // Get all items
     getAllItems() {
         return this.loadData();
     }
 
+    // Get item by ID
+    getItemById(id) {
+        const data = this.loadData();
+        return data.find(item => item.id === id);
+    }
+
+    // Update type parameters for an item
+    updateTypeParameters(id, updatedParameters) {
+        let data = this.loadData();
+        const itemIndex = data.findIndex(item => item.id === id);
+
+        if (itemIndex !== -1) {
+            data[itemIndex].dataType.typeParameters = updatedParameters;
+            this.saveData(data);
+
+            this.uiController.removeAllBlocksOfType(id);
+
+            this.printList(); // Aktualizujeme zobrazení
+        }
+    }
 
 }

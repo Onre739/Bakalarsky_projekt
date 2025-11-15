@@ -1,6 +1,17 @@
-import { AppState } from "./AppState.js";
-import { ConstructorBlock } from "./Block.js";
 import SnapManager from "./SnapManager.js";
+import {
+    setResizeMode,
+    getAndIncrementZIndex,
+    removeBlockObject,
+    setSnappedBlocks,
+    setOrderedSnappedBlocks,
+    getBlockObjects,
+    getSnappedBlocks,
+    getSnapTargets,
+    getResizeMode,
+    getPlugInBlockPos,
+    getOrderedSnappedBlocks
+} from "./store/appStoreActions.js";
 
 export default class UIController {
     constructor() {
@@ -9,10 +20,10 @@ export default class UIController {
 
     switchToAutomatic() {
         document.getElementById("resizeHeader").innerText = "Resize mode: Automatic";
-        AppState.resizeMode = "Auto";
-        console.log(AppState.resizeMode);
+        setResizeMode("Auto");
+        console.log(getResizeMode());
 
-        let blockObjects = AppState.blockObjects;
+        let blockObjects = getBlockObjects();
         blockObjects.forEach((blockObject) => {
             this.removeBlock(blockObject);
         });
@@ -23,10 +34,10 @@ export default class UIController {
 
     switchToManual() {
         document.getElementById("resizeHeader").innerText = "Resize mode: Manual";
-        AppState.resizeMode = "Manual";
-        console.log(AppState.resizeMode);
+        setResizeMode("Manual");
+        console.log(getResizeMode());
 
-        let blockObjects = AppState.blockObjects;
+        let blockObjects = getBlockObjects();
         blockObjects.forEach((blockObject) => {
             this.removeBlock(blockObject);
         });
@@ -42,17 +53,16 @@ export default class UIController {
             listeners: {
                 start: (event) => {
                     let target = event.target;
-                    target.style.zIndex = AppState.zIndexCount;
-                    AppState.zIndexCount += 1;
+                    target.style.zIndex = getAndIncrementZIndex();
 
                     // Najít BlockObject podle target elementu
-                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
+                    let movedBlockObject = getBlockObjects().find(b => b.element === target);
                     if (movedBlockObject) {
                         // Nové snap targety
                         this.snapManager.updateSnapTargets(movedBlockObject);
-                        console.log("Updated snap targets:", AppState.snapTargets);
+                        console.log("Updated snap targets:", getSnapTargets());
                     }
-                    else console.log("Moved block not found in AppState");
+                    else console.log("Moved block not found in appStore");
                 },
 
                 move: (event) => {
@@ -77,14 +87,14 @@ export default class UIController {
                     this.deleteButtonsControl();
 
                     console.log('Drag ended', event);
-                    console.log("Snapped blocks:", AppState.snappedBlocks);
+                    console.log("Snapped blocks:", getSnappedBlocks());
                 }
             },
             modifiers: [
                 interact.modifiers.snap({
-                    targets: AppState.snapTargets,
+                    targets: getSnapTargets(),
                     range: 30,
-                    relativePoints: [{ x: 0, y: AppState.plugInBlockPos }]
+                    relativePoints: [{ x: 0, y: getPlugInBlockPos() }]
                 }),
                 interact.modifiers.restrictRect({
                     restriction: 'document',
@@ -143,17 +153,16 @@ export default class UIController {
             listeners: {
                 start: (event) => {
                     let target = event.target;
-                    target.style.zIndex = AppState.zIndexCount;
-                    AppState.zIndexCount += 1;
+                    target.style.zIndex = getAndIncrementZIndex();
 
                     // Najít BlockObject podle target elementu
-                    let movedBlockObject = AppState.blockObjects.find(b => b.element === target);
+                    let movedBlockObject = getBlockObjects().find(b => b.element === target);
                     if (movedBlockObject) {
                         // Najít snap targety
                         this.snapManager.updateSnapTargets(movedBlockObject);
-                        console.log("Updated snap targets:", AppState.snapTargets);
+                        console.log("Updated snap targets:", getSnapTargets());
                     }
-                    else console.log("Moved block not found in AppState");
+                    else console.log("Moved block not found in appStore");
                 },
 
                 move: (event) => {
@@ -182,15 +191,15 @@ export default class UIController {
                     this.deleteButtonsControl();
 
                     console.log('Drag ended', event);
-                    console.log("Snapped blocks:", AppState.snappedBlocks);
-                    console.log("Ordered snapped blocks:", AppState.orderedSnappedBlocks);
+                    console.log("Snapped blocks:", getSnappedBlocks());
+                    console.log("Ordered snapped blocks:", getOrderedSnappedBlocks());
                 }
             },
             modifiers: [
                 interact.modifiers.snap({
-                    targets: AppState.snapTargets,
+                    targets: getSnapTargets(),
                     range: 30,
-                    relativePoints: [{ x: 0, y: AppState.plugInBlockPos }] // Pozice i s borderem
+                    relativePoints: [{ x: 0, y: getPlugInBlockPos() }] // Pozice i s borderem
                 }),
                 interact.modifiers.restrictRect({
                     restriction: 'document',
@@ -206,7 +215,7 @@ export default class UIController {
         this.addDeleteBtnClass();
 
         // Prvně odeberu všechny delete buttony
-        let blockObjects = AppState.blockObjects;
+        let blockObjects = getBlockObjects();
         blockObjects.forEach((blockObject) => {
             let deleteBtn = blockObject.element.querySelector(".deleteButton");
             if (deleteBtn) {
@@ -230,11 +239,11 @@ export default class UIController {
 
     addDeleteBtnClass() {
         // DELETE BUTTONY
-        let blockObjects = AppState.blockObjects;
+        let blockObjects = getBlockObjects();
 
         let notSnappedBlocks = blockObjects.filter(
-            b1 => !AppState.snappedBlocks.some(b2 => b1 === b2.parent) &&
-                !AppState.snappedBlocks.some(b3 => b1 === b3.child)
+            b1 => !getSnappedBlocks().some(b2 => b1 === b2.parent) &&
+                !getSnappedBlocks().some(b3 => b1 === b3.child)
         );
 
         blockObjects.forEach(b => b.element.classList.remove("hasDeleteButton"));
@@ -246,24 +255,37 @@ export default class UIController {
         block.element.remove();
 
         // 2) smazat z blockObjects
-        AppState.blockObjects = AppState.blockObjects.filter(b => b !== block);
+        removeBlockObject(block);
 
         // 3) smazat snapy
-        AppState.snappedBlocks = AppState.snappedBlocks.filter(
-            s => s.parent !== block && s.child !== block
+        setSnappedBlocks(
+            getSnappedBlocks().filter(
+                s => s.parent !== block && s.child !== block
+            )
         );
 
         // DŮLEŽITÉ !!!
-        // - NESMÍŠ VYTVÁŘET NOVÝ AppState.snapTargets !!! PROTOŽE ZTRATÍŠ REFERENCI PRO INTERACT JS
+        // - NESMÍŠ VYTVÁŘET NOVÝ appStore.snapTargets !!! PROTOŽE ZTRATÍŠ REFERENCI PRO INTERACT JS
 
         // // 4) případně přepočítat snapTargets
-        // AppState.snapTargets = AppState.snapTargets.filter(
+        // appStore.snapTargets = appStore.snapTargets.filter(
         //     t => t.block !== block && t.plug.parentBlock !== block
         // );
 
-        AppState.orderedSnappedBlocks = AppState.orderedSnappedBlocks.filter(
-            b => b !== block
+        setOrderedSnappedBlocks(
+            getOrderedSnappedBlocks().filter(
+                b => b !== block
+            )
         );
+    }
+
+    // Smaže všechny bloky daného typu podle prefixu id (např. "typeId:")
+    removeAllBlocksOfType(typeId) {
+        // Najdi všechny bloky, jejichž id začíná na `${typeId}:`
+        const blocksToRemove = getBlockObjects().filter(blockObj =>
+            typeof blockObj.id === 'string' && blockObj.id.startsWith(`${typeId}:`)
+        );
+        blocksToRemove.forEach(blockObj => this.removeBlock(blockObj));
     }
 
 }

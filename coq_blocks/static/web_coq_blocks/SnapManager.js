@@ -1,11 +1,24 @@
-import { AppState } from "./AppState.js";
 import { ConstructorBlock, AtomicBlock, DefinitionBlock } from "./Block.js";
+import {
+    clearSnapTargets,
+    pushSnapTarget,
+    setPreviousSnappedBlocks,
+    clearSnappedBlocks,
+    pushSnappedBlock,
+    setOrderedSnappedBlocks,
+    getBlockObjects,
+    getSnappedBlocks,
+    getSnapTargets,
+    getPlugInBlockPos,
+    getPreviousSnappedBlocks,
+    getOrderedSnappedBlocks
+} from "./store/appStoreActions.js";
 export default class SnapManager {
-    // Unifikování přístupu, přístup k elementům pouze přes AppState.blockObjects -> .element
+    // Unifikování přístupu, přístup k elementům pouze přes appStore.blockObjects -> .element
 
     updateSnapTargets(movedBlockObject) {
         // Dynamicky aktualizovat snap body
-        AppState.snapTargets.length = 0;
+        clearSnapTargets();
 
         // Definition block se nemůže snapovat
         if (!(movedBlockObject instanceof DefinitionBlock)) {
@@ -14,7 +27,7 @@ export default class SnapManager {
             let requiredType = movedBlockObject.dotObject.type;
             console.log("Required type:", requiredType);
 
-            AppState.blockObjects.forEach((blockObject) => {
+            getBlockObjects().forEach((blockObject) => {
 
                 // Zákaz snapu sám na sebe
                 if (blockObject != movedBlockObject) {
@@ -32,7 +45,7 @@ export default class SnapManager {
 
                             // console.log(requiredType + "-vs-" + plugType);
                             // if (plugType === requiredType) {
-                            AppState.snapTargets.push({
+                            pushSnapTarget({
 
                                 // getBoundingClientRect() dává souřadnice vůči viewportu (oknu)
                                 // Pro absolutními souřadnice v dokumentu se musí přičíst scroll offset
@@ -58,10 +71,10 @@ export default class SnapManager {
     checkForSnap() { // Kontrola které bloky jsou snapnuty
 
         // Uložení předchozí verze pole
-        AppState.previousSnappedBlocks = AppState.snappedBlocks.slice(); // .slice() pro kopii, ne referenci
-        AppState.snappedBlocks.length = 0;
+        setPreviousSnappedBlocks(getSnappedBlocks().slice()); // .slice() pro kopii, ne referenci
+        clearSnappedBlocks();
 
-        let blockObjects = AppState.blockObjects;
+        let blockObjects = getBlockObjects();
 
         // Kontrola pozic každého bloku se snap pozicemi
         blockObjects.forEach(blockObject => {
@@ -70,14 +83,14 @@ export default class SnapManager {
             let blockTop = rect.top + window.scrollY;
             let blockHeight = rect.height;
 
-            AppState.snapTargets.forEach(snapTarget => {
+            getSnapTargets().forEach(snapTarget => {
                 let deltaX = Math.abs(snapTarget.x - blockLeft);
-                let deltaY = Math.abs(snapTarget.y - (blockTop + blockHeight * AppState.plugInBlockPos));
+                let deltaY = Math.abs(snapTarget.y - (blockTop + blockHeight * getPlugInBlockPos()));
 
                 if (deltaX < 4 && deltaY < 4) { // tolerance 4 px
                     let plugObject = snapTarget.plug;
 
-                    AppState.snappedBlocks.push({
+                    pushSnappedBlock({
                         parent: snapTarget.block,
                         plugIndex: plugObject.index,
                         plug: plugObject,
@@ -90,8 +103,8 @@ export default class SnapManager {
 
     // snapOccured(snappedParent, snappedChild, plug) { // nvm k čemu tu byly parametry???
     snapOccured() { // Akce pokud se projevil snap / unsnap
-        let arrayCurr = AppState.snappedBlocks.slice();
-        let arrayPrev = AppState.previousSnappedBlocks.slice();
+        let arrayCurr = getSnappedBlocks().slice();
+        let arrayPrev = getPreviousSnappedBlocks().slice();
 
         function objectsEqual(obj1, obj2) {
             return obj1.parent === obj2.parent &&
@@ -128,14 +141,14 @@ export default class SnapManager {
                 block.element.style.height =
                     `${block.element.offsetHeight + heightValue}px`;
             }
-            let snap = AppState.snappedBlocks.find(s => s.child === block);
+            let snap = getSnappedBlocks().find(s => s.child === block);
             if (snap) resizeParents(snap.parent, heightValue); // rekurze
         };
 
 
         // Nové pozice po zvětšení velikostí
         const setNewPosition = () => {
-            AppState.orderedSnappedBlocks.forEach((snappedDef) => {
+            getOrderedSnappedBlocks().forEach((snappedDef) => {
                 snappedDef.forEach((snappedBlock) => {
 
                     // Zisk pozice plugu pro novou pozici child bloku
@@ -158,7 +171,7 @@ export default class SnapManager {
 
                     // Nová pozice child bloku
                     let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
-                    let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * AppState.plugInBlockPos - docGroundDiffTop;
+                    let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * getPlugInBlockPos() - docGroundDiffTop;
 
                     snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
                     snappedBlock.child.element.setAttribute('data-x', x);
@@ -181,7 +194,7 @@ export default class SnapManager {
             resizeParents(parentCurr, +heightValueCurr);
 
             // Seřazení snapped bloků
-            AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
+            setOrderedSnappedBlocks(this.orderSnappedBlocks());
 
             // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
             setNewPosition();
@@ -199,7 +212,7 @@ export default class SnapManager {
             resizeParents(parentPrev, -heightValuePrev);
 
             // Seřazení snapped bloků
-            AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
+            setOrderedSnappedBlocks(this.orderSnappedBlocks());
 
             // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
             setNewPosition();
@@ -230,7 +243,7 @@ export default class SnapManager {
             resizeParents(parentCurr, +heightValueCurr);
 
             // Seřazení snapped bloků
-            AppState.orderedSnappedBlocks = this.orderSnappedBlocks();
+            setOrderedSnappedBlocks(this.orderSnappedBlocks());
 
             // Nové pozice
             setNewPosition();
@@ -241,8 +254,8 @@ export default class SnapManager {
     // Kvůli změně velikostí musíš znovu rozmístit snapnuté bloky a to musíš udělat od začátku do konce v pořadí
     orderSnappedBlocks() {
         // Najdi kořeny = bloky, které nejsou dítětem nikoho jiného
-        let rootBlocks = AppState.snappedBlocks.filter(block =>
-            !AppState.snappedBlocks.some(otherBlock => otherBlock.child === block.parent)
+        let rootBlocks = getSnappedBlocks().filter(block =>
+            !getSnappedBlocks().some(otherBlock => otherBlock.child === block.parent)
         );
 
         let allOrdered = [];
@@ -257,7 +270,7 @@ export default class SnapManager {
                 ordered.push(currentBlock); // Přidat blok do uspořádaného pole
 
                 // Najít všechny potomky aktuálního bloku
-                let children = AppState.snappedBlocks.filter(b => b.parent === currentBlock.child);
+                let children = getSnappedBlocks().filter(b => b.parent === currentBlock.child);
                 queue = queue.concat(children); // Přidat potomky do fronty
             }
 
@@ -266,7 +279,7 @@ export default class SnapManager {
 
         // kontrola, jestli jsme zpracovali všechny
         let flat = allOrdered.flat();
-        if (flat.length !== AppState.snappedBlocks.length) {
+        if (flat.length !== getSnappedBlocks().length) {
             console.error("ORDERING BLOCK FAIL");
         }
 
@@ -275,13 +288,13 @@ export default class SnapManager {
 
     dragControl() {
         // Nalezení listových snapů
-        let leafSnaps = AppState.snappedBlocks.filter(block1 =>
-            !AppState.snappedBlocks.some(block2 => block1.child === block2.parent)
+        let leafSnaps = getSnappedBlocks().filter(block1 =>
+            !getSnappedBlocks().some(block2 => block1.child === block2.parent)
         );
 
         // Nalezení větvených snapů
-        let branchSnaps = AppState.snappedBlocks.filter(block1 =>
-            AppState.snappedBlocks.some(block2 => block1.child === block2.parent)
+        let branchSnaps = getSnappedBlocks().filter(block1 =>
+            getSnappedBlocks().some(block2 => block1.child === block2.parent)
         );
 
         // Set všech bloků, které nesmí být draggable (rodiče větvených + rodiče listových)
@@ -291,7 +304,7 @@ export default class SnapManager {
         ]);
 
         // Přidání / odebrání třídy draggable pro všechny bloky
-        AppState.blockObjects.forEach(block => {
+        getBlockObjects().forEach(block => {
             if (blocked.has(block)) {
                 block.element.classList.remove("draggable");
             } else {

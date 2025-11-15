@@ -1,4 +1,4 @@
-import { AppState } from "./AppState.js";
+import { pushRawHypothesis, pushRawConstructor } from "./store/appStoreActions.js";
 
 export default class DefinitionLoader {
 
@@ -20,15 +20,15 @@ export default class DefinitionLoader {
 
         let data = JSON.parse(await response.text());
 
-        data.hypothesis.forEach(hypothes => AppState.rawHypothesis.push(hypothes));
+        data.hypothesis.forEach(hypothes => pushRawHypothesis(hypothes));
         data.newTypes.forEach(newType => {
             if (newType.explicitConstructors.length !== 0) {
                 newType.explicitConstructors.forEach(constructor =>
-                    AppState.rawContructors.push(constructor)
+                    pushRawConstructor(constructor)
                 );
             } else if (newType.implicitConstructors.length !== 0) {
                 newType.implicitConstructors.forEach(constructor =>
-                    AppState.rawContructors.push(constructor)
+                    pushRawConstructor(constructor)
                 );
             }
         });

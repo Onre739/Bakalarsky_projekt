@@ -1,5 +1,12 @@
-import { AppState } from "./AppState.js";
 import { ConstructorBlock, DefinitionBlock, AtomicBlock } from "./Block.js";
+import {
+    addBlockObject,
+    incrementTypeBlockCount,
+    incrementDefinitionBlockCount,
+    incrementAtomicBlockCount,
+    getAtomicBlockCount,
+    getTypeBlockCount
+} from "./store/appStoreActions.js";
 
 export default class BlockFactory {
 
@@ -7,11 +14,12 @@ export default class BlockFactory {
 
         let newBlockObj = new ConstructorBlock(newConstructor, typeName, typeParameters, id);
         newBlockObj.createElement();
-        AppState.blockObjects.push(newBlockObj);
-        let blockCount = AppState.typeBlockCount.has(id) ? AppState.typeBlockCount.get(id) : -1;
+        addBlockObject(newBlockObj);
 
-        // Kontrola existence záznamu o typu
-        if (blockCount >= 0) AppState.typeBlockCount.set(id, blockCount + 1);
+        let typeBlockCount = getTypeBlockCount(id);
+
+        // Kontrola existence záznamu o typu + inkrementace
+        if (typeBlockCount >= 0) incrementTypeBlockCount(id);
         else console.error(`There is no record for id ${id}!`);
     }
 
@@ -21,17 +29,22 @@ export default class BlockFactory {
 
         let newBlockObj = new DefinitionBlock(varName);
         newBlockObj.createElement();
-        AppState.blockObjects.push(newBlockObj);
+        addBlockObject(newBlockObj);
 
-        AppState.definitionBlockCount += 1;
+        incrementDefinitionBlockCount();
     }
 
     createAtomicBlock(dataType, id) {
+
         let newBlockObj = new AtomicBlock(dataType, id);
         newBlockObj.createElement();
-        AppState.blockObjects.push(newBlockObj);
+        addBlockObject(newBlockObj);
 
-        AppState.atomicBlockCount += 1;
+        let atomicBlockCount = getAtomicBlockCount(id);
+
+        // Kontrola existence záznamu o typu + inkrementace
+        if (atomicBlockCount >= 0) incrementAtomicBlockCount(id);
+        else console.error(`There is no record for atomic id ${id}!`);
     }
 
 }

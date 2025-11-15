@@ -1,9 +1,9 @@
-import { AppState } from "./AppState.js";
 import BlockFactory from "./BlockFactory.js";
 import DefinitionLoader from "./DefinitionLoader.js";
 import UIController from "./UIController.js";
 import COQExporter from "./COQExporter.js";
 import SavedTypeManager from "./SavedTypeManager.js";
+import { getResizeMode } from "./store/appStoreActions.js";
 
 console.log("GROUND OFFSET: " + $("#ground").offset().left + ", " + $("#ground").offset().top);
 var uiController = new UIController();
@@ -55,7 +55,7 @@ document.getElementById("atomicCreateBtn").addEventListener("click", () => {
 savedTypeManager.printList();
 
 // Drag controll
-switch (AppState.resizeMode) {
+switch (getResizeMode()) {
     // Automatický mód pro resize bloků
     case "Auto":
         uiController.automaticResizeConfig();

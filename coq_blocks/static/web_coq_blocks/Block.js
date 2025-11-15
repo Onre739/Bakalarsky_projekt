@@ -1,5 +1,10 @@
-import { AppState } from "./AppState.js";
-
+import {
+    getDelBtnWidth,
+    getDefinitionBlockCount,
+    getBlockColors,
+    getTypeBlockCount,
+    getAtomicBlockCount
+} from "./store/appStoreActions.js";
 class Dot {
     constructor(type, parentBlockEl, color) {
         this.type = type; // datový typ
@@ -15,7 +20,7 @@ class Dot {
 
         dot.setAttribute("class", "block-dot");
         dot.style.backgroundColor = this.color;
-        dot.innerHTML = AppState.icon1;
+        dot.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle-fill" viewBox="0 0 16 16" style="display:inline;"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z"/></svg>';
 
         let dotLabel = document.createElement("div");
         dot.appendChild(dotLabel);
@@ -99,7 +104,7 @@ class BaseBlock {
 
 export class DefinitionBlock extends BaseBlock {
     constructor(varName) {
-        super(`defBlock:${AppState.definitionBlockCount}`, "rgb(128, 128, 128)");
+        super(`defBlock:${getDefinitionBlockCount()}`, "rgb(128, 128, 128)");
         this.plugObjects = [];
         this.varName = varName; // Název proměnné pro definici: Definition a: nat := ......
     }
@@ -147,7 +152,7 @@ export class DefinitionBlock extends BaseBlock {
 
 export class ConstructorBlock extends BaseBlock {
     constructor(constructor, typeName, typeParameters, id) {
-        super(`${id}:${AppState.typeBlockCount.get(id)}`, AppState.blockColors[0]);
+        super(`${id}:${getTypeBlockCount(id)}`, getBlockColors()[0]);
 
         this.typeName = typeName; // Název datového typu
         this.constructorName = constructor.name; // Název konstruktoru
@@ -217,11 +222,23 @@ export class ConstructorBlock extends BaseBlock {
         this.dotObject = dot;
 
         // ------------------------ Plugy
+        // Build a lookup map for type parameters so we can resolve polymorphic types
+        // Example: [{X: "a"}, {Y: "bb"}] -> { X: "a", Y: "bb" }
+        const typeParamMap = {};
+        if (Array.isArray(this.typeParameters)) {
+            this.typeParameters.forEach(obj => {
+                if (obj && typeof obj === 'object') {
+                    Object.keys(obj).forEach(k => {
+                        typeParamMap[k] = obj[k];
+                    });
+                }
+            });
+        }
 
         let aktPlug = 0; // Aktuální plug
         this.plugsCount = this.constructorParameters.length + variablesCount; // Počet všech parametrů
         let plugPositions = this.getPlugPositions(this.plugsCount); // Zisk pozic pro plugy pro všechny parametry
-        let widestLabel = blockNameEl.offsetWidth + AppState.delBtnWidth;
+        let widestLabel = blockNameEl.offsetWidth + getDelBtnWidth(); // Nejširší label pro šířku bloku
 
         this.constructorParameters.forEach((param) => {
 
@@ -229,7 +246,20 @@ export class ConstructorBlock extends BaseBlock {
             let extraParams = this.explicitParamNames ? param.variables.length : 1
 
             for (let i = 0; i < extraParams; i++) {
-                let dataType = param.type.length == 2 ? param.type[0] + "\u00A0" + param.type[1] : param.type[0];
+                // Resolve the param.type tokens against type parameters map. If a token
+                // matches a type parameter key (e.g. "X"), replace it with the value
+                // from typeParamMap (e.g. "a"). Otherwise keep the original token.
+                const resolved = param.type.map(token => {
+                    if (typeParamMap.hasOwnProperty(token) && typeParamMap[token] !== null && typeParamMap[token] !== "") {
+                        return typeParamMap[token];
+                    }
+                    return token;
+                });
+
+                let dataType = resolved.length == 2 ? resolved[0] + "\u00A0" + resolved[1] : resolved[0];
+
+                // Fallback: if resolved produced an empty value, use the overall typeName
+                if (!dataType) dataType = typeName;
 
                 // Tvorba plug objektu
                 let plugObject = new Plug(dataType, newBlock, aktPlug, plugPositions[aktPlug]);
@@ -269,7 +299,7 @@ export class ConstructorBlock extends BaseBlock {
 
 export class AtomicBlock extends BaseBlock {
     constructor(dataType, id) {
-        super(id, "rgb(128, 128, 128)");
+        super(`${id}:${getAtomicBlockCount(id)}`, "rgb(128, 128, 128)");
 
         this.dataType = dataType;
 

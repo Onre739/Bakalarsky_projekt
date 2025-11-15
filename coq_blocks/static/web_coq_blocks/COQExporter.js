@@ -1,7 +1,8 @@
-import { AppState } from "./AppState.js";
 import { DefinitionBlock } from "./Block.js";
-
-
+import {
+    getBlockObjects,
+    getSnappedBlocks
+} from "./store/appStoreActions.js";
 export default class COQExporter {
     constructor() {
     }
@@ -19,7 +20,7 @@ export default class COQExporter {
         let definitions = [];
 
         // Najdi root bloky – definice
-        let rootBlocks = AppState.blockObjects.filter(
+        let rootBlocks = getBlockObjects().filter(
             block => block instanceof DefinitionBlock
         );
 
@@ -50,7 +51,7 @@ export default class COQExporter {
         };
 
         block.plugObjects.forEach(plug => {
-            let snap = AppState.snappedBlocks.find(s => s.plug === plug);
+            let snap = getSnappedBlocks().find(s => s.plug === plug);
             if (snap) {
                 ret.children.push(this.traverseBlock(snap.child));
             } else {
