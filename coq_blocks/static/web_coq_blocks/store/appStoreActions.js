@@ -1,249 +1,53 @@
 import { appStore } from './appStore.js';
 
-// Store metody pro aktualizaci stavu
+export const initTypeBlockCount = (id) => appStore.initTypeBlockCount(id);
+export const incrementTypeBlockCount = (id) => appStore.incrementTypeBlockCount(id);
+export const deleteTypeBlockCount = (id) => appStore.deleteTypeBlockCount(id);
+export const getTypeBlockCount = (id) => appStore.getTypeBlockCount(id);
 
-// ------------- Block counts (type / atomic) -------------
-export function initTypeBlockCount(id) {
-    const state = appStore.getState();
-    if (!state.typeBlockCount.has(id)) {
-        state.typeBlockCount.set(id, 0);
-        appStore.notify();
-    }
-}
+export const initAtomicBlockCount = (id) => appStore.initAtomicBlockCount(id);
+export const incrementAtomicBlockCount = (id) => appStore.incrementAtomicBlockCount(id);
+export const deleteAtomicBlockCount = (id) => appStore.deleteAtomicBlockCount(id);
+export const getAtomicBlockCount = (id) => appStore.getAtomicBlockCount(id);
 
-export function incrementTypeBlockCount(id) {
-    const state = appStore.getState();
-    const cnt = state.typeBlockCount.has(id) ? state.typeBlockCount.get(id) : -1;
-    if (cnt >= 0) {
-        state.typeBlockCount.set(id, cnt + 1);
-        appStore.notify();
-        return cnt + 1;
-    }
-    return -1;
-}
+export const incrementDefinitionBlockCount = () => appStore.incrementDefinitionBlockCount();
+export const getDefinitionBlockCount = () => appStore.getDefinitionBlockCount();
 
-export function deleteTypeBlockCount(id) {
-    const state = appStore.getState();
-    if (state.typeBlockCount.has(id)) {
-        state.typeBlockCount.delete(id);
-        appStore.notify();
-    }
-}
+export const getAndIncrementZIndex = () => appStore.getAndIncrementZIndex();
 
-export function getTypeBlockCount(id) {
-    const state = appStore.getState();
-    return state.typeBlockCount.has(id) ? state.typeBlockCount.get(id) : 0;
-}
-// ---------
-export function initAtomicBlockCount(id) {
-    const state = appStore.getState();
-    if (!state.atomicBlockCount.has(id)) {
-        state.atomicBlockCount.set(id, 0);
-        appStore.notify();
-    }
-}
+export const addBlockObject = (obj) => appStore.addBlockObject(obj);
+export const removeBlockObject = (obj) => appStore.removeBlockObject(obj);
+export const clearBlockObjects = () => appStore.clearBlockObjects();
+export const getBlockObjects = () => appStore.getBlockObjects();
 
-export function incrementAtomicBlockCount(id) {
-    const state = appStore.getState();
-    const cnt = state.atomicBlockCount.has(id) ? state.atomicBlockCount.get(id) : -1;
-    if (cnt >= 0) {
-        state.atomicBlockCount.set(id, cnt + 1);
-        appStore.notify();
-        return cnt + 1;
-    }
-    return -1;
-}
+export const clearSnapTargets = () => appStore.clearSnapTargets();
+export const pushSnapTarget = (t) => appStore.pushSnapTarget(t);
+export const replaceSnapTargets = (targets) => appStore.replaceSnapTargets(targets);
+export const getSnapTargets = () => appStore.getSnapTargets();
 
-export function deleteAtomicBlockCount(id) {
-    const state = appStore.getState();
-    if (state.atomicBlockCount.has(id)) {
-        state.atomicBlockCount.delete(id);
-        appStore.notify();
-    }
-}
+export const clearSnappedBlocks = () => appStore.clearSnappedBlocks();
+export const pushSnappedBlock = (obj) => appStore.pushSnappedBlock(obj);
+export const setSnappedBlocks = (arr) => appStore.setSnappedBlocks(arr);
+export const getSnappedBlocks = () => appStore.getSnappedBlocks();
 
-export function getAtomicBlockCount(id) {
-    const state = appStore.getState();
-    return state.atomicBlockCount.has(id) ? state.atomicBlockCount.get(id) : 0;
-}
+export const setOrderedSnappedBlocks = (arr) => appStore.setOrderedSnappedBlocks(arr);
+export const getOrderedSnappedBlocks = () => appStore.getOrderedSnappedBlocks();
 
-// ------------- Definition / generic counters -------------
-export function incrementDefinitionBlockCount() {
-    const state = appStore.getState();
-    state.definitionBlockCount += 1;
-    appStore.notify();
-    return state.definitionBlockCount;
-}
+export const setPreviousSnappedBlocks = (arr) => appStore.setPreviousSnappedBlocks(arr);
+export const getPreviousSnappedBlocks = () => appStore.getPreviousSnappedBlocks();
 
-export function getDefinitionBlockCount() {
-    return appStore.getState().definitionBlockCount;
-}
+export const pushRawHypothesis = (item) => appStore.pushRawHypothesis(item);
+export const pushRawConstructor = (item) => appStore.pushRawConstructor(item);
 
-// ------------- Z-index helper - returns current z index then increments it -------------
-export function getAndIncrementZIndex() {
-    const state = appStore.getState();
-    const z = state.zIndexCount;
-    state.zIndexCount += 1;
-    appStore.notify();
-    return z;
-}
+export const setResizeMode = (m) => appStore.setResizeMode(m);
+export const getResizeMode = () => appStore.getResizeMode();
 
-// ------------- Block objects manipulation -------------
-export function addBlockObject(obj) {
-    const state = appStore.getState();
-    state.blockObjects.push(obj);
-    appStore.notify();
-}
+export const replaceSnapTargetsInPlace = (targets) => appStore.replaceSnapTargetsInPlace(targets);
 
-export function removeBlockObject(obj) {
-    const state = appStore.getState();
-    state.blockObjects = state.blockObjects.filter(b => b !== obj);
-    appStore.notify();
-}
+export const getPlugInBlockPos = () => appStore.getPlugInBlockPos();
+export const setPlugInBlockPos = (p) => appStore.setPlugInBlockPos(p);
 
-export function clearBlockObjects() {
-    const state = appStore.getState();
-    state.blockObjects.length = 0;
-    appStore.notify();
-}
-
-export function getBlockObjects() {
-    return appStore.getState().blockObjects;
-}
-
-// ------------- Snap targets / snapped blocks helpers -------------
-// NOTE: some code (interact.js) keeps references to the snapTargets array; prefer clearing and pushing
-export function clearSnapTargets() {
-    const state = appStore.getState();
-    state.snapTargets.length = 0;
-    appStore.notify();
-}
-
-export function pushSnapTarget(target) {
-    const state = appStore.getState();
-    state.snapTargets.push(target);
-    appStore.notify();
-}
-
-export function replaceSnapTargets(targets) {
-    const state = appStore.getState();
-    state.snapTargets.length = 0;
-    targets.forEach(t => state.snapTargets.push(t));
-    appStore.notify();
-}
-
-export function getSnapTargets() {
-    return appStore.getState().snapTargets;
-}
-// ---------
-export function clearSnappedBlocks() {
-    const state = appStore.getState();
-    state.snappedBlocks.length = 0;
-    appStore.notify();
-}
-
-export function pushSnappedBlock(obj) {
-    const state = appStore.getState();
-    state.snappedBlocks.push(obj);
-    appStore.notify();
-}
-
-export function setSnappedBlocks(arr) {
-    const state = appStore.getState();
-    state.snappedBlocks = arr;
-    appStore.notify();
-}
-
-export function getSnappedBlocks() {
-    return appStore.getState().snappedBlocks;
-}
-// ---------
-export function setOrderedSnappedBlocks(arr) {
-    const state = appStore.getState();
-    state.orderedSnappedBlocks = arr;
-    appStore.notify();
-}
-
-
-export function getOrderedSnappedBlocks() {
-    return appStore.getState().orderedSnappedBlocks;
-}
-// ---------
-export function setPreviousSnappedBlocks(arr) {
-    const state = appStore.getState();
-    state.previousSnappedBlocks = arr;
-    appStore.notify();
-}
-
-export function getPreviousSnappedBlocks() {
-    return appStore.getState().previousSnappedBlocks;
-}
-
-// ------------- Raw data pushers (DefinitionLoader uses these) -------------
-export function pushRawHypothesis(item) {
-    const state = appStore.getState();
-    state.rawHypothesis.push(item);
-    appStore.notify();
-}
-
-export function pushRawConstructor(item) {
-    const state = appStore.getState();
-    state.rawContructors.push(item);
-    appStore.notify();
-}
-
-// ------------- Resize mode setter -------------
-export function setResizeMode(mode) {
-    const state = appStore.getState();
-    state.resizeMode = mode;
-    appStore.notify();
-}
-
-export function getResizeMode() {
-    return appStore.getState().resizeMode;
-}
-
-// ------------- Utility setters -------------
-export function replaceSnapTargetsInPlace(targets) {
-    const state = appStore.getState();
-    // clear existing array (preserve reference) and push new
-    state.snapTargets.length = 0;
-    targets.forEach(t => state.snapTargets.push(t));
-    appStore.notify();
-}
-
-// ------------- Plug in block position ------------
-
-export function getPlugInBlockPos() {
-    return appStore.getState().plugInBlockPos;
-}
-
-export function setPlugInBlockPos(pos) {
-    const state = appStore.getState();
-    state.plugInBlockPos = pos;
-    appStore.notify();
-}
-
-// ------------- Del button width -------------
-export function getDelBtnWidth() {
-    return appStore.getState().delBtnWidth;
-}
-
-// ------------- Block colors -------------
-export function getBlockColors() {
-    return appStore.getState().blockColors;
-}
-
-// ------------- Generic setter when needed -------------
-// export function setStateValue(key, value) {
-//     const state = appStore.getState();
-//     state[key] = value;
-//     appStore.notify();
-// }
-
-// ------------- Generic getter helper -------------
-// export function getStateValue(key) {
-//     return appStore.getState()[key];
-// }
+export const getDelBtnWidth = () => appStore.getDelBtnWidth();
+export const getBlockColors = () => appStore.getBlockColors();
 
 

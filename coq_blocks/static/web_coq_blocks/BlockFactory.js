@@ -9,6 +9,10 @@ import {
 } from "./store/appStoreActions.js";
 
 export default class BlockFactory {
+    constructor(store) {
+        this.store = store;
+    }
+
 
     createConstructorBlock(newConstructor, typeName, typeParameters, id) {
 

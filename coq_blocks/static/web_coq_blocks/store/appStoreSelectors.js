@@ -1,75 +1,26 @@
 import { appStore } from './appStore.js';
 
-// Selector functions to access specific parts of the app state
+export const getTypeBlockCount = (id) => appStore.getTypeBlockCount(id);
+export const getDefinitionBlockCount = () => appStore.getDefinitionBlockCount();
+export const getAtomicBlockCount = (id) => appStore.getAtomicBlockCount(id);
 
-export function getTypeBlockCount(id) {
-    const countMap = appStore.getState().typeBlockCount;
-    return countMap.has(id) ? countMap.get(id) : 0;
-}
+export const getRawConstructors = () => appStore.getStateValue('rawContructors');
+export const getRawHypothesis = () => appStore.getStateValue('rawHypothesis');
 
-export function getDefinitionBlockCount() {
-    return appStore.getState().definitionBlockCount;
-}
+export const getBlockObjects = () => appStore.getBlockObjects();
+export const getHypothesisObjects = () => appStore.getStateValue('hypothesisObjects');
 
-export function getAtomicBlockCount(id) {
-    const countMap = appStore.getState().atomicBlockCount;
-    return countMap.has(id) ? countMap.get(id) : 0;
-}
+export const getSnapTargets = () => appStore.getSnapTargets();
+export const getSnappedBlocks = () => appStore.getSnappedBlocks();
+export const getOrderedSnappedBlocks = () => appStore.getOrderedSnappedBlocks();
+export const getPreviousSnappedBlocks = () => appStore.getPreviousSnappedBlocks();
 
-export function getRawConstructors() {
-    return appStore.getState().rawContructors;
-}
+export const getZIndexCount = () => appStore.getStateValue('zIndexCount');
 
-export function getRawHypothesis() {
-    return appStore.getState().rawHypothesis;
-}
+export const getResizeMode = () => appStore.getResizeMode();
 
-export function getBlockObjects() {
-    return appStore.getState().blockObjects;
-}
+export const getBlockColors = () => appStore.getBlockColors();
+export const getBlockColorsCount = () => appStore.getStateValue('blockColorsCount');
 
-export function getHypothesisObjects() {
-    return appStore.getState().hypothesisObjects;
-}
-
-// ------------------- Změna ???? -------------------
-export function getSnapTargets() {
-    return appStore.getState().snapTargets;
-}
-
-export function getSnappedBlocks() {
-    return appStore.getState().snappedBlocks;
-}
-
-export function getOrderedSnappedBlocks() {
-    return appStore.getState().orderedSnappedBlocks;
-}
-
-export function getPreviousSnappedBlocks() {
-    return appStore.getState().previousSnappedBlocks;
-}
-// -----------------------------------------------
-
-export function getZIndexCount() {
-    return appStore.getState().zIndexCount;
-}
-
-export function getResizeMode() {
-    return appStore.getState().resizeMode;
-}
-
-export function getBlockColors() {
-    return appStore.getState().blockColors;
-}
-
-export function getBlockColorsCount() {
-    return appStore.getState().blockColorsCount;
-}
-
-export function getPlugInBlockPos() {
-    return appStore.getState().plugInBlockPos;
-}
-
-export function getDelBtnWidth() {
-    return appStore.getState().delBtnWidth;
-}
+export const getPlugInBlockPos = () => appStore.getPlugInBlockPos();
+export const getDelBtnWidth = () => appStore.getDelBtnWidth();
