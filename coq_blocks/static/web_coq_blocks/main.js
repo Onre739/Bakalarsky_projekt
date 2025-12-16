@@ -1,57 +1,94 @@
-import { AppStore } from './AppStore.js';
-import BlockFactory from "./BlockFactory.js";
-import DefinitionLoader from "./DefinitionLoader.js";
-//import UIController from "./UIController.js";
-import COQExporter from "./COQExporter.js";
-import SavedTypeManager from "./SavedTypeManager.js";
-import { getResizeMode } from "./store/appStoreActions.js";
+import AppStore from "./store/appStore.js";
+import BlockFactory from "./factories/BlockFactory.js";
+import DefinitionLoader from "./services/DefinitionLoader.js";
+import COQExporter from "./services/COQExporter.js";
+import SavedTypeManager from "./services/SavedTypeManager.js";
 import InteractionController from './views/InteractionController.js';
-import SnapManager from './SnapManager.js';
+import SnapManager from './services/SnapManager.js';
+import WorkspaceView from './views/WorkspaceView.js';
+import SidebarView from './views/SidebarView.js';
 
 // Initialize store and main components
-const store = new AppStore();
-const blockFactory = new BlockFactory(store);
-const typeManager = new SavedTypeManager(store);
-const snapManager = new SnapManager(store);
-const interactionController = new InteractionController(store, snapManager);
-//const uiController = new UIController(store);
+const snapManager = new SnapManager();
+const savedTypeManager = new SavedTypeManager();
 const definitionLoader = new DefinitionLoader();
-const coqExporter = new COQExporter(store);
+const coqExporter = new COQExporter();
+
+const store = new AppStore(snapManager, savedTypeManager, null);
+
+const blockFactory = new BlockFactory(store);
+store.setBlockFactory(blockFactory);
+
+const workspaceView = new WorkspaceView(store, snapManager);
+const sidebarView = new SidebarView(store);
 
 // Initialize interaction controller, interact.js
+const interactionController = new InteractionController(store, snapManager);
 interactionController.initializeAutomaticResizeConfig();
 
+// Subscribe views to store updates
+workspaceView.subscribeToStore();
+sidebarView.subscribeToStore();
 
+// ----------------- Global Listeners -----------------
+// ----- Export button -----
+const exportBtn = document.getElementById("exportBtn");
 
-// UI Reagující na změny ve store
-store.subscribe((state) => {
-    console.log("Stav se změnil:", state);
-    // Zde by se volalo překreslení, např.:
-    // uiRenderer.render(state.blockObjects);
+exportBtn.addEventListener("click", () => {
+    const blocks = store.getBlockObjects();
+    const snaps = store.getSnappedBlocks();
+
+    const coqString = coqExporter.export(blocks, snaps);
+
+    workspaceView.showExportResult(coqString);
 });
 
+// ----- New Definition Block button -----
+const newDefBtn = document.getElementById("newDefBtn");
 
+newDefBtn.addEventListener("click", () => {
+    store.spawnDefinitionBlock();
+});
 
+// ----- Classic Type Creation button -----
+const loadBtn = document.getElementById("loadBtn");
+const defInput = document.getElementById("defInput");
 
+loadBtn.addEventListener("click", async () => {
+    const definitionText = defInput.value;
 
-// console.log("GROUND OFFSET: " + $("#ground").offset().left + ", " + $("#ground").offset().top);
-// var uiController = new UIController();
-// var definitionLoader = new DefinitionLoader();
-// var blockFactory = new BlockFactory();
-// var coqExporter = new COQExporter();
-// var savedTypeManager = new SavedTypeManager();
+    try {
+        const data = await definitionLoader.load(definitionText);
+        store.importDefinitions(data);
+        defInput.value = "";
+        console.log("Definitions loaded successfully.");
+
+    } catch (error) {
+        console.error("Error loading definition:", error);
+        alert("Failed to load definition. See console for details.");
+    }
+});
+
+// ----- Atomic Type Creation button -----
+const atomicCreateBtn = document.getElementById("atomicCreateBtn");
+const atomicCreateInput = document.getElementById("atomicCreateInput");
+
+atomicCreateBtn.addEventListener("click", () => {
+    const dataTypeName = atomicCreateInput.value.trim();
+
+    if (dataTypeName.length === 0) {
+        alert("Please enter a type name.");
+        return;
+    }
+
+    store.addSavedType(dataTypeName, "atomic");
+
+    atomicCreateInput.value = "";
+});
+
+console.log("Application initialized.");
 
 // // ------------ Listeneři ------------
-
-// // Tvorba bloků
-// document.getElementById("loadBtn").addEventListener("click", async () => {
-//     // Parsování a načtení dat z inputu
-//     var data = await definitionLoader.load();
-//     console.log("Data: ", data);
-
-//     // Odeslání dat
-//     savedTypeManager.getClasicData(data);
-// });
 
 // // Tlačítka pro změnu režimu
 // // document.getElementById("autoBtn").addEventListener("click", () => {
@@ -62,36 +99,3 @@ store.subscribe((state) => {
 // //     uiController.switchToManual();
 // // });
 
-// // Export button
-// document.getElementById("exportBtn").addEventListener("click", () => {
-//     coqExporter.export();
-// });
-
-// // Nový block definice
-// document.getElementById("newDefBtn").addEventListener("click", () => {
-//     blockFactory.createDefinitionBlock();
-// });
-
-// // Nový atomický typ
-// document.getElementById("atomicCreateBtn").addEventListener("click", () => {
-//     let dataType = document.getElementById("atomicCreateInput").value.trim();
-//     savedTypeManager.getAtomicData(dataType);
-// });
-
-// // -----------------------------------
-
-// // Vykreslení uložených typů
-// savedTypeManager.printList();
-
-// // Drag controll
-// switch (getResizeMode()) {
-//     // Automatický mód pro resize bloků
-//     case "Auto":
-//         uiController.automaticResizeConfig();
-//         break;
-
-//     // Manuální mód pro resize bloků
-//     case "Manual":
-//         uiController.manualResizeConfig();
-//         break;
-// }

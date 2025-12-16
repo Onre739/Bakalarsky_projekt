@@ -1,12 +1,8 @@
 export default class WorkspaceView {
-    constructor(groundElement, store, snapManager) {
-        this.ground = groundElement;
+    constructor(store, snapManager) {
+        this.ground = document.getElementById("ground");
         this.store = store;
         this.snapManager = snapManager;
-    }
-
-    initialize() {
-        // Inicializace workspace view
     }
 
     subscribeToStore() {
@@ -18,15 +14,14 @@ export default class WorkspaceView {
     updateUI() {
         const blockObjects = this.store.getBlockObjects();
         const currentSnaps = this.store.getSnappedBlocks();
-        const previousSnaps = this.store.getPreviousSnappedBlocks();
         const plugInBlockPos = this.store.getPlugInBlockPos();
         const orderedSnaps = this.store.getOrderedSnappedBlocks();
 
-        // 1. Synchronizace DOM elementů (přidání/odebrání bloků)
+        // 1. Synchronize DOM elements (adding/removing blocks)
         this.syncBlocksWithDOM(blockObjects);
 
         // 2. Block resize
-        this.afterSnapActions(currentSnaps, previousSnaps, plugInBlockPos, orderedSnaps);
+        this.afterSnapActions(plugInBlockPos, orderedSnaps);
 
         // 3. Drag control
         const blockedDraggableItems = this.snapManager.getBlockedDraggableItems(currentSnaps);
@@ -40,7 +35,7 @@ export default class WorkspaceView {
     }
 
     draggableClassControl(blockObjects, blockedDraggableItems) {
-        //Přidání / odebrání třídy draggable pro všechny bloky
+        // Add / remove draggable class for all blocks
 
         blockObjects.forEach(block => {
             if (blockedDraggableItems.has(block)) {
@@ -53,23 +48,22 @@ export default class WorkspaceView {
     }
 
     deleteBtnClassControl(notSnappedBlocks, blockObjects, removeBlockCallback) {
-        // 1. Pro rychlejší vyhledávání si uděláme Set z nesnapnutých bloků
+        // 1. Set for quick lookup
         const notSnappedSet = new Set(notSnappedBlocks);
 
-        // 2. Projdeme všechny existující bloky
+        // 2. Traverse all blocks and add/remove delete button
         blockObjects.forEach((blockObject) => {
             let deleteBtn = blockObject.element.querySelector(".deleteButton");
 
-            // Zjistíme, zda tento blok má mít tlačítko
             const shouldHaveButton = notSnappedSet.has(blockObject);
 
+            // A) Should have delete button and doesn't have it -> create
             if (shouldHaveButton && !deleteBtn) {
-                // A) MÁ mít tlačítko, ale NEMÁ ho -> Vytvořit
                 deleteBtn = document.createElement("button");
                 deleteBtn.setAttribute("class", "deleteButton");
                 deleteBtn.innerText = "X";
 
-                // DŮLEŽITÉ: stopPropagation, aby kliknutí nespustilo drag bloku
+                // IMPORTANT: stopPropagation, so that clicking the button doesn't trigger drag of the block
                 deleteBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
                     removeBlockCallback(blockObject);
@@ -77,177 +71,130 @@ export default class WorkspaceView {
 
                 blockObject.element.appendChild(deleteBtn);
 
-            } else if (!shouldHaveButton && deleteBtn) {
-                // B) NEMÁ mít tlačítko, ale MÁ ho -> Smazat
+            }
+
+            // B) Shouldn't have delete button and has it -> remove
+            else if (!shouldHaveButton && deleteBtn) {
                 deleteBtn.remove();
             }
 
         });
     }
 
-    // Funkce automatické odebírání elementů z DOMu, které už nejsou ve store !!!
-    // Má se spouštět po notify
+    // Automatically syncs the blocks in the DOM with the blocks in the Store
     syncBlocksWithDOM(blockObjects) {
-        // 1. Získat všechny bloky, které jsou aktuálně v DOMu (mají třídu .block)
+        // 1. Get all current DOM blocks
         const domBlocks = Array.from(this.ground.querySelectorAll('.block'));
 
-        // Vytvoříme Set IDček z dat pro rychlé hledání
+        // 2. Set of IDs for quick lookup
         const dataIds = new Set(blockObjects.map(b => b.id));
 
+        // 3. Remove extra DOM blocks
         domBlocks.forEach(domEl => {
-            // Předpokládám, že element.id odpovídá block.id
             const id = domEl.getAttribute('id');
 
-            // Pokud element je v DOMu, ale jeho ID už není v datech -> SMAZAT
+            // If the block is not in the Store, remove it from DOM
             if (!dataIds.has(id)) {
                 domEl.remove();
             }
         });
+
+        // 4. Add missing blocks
+        blockObjects.forEach(block => {
+            // If the block is not in the DOM, add it
+            if (!this.ground.contains(block.element)) {
+
+                this.ground.appendChild(block.element);
+
+                if (!block.element.classList.contains("block")) {
+                    block.createElement();
+                }
+
+                // Spawn position
+                // if (!block.element.hasAttribute('data-x')) {
+                //     const x = window.scrollX + 100;
+                //     const y = window.scrollY + 100;
+                //     block.element.style.transform = `translate(${x}px, ${y}px)`;
+                //     block.element.setAttribute('data-x', x);
+                //     block.element.setAttribute('data-y', y);
+                // }
+
+            }
+        });
     }
 
-
     /**
-     * Řeší logiku po snapu (změna velikosti rodičů, nové pozice).
-     * Mění DOM elementům výšku a pozici (side-effect na View), ale nemění Store.
-     * @param {Array} currentSnappedBlocks - Aktuálně vypočítané snapy
-     * @param {Array} previousSnappedBlocks - Snapy z minulého kroku (pro porovnání změn)
+     * Manages the logic after a snap (changing parent sizes, new positions).
+     * Changes DOM elements' height and position.
      * @param {number} plugInBlockPos 
-     * @param {Array} orderedSnappedBlocks - Seřazené snapy (pole polí)
+     * @param {Array} orderedSnappedBlocks - Ordered snaps (array of arrays)
      */
-    afterSnapActions(currentSnappedBlocks, previousSnappedBlocks, plugInBlockPos, orderedSnappedBlocks) { // Akce pokud se projevil snap / unsnap
-        let arrayCurr = currentSnappedBlocks.slice();
-        let arrayPrev = previousSnappedBlocks.slice();
+    afterSnapActions(plugInBlockPos, orderedSnappedBlocks) {
 
-        function objectsEqual(obj1, obj2) {
-            return obj1.parent === obj2.parent &&
-                obj1.plugIndex === obj2.plugIndex &&
-                obj1.plug === obj2.plug &&
-                obj1.child === obj2.child;
-        }
+        // 1. Reset height
+        this.store.getBlockObjects().forEach(block => {
+            const baseHeight = (block.plugsCount || 0) === 0 ? 70 : (block.plugsCount * 50 + 20);
 
-        // Nalezení společných prvků
-        let sameElements = arrayCurr.filter(itemCurr =>
-            arrayPrev.some(itemPrev => objectsEqual(itemCurr, itemPrev))
-        );
+            block.element.style.height = `${baseHeight}px`;
+        });
 
-        // Odstranění společných prvků z obou polí, tedy zůstane mi pouze aktuální snap / unsnap
-        let uniqueCurr = arrayCurr.filter(itemCurr =>
-            !sameElements.some(itemPrev => objectsEqual(itemCurr, itemPrev))
-        );
-        let uniquePrev = arrayPrev.filter(itemPrev =>
-            !sameElements.some(itemCurr => objectsEqual(itemPrev, itemCurr))
-        );
+        // 2. Height recount (Bottom-Up: from leaves to root)
+        // orderedSnappedBlocks is already sorted from root to leaves
+        // Need to go backwards (from the deepest child up) to correctly sum heights.
+        orderedSnappedBlocks.forEach(tree => {
+            // Make a copy and reverse the order -> going from leaves to root
+            [...tree].reverse().forEach(snap => {
+                const parent = snap.parent;
+                const child = snap.child;
 
-        // uniqueCurr == unikátní aktuální snap, tedy nový snap +++
-        // uniquePrev == unikátní předchozí snap, tedy nový unsnap ---
+                // Blocks with only 1 plug do not change height
+                if (parent.plugsCount !== 1) {
+                    const childHeight = child.element.offsetHeight; // Current height of the child (may already be increased)
+                    const parentCurrentHeight = parent.element.offsetHeight;
 
-        // ------ Arrow pomocné funkce
-
-        // Změna velikosti všech rodičovských bloků, rekurzivní arrow funkce, od konce po začátek snapů
-        const resizeParents = (block, heightValue) => {
-            // Pokud block nemá jen 1 plug
-            if (block.plugsCount !== 1) {
-
-                // Při různém zoomu stránky se mění velikost borderu!!!
-                // offsetHeight zahrnuje obsah + padding + border, proto odečítám border
-                block.element.style.height =
-                    `${block.element.offsetHeight + heightValue}px`;
-            }
-            let snap = currentSnappedBlocks.find(s => s.child === block);
-            if (snap) resizeParents(snap.parent, heightValue); // rekurze
-        };
-
-        // Nové pozice po zvětšení velikostí
-        const applyNewPositions = () => {
-            orderedSnappedBlocks.forEach((snappedDef) => {
-                snappedDef.forEach((snappedBlock) => {
-
-                    // Zisk pozice plugu pro novou pozici child bloku
-                    let plugEl = snappedBlock.plug.element;
-                    let plugRect = plugEl.getBoundingClientRect();
-
-                    let plugLeft = plugRect.left + window.scrollX;
-                    let plugTop = plugRect.top + window.scrollY;
-                    let plugWidth = plugRect.width;
-                    let plugHeight = plugRect.height;
-
-                    // Rozdíl mezi pozicí 0,0 stránky a 0,0 ground elementu, protože interact.js bere 0,0 z groundu
-                    // getBoundingClientRect je pozice před borderem a paddingem -> proto je musím přičíst
-                    let groundEl = document.getElementById("ground");
-                    let groundRect = groundEl.getBoundingClientRect();
-                    let groundStyle = getComputedStyle(groundEl);
-
-                    let docGroundDiffLeft = groundRect.left + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
-                    let docGroundDiffTop = groundRect.top + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
-
-                    // Nová pozice child bloku
-                    let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
-                    let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * plugInBlockPos - docGroundDiffTop;
-
-                    snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
-                    snappedBlock.child.element.setAttribute('data-x', x);
-                    snappedBlock.child.element.setAttribute('data-y', y);
-                });
+                    // Set new height for the parent
+                    parent.element.style.height = `${parentCurrentHeight + childHeight}px`;
+                }
             });
-        };
+        });
 
-        // ------ Porovnávání aktuálních snapů s předchozími snapy
+        // 3. New positions (Top-Down: from root to leaves)
+        orderedSnappedBlocks.forEach((snappedDef) => {
+            snappedDef.forEach((snappedBlock) => {
+                let plugEl = snappedBlock.plug.element;
+                let plugRect = plugEl.getBoundingClientRect();
 
-        // Když prev == 0 a curr == 1, tak jde o klasický snap
-        if (uniquePrev.length === 0 && uniqueCurr.length === 1) {
-            console.log("Just normal SNAP +++");
+                let plugLeft = plugRect.left + window.scrollX;
+                let plugTop = plugRect.top + window.scrollY;
+                let plugWidth = plugRect.width;
+                let plugHeight = plugRect.height;
 
-            let parentCurr = uniqueCurr[0].parent;
-            let childCurr = uniqueCurr[0].child;
-            let heightValueCurr = childCurr.element.offsetHeight;
+                // Difference between position 0,0 of the page and 0,0 of the ground element, because interact.js takes 0,0 from ground
+                // getBoundingClientRect is position before border and padding -> so I have to add it
+                let groundEl = this.ground;
+                let groundRect = groundEl.getBoundingClientRect();
+                let groundStyle = getComputedStyle(groundEl);
 
-            // Změna velikosti snapnutých bloků
-            resizeParents(parentCurr, +heightValueCurr);
+                let docGroundDiffLeft = groundRect.left + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
+                let docGroundDiffTop = groundRect.top + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
 
-            // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
-            applyNewPositions();
-        }
+                let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
+                let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * plugInBlockPos - docGroundDiffTop;
 
-        // Když prev == 1 a curr == 0, tak jde o klasický UNsnap
-        else if (uniqueCurr.length === 0 && uniquePrev.length === 1) {
-            console.log("Just normal UNSNAP ---");
+                snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
+                snappedBlock.child.element.setAttribute('data-x', x);
+                snappedBlock.child.element.setAttribute('data-y', y);
+            });
+        });
+    }
 
-            let parentPrev = uniquePrev[0].parent;
-            let childPrev = uniquePrev[0].child;
-            let heightValuePrev = childPrev.element.offsetHeight;
+    showExportResult(str) {
+        let li = document.createElement("li");
+        li.innerText = str;
 
-            // Změna velikosti snapnutých bloků
-            resizeParents(parentPrev, -heightValuePrev);
-
-            // Nová pozice pro všechny snapnuté bloky kvůli změně velikosti díky snapu/odsnapu
-            applyNewPositions();
-        }
-
-        // Když prev == 0 a curr == 0, tak jde jenom o pohyb
-        else if (uniqueCurr.length === 0 && uniquePrev.length === 0) {
-            console.log("Just move");
-        }
-
-        // Když prev == 1 a curr == 1, tak jde o snap -> snap
-        else {  // Drag z 1 snapnutého bloku na 2; unikátní pouze 1 blok kvůli zrušení nelistových dragů
-            console.log("At the same time --- & +++ snap");
-
-            let parentCurr = uniqueCurr[0].parent;
-            let childCurr = uniqueCurr[0].child;
-            let heightValueCurr = childCurr.element.offsetHeight;
-
-            let parentPrev = uniquePrev[0].parent;
-            let childPrev = uniquePrev[0].child;
-            let heightValuePrev = childPrev.element.offsetHeight;
-
-            // Prvně zmenšení původních bloků, proto použiju previousSnappedBlocks
-            resizeParents(parentPrev, -heightValuePrev);
-
-            // Zvětšení nových bloků
-            resizeParents(parentCurr, +heightValueCurr);
-
-            // Nové pozice
-            applyNewPositions();
+        const resultList = document.getElementById("result");
+        if (resultList) {
+            resultList.appendChild(li);
         }
     }
 

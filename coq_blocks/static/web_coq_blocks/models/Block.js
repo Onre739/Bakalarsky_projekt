@@ -1,10 +1,4 @@
-import {
-    getDelBtnWidth,
-    getDefinitionBlockCount,
-    getBlockColors,
-    getTypeBlockCount,
-    getAtomicBlockCount
-} from "./store/appStoreActions.js";
+
 class Dot {
     constructor(type, parentBlockEl, color) {
         this.type = type; // datový typ
@@ -72,6 +66,8 @@ class BaseBlock {
         this.id = id; // unikátní ID
         this.color = color; // barva bloku
         this.element = document.createElement("div"); // DOM element
+        this.delBtnWidth = 20;
+
     }
 
     createElement() {
@@ -103,17 +99,13 @@ class BaseBlock {
 }
 
 export class DefinitionBlock extends BaseBlock {
-    constructor(varName) {
-        super(`defBlock:${getDefinitionBlockCount()}`, "rgb(128, 128, 128)");
+    constructor(varName, id) {
+        super(id, "rgb(128, 128, 128)");
         this.plugObjects = [];
         this.varName = varName; // Název proměnné pro definici: Definition a: nat := ......
     }
 
     createElement() {
-
-        // Append DOM, jelikož element musí být prvně napojený na dom a až pak se může stylovat a používat offsetWidth atd ...
-        let groundElement = document.getElementById("ground");
-        groundElement.appendChild(this.element);
 
         let newBlock = this.element
         newBlock.setAttribute("id", this.id);
@@ -151,8 +143,8 @@ export class DefinitionBlock extends BaseBlock {
 }
 
 export class ConstructorBlock extends BaseBlock {
-    constructor(constructor, typeName, typeParameters, id) {
-        super(`${id}:${getTypeBlockCount(id)}`, getBlockColors()[0]);
+    constructor(constructor, typeName, typeParameters, id, color) {
+        super(id, color);
 
         this.typeName = typeName; // Název datového typu
         this.constructorName = constructor.name; // Název konstruktoru
@@ -180,10 +172,6 @@ export class ConstructorBlock extends BaseBlock {
     }
 
     createElement() {
-        // Append DOM, jelikož element musí být prvně napojený na dom a až pak se může stylovat a používat offsetWidth atd ...
-        let groundElement = document.getElementById("ground");
-        groundElement.appendChild(this.element);
-
         // Počet proměnných u konstruktorů s implicitním typem / explicitními názvy parametrů, např.: (a b c d : bit) ; 4 parametry
         let variablesCount = 0;
 
@@ -238,7 +226,7 @@ export class ConstructorBlock extends BaseBlock {
         let aktPlug = 0; // Aktuální plug
         this.plugsCount = this.constructorParameters.length + variablesCount; // Počet všech parametrů
         let plugPositions = this.getPlugPositions(this.plugsCount); // Zisk pozic pro plugy pro všechny parametry
-        let widestLabel = blockNameEl.offsetWidth + getDelBtnWidth(); // Nejširší label pro šířku bloku
+        let widestLabel = blockNameEl.offsetWidth + this.delBtnWidth; // Nejširší label pro šířku bloku
 
         this.constructorParameters.forEach((param) => {
 
@@ -299,7 +287,7 @@ export class ConstructorBlock extends BaseBlock {
 
 export class AtomicBlock extends BaseBlock {
     constructor(dataType, id) {
-        super(`${id}:${getAtomicBlockCount(id)}`, "rgb(128, 128, 128)");
+        super(id, "rgb(128, 128, 128)");
 
         this.dataType = dataType;
 
@@ -315,10 +303,6 @@ export class AtomicBlock extends BaseBlock {
     }
 
     createElement() {
-        // Append DOM, jelikož element musí být prvně napojený na dom a až pak se může stylovat a používat offsetWidth atd ...
-        let groundElement = document.getElementById("ground");
-        groundElement.appendChild(this.element);
-
         // ------------------------ New block
 
         let newBlock = this.element

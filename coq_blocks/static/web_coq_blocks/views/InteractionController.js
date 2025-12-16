@@ -2,6 +2,7 @@ export default class InteractionController {
     constructor(store, snapManager) {
         this.store = store;
         this.snapManager = snapManager;
+        this.currentMovedBlock = null;
     }
 
     initializeAutomaticResizeConfig() {
@@ -13,10 +14,12 @@ export default class InteractionController {
                     let target = event.target;
                     target.style.zIndex = this.store.getAndIncrementZIndex();
 
-                    // Najít BlockObject podle target elementu
+                    // Find BlockObject by target element
                     let movedBlockObject = this.store.getBlockObjectByElement(target);
                     if (movedBlockObject) {
-                        // Najít snap targety
+                        this.currentMovedBlock = movedBlockObject;
+
+                        // Find new snap targets silently (without notify)
                         this.store.recalculateSnapTargetsSilent(movedBlockObject);
                         console.log("Updated snap targets:", this.store.getSnapTargets());
                     }
@@ -24,20 +27,24 @@ export default class InteractionController {
                 },
 
                 move: (event) => {
-                    // DŮLEŽITÉ, x a y se počítají od GROUND ELEMENTU !! ne od začátku dokumentu
+                    // IMPORTANT, x and y are calculated from GROUND ELEMENT !! not from the start of the document
                     let target = event.target;
                     let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
                     let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-                    // Zapsání změny pozice
+                    // Save position change
                     target.style.transform = `translate(${x}px, ${y}px)`;
                     target.setAttribute('data-x', x);
                     target.setAttribute('data-y', y);
                 },
 
                 end: (event) => {
-                    // Actions after block drop: snap check, resize, drag control, delete buttons
-                    this.store.handleBlockDrop();
+                    if (this.currentMovedBlock) {
+
+                        // Actions after block drop: snap check, resize, drag control, delete buttons
+                        this.store.handleBlockDrop(this.currentMovedBlock);
+                        this.currentMovedBlock = null; // Reset
+                    }
 
                     console.log('Drag ended', event);
                     console.log("Snapped blocks:", this.store.getSnappedBlocks());
@@ -48,7 +55,7 @@ export default class InteractionController {
                 interact.modifiers.snap({
                     targets: this.store.getSnapTargets(),
                     range: 30,
-                    relativePoints: [{ x: 0, y: this.store.getPlugInBlockPos() }] // Pozice i s borderem
+                    relativePoints: [{ x: 0, y: this.store.getPlugInBlockPos() }] // Position including border
                 }),
                 interact.modifiers.restrictRect({
                     restriction: 'document',

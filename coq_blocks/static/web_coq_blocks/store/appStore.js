@@ -1,50 +1,38 @@
 import { Store } from './Store.js';
 
-// Návrhový vzor Store - globální stav aplikace
-export class appStore extends Store {
+// Design pattern: Singleton Store for application state management
+export default class appStore extends Store {
 
-    constructor(snapManager, workspaceView) {
-        this.snapManager = snapManager;
-        this.workspaceView = workspaceView;
+    constructor(snapManager, savedTypeManager, blockFactory) {
         super({
 
-            // Počet typů a jeho bloků pomocí Map.set(), get(), has(), delete()
+            // Count of types and their blocks using Map.set(), get(), has(), delete()
             typeBlockCount: new Map(),
 
-            // Počet bloků definic
+            // Count of definition blocks
             definitionBlockCount: 0,
 
-            // Počet atomických bloků podle id (Map: id -> count)
+            // Count of atomic blocks by id (Map: id -> count)
             atomicBlockCount: new Map(),
 
-            // zparsovaná (raw) data z DefinitionLoader.js, teď to nikde nepoužívám 
-            rawContructors: [],
-            rawHypothesis: [],
-
-            // Objekty bloků a hypotéz z Block.js
+            // Objects of blocks and hypotheses from Block.js
             blockObjects: [],
             hypothesisObjects: [],
 
-            // Pole možných snapů pro dragovaný blok: x, y, block, plug, for
+            // Array of possible snap targets for a dragged block: x, y, block, plug, for
             snapTargets: [],
 
-            // Pole snapnutých bloků: parent, plugIndex, plug, child
+            // Array of snapped blocks: parent, plugIndex, plug, child
             snappedBlocks: [],
 
-            // Pole seřazených snapnutých bloků pro zvětšování a zmenšování, NEJSOU SEŘAZENY PODLE PLUGŮ !!! (1,2,...)
+            // Array of ordered snapped blocks for size changes, NOT ORDERED BY PLUGS !!! (1,2,...)
             orderedSnappedBlocks: [],
 
-            // Pole předchozích snapnutých bloků, pro zjištění rozdílu / změny
-            previousSnappedBlocks: [],
+            // Saved types from SavedTypeManager
+            savedTypes: [],
 
             zIndexCount: 1,
 
-            // Rozdíl mezi pozicí 0,0 stránky a 0,0 ground elementu, protože interact.js bere 0,0 z groundu
-            // docGroundDiffLeft: $("#ground").offset().left,
-            // docGroundDiffTop: $("#ground").offset().top,
-
-            // Při různém zoomu stránky se mění velikost borderu !!! Počítám velikost podle Definition bloku
-            //borderSize: $(".definition").get(0).getBoundingClientRect().width - $(".definition").get(0).clientWidth,
             resizeMode: "Auto",
             blockColors: ["rgb(255, 0, 0)", "rgb(0, 102, 255)", "rgb(255, 255, 0)",
                 "rgb(0, 128, 0)", "rgb(227, 117, 0)", "rgb(0, 238, 255)",
@@ -52,83 +40,30 @@ export class appStore extends Store {
                 "rgb(98, 47, 0)", "rgb(66, 0, 190)"],
             blockColorsCount: 11,
             plugInBlockPos: 0.6,
-            delBtnWidth: 20
-
         });
+
+        this.snapManager = snapManager;
+        this.savedTypeManager = savedTypeManager;
+        this.blockFactory = blockFactory;
+
+        // Load saved types from SavedTypeManager into the state
+        this.loadSavedTypes();
     }
 
-    // ------------- Block counts (type / atomic) -------------
-    initTypeBlockCount(id) {
-        const state = this.getState();
-        if (!state.typeBlockCount.has(id)) {
-            state.typeBlockCount.set(id, 0);
-            this.notify();
-        }
+    // Setter injection for BlockFactory (circular dependency)
+    setBlockFactory(blockFactory) {
+        this.blockFactory = blockFactory;
     }
 
-    incrementTypeBlockCount(id) {
-        const state = this.getState();
-        const cnt = state.typeBlockCount.has(id) ? state.typeBlockCount.get(id) : -1;
-        if (cnt >= 0) {
-            state.typeBlockCount.set(id, cnt + 1);
-            this.notify();
-            return cnt + 1;
-        }
-        return -1;
-    }
-
-    deleteTypeBlockCount(id) {
-        const state = this.getState();
-        if (state.typeBlockCount.has(id)) {
-            state.typeBlockCount.delete(id);
-            this.notify();
-        }
-    }
-
+    // ------------- Block counts (type / atomic / definition) -------------
     getTypeBlockCount(id) {
         const state = this.getState();
         return state.typeBlockCount.has(id) ? state.typeBlockCount.get(id) : 0;
     }
 
-    // ---------
-    initAtomicBlockCount(id) {
-        const state = this.getState();
-        if (!state.atomicBlockCount.has(id)) {
-            state.atomicBlockCount.set(id, 0);
-            this.notify();
-        }
-    }
-
-    incrementAtomicBlockCount(id) {
-        const state = this.getState();
-        const cnt = state.atomicBlockCount.has(id) ? state.atomicBlockCount.get(id) : -1;
-        if (cnt >= 0) {
-            state.atomicBlockCount.set(id, cnt + 1);
-            this.notify();
-            return cnt + 1;
-        }
-        return -1;
-    }
-
-    deleteAtomicBlockCount(id) {
-        const state = this.getState();
-        if (state.atomicBlockCount.has(id)) {
-            state.atomicBlockCount.delete(id);
-            this.notify();
-        }
-    }
-
     getAtomicBlockCount(id) {
         const state = this.getState();
         return state.atomicBlockCount.has(id) ? state.atomicBlockCount.get(id) : 0;
-    }
-
-    // ------------- Definition / generic counters -------------
-    incrementDefinitionBlockCount() {
-        const state = this.getState();
-        state.definitionBlockCount += 1;
-        this.notify();
-        return state.definitionBlockCount;
     }
 
     getDefinitionBlockCount() {
@@ -140,29 +75,11 @@ export class appStore extends Store {
         const state = this.getState();
         const z = state.zIndexCount;
         state.zIndexCount += 1;
-        this.notify();
+        // this.notify();
         return z;
     }
 
     // ------------- Block objects manipulation -------------
-    addBlockObject(obj) {
-        const state = this.getState();
-        state.blockObjects.push(obj);
-        this.notify();
-    }
-
-    removeBlockObject(obj) {
-        const state = this.getState();
-        state.blockObjects = state.blockObjects.filter(b => b !== obj);
-        this.notify();
-    }
-
-    clearBlockObjects() {
-        const state = this.getState();
-        state.blockObjects.length = 0;
-        this.notify();
-    }
-
     getBlockObjects() {
         return this.getState().blockObjects;
     }
@@ -172,107 +89,29 @@ export class appStore extends Store {
         return state.blockObjects.find(b => b.element === element);
     }
 
-    // ------------- Snap targets / snapped blocks helpers -------------
-    // NOTE: some code (interact.js) keeps references to the snapTargets array; prefer clearing and pushing
-    clearSnapTargets() {
-        const state = this.getState();
-        state.snapTargets.length = 0;
-        this.notify();
-    }
-
-    pushSnapTarget(target) {
-        const state = this.getState();
-        state.snapTargets.push(target);
-        this.notify();
-    }
-
-    replaceSnapTargets(targets) {
-        const state = this.getState();
-        state.snapTargets.length = 0;
-        targets.forEach(t => state.snapTargets.push(t));
-        this.notify();
-    }
-
+    // ------------- Snap targets -------------
     getSnapTargets() {
         return this.getState().snapTargets;
     }
 
     // ---------
-    clearSnappedBlocks() {
-        const state = this.getState();
-        state.snappedBlocks.length = 0;
-        this.notify();
-    }
-
-    pushSnappedBlock(obj) {
-        const state = this.getState();
-        state.snappedBlocks.push(obj);
-        this.notify();
-    }
-
-    setSnappedBlocks(arr) {
-        const state = this.getState();
-        state.snappedBlocks = arr;
-        this.notify();
-    }
-
     getSnappedBlocks() {
         return this.getState().snappedBlocks;
     }
 
-    // ---------
-    setOrderedSnappedBlocks(arr) {
-        const state = this.getState();
-        state.orderedSnappedBlocks = arr;
-        this.notify();
-    }
-
+    // --------- Ordered snapped blocks -------------
     getOrderedSnappedBlocks() {
         return this.getState().orderedSnappedBlocks;
     }
 
-    // ---------
-    setPreviousSnappedBlocks(arr) {
-        const state = this.getState();
-        state.previousSnappedBlocks = arr;
-        this.notify();
-    }
-
-    getPreviousSnappedBlocks() {
-        return this.getState().previousSnappedBlocks;
-    }
-
-    // ------------- Raw data pushers (DefinitionLoader uses these) -------------
-    pushRawHypothesis(item) {
-        const state = this.getState();
-        state.rawHypothesis.push(item);
-        this.notify();
-    }
-
-    pushRawConstructor(item) {
-        const state = this.getState();
-        state.rawContructors.push(item);
-        this.notify();
+    // ------------- Saved types manipulation -------------
+    getSavedTypes() {
+        return this.getState().savedTypes;
     }
 
     // ------------- Resize mode setter -------------
-    setResizeMode(mode) {
-        const state = this.getState();
-        state.resizeMode = mode;
-        this.notify();
-    }
-
     getResizeMode() {
         return this.getState().resizeMode;
-    }
-
-    // ------------- Utility setters -------------
-    replaceSnapTargetsInPlace(targets) {
-        const state = this.getState();
-        // clear existing array (preserve reference) and push new
-        state.snapTargets.length = 0;
-        targets.forEach(t => state.snapTargets.push(t));
-        this.notify();
     }
 
     // ------------- Plug in block position ------------
@@ -281,54 +120,158 @@ export class appStore extends Store {
         return this.getState().plugInBlockPos;
     }
 
-    setPlugInBlockPos(pos) {
-        const state = this.getState();
-        state.plugInBlockPos = pos;
-        this.notify();
-    }
-
-    // ------------- Del button width -------------
-    getDelBtnWidth() {
-        return this.getState().delBtnWidth;
-    }
-
     // ------------- Block colors -------------
     getBlockColors() {
         return this.getState().blockColors;
     }
 
-    // Generic getter helper
-    getStateValue(key) {
-        return this.getState()[key];
+    // ------------------------------------------------------------------------
+    // -------------- SavedTypeManager + SidebarView --------------
+    loadSavedTypes() {
+        const data = this.savedTypeManager.loadData();
+        this.state.savedTypes = data;
+        this.notify();
     }
 
+    addSavedType(rawTypeData, sort) {
+        let dataToSave = rawTypeData;
 
+        // Transform parameters for "clasic" types
+        if (sort === "clasic") {
+            dataToSave = {
+                explicitConstructors: rawTypeData.explicitConstructors,
+                implicitConstructors: rawTypeData.implicitConstructors,
+                name: rawTypeData.name,
 
+                // Transform { type: ["A"] } to { "A": null }
+                typeParameters: rawTypeData.typeParameters.flatMap(param => {
+                    if (param.type && Array.isArray(param.type)) {
+                        return param.type.map(t => ({ [t]: null }));
+                    }
+                    return [];
+                })
+            };
+        }
 
-    // ------------------------------------------------------------------------
+        // 1. Save to localStorage via SavedTypeManager
+        const newSavedTypes = this.savedTypeManager.addItem(
+            this.state.savedTypes,
+            dataToSave, // Transformed data
+            sort
+        );
 
-    // -------------- InteractionController --------------
+        // 2. Actualize state
+        this.state.savedTypes = newSavedTypes;
+        this.notify();
+    }
+
+    removeSavedType(id) {
+        const newSavedTypes = this.savedTypeManager.removeItem(this.state.savedTypes, id);
+        this.state.savedTypes = newSavedTypes;
+        this.notify();
+    }
+
+    spawnAtomicBlock(typeItem) {
+        // 1. Counter
+        let currentCount = this.state.atomicBlockCount.get(typeItem.id) || 0;
+        this.state.atomicBlockCount.set(typeItem.id, currentCount + 1);
+
+        // 2. Block ID
+        const blockId = `${typeItem.id}:${currentCount}`;
+        //console.log(`Spawning atomic block [${typeItem.dataType}] with ID: ${blockId}`);
+
+        // 3. Create instance via BlockFactory
+        const newBlock = this.blockFactory.createAtomicBlock(typeItem.dataType, blockId);
+
+        // 4. Save
+        this.state.blockObjects.push(newBlock);
+        this.notify();
+    }
+
+    spawnClasicBlock(constructor, typeName, typeParameters, typeId) {
+        // 1. Counter
+        let currentCount = this.state.typeBlockCount.get(typeId) || 0;
+        this.state.typeBlockCount.set(typeId, currentCount + 1);
+
+        // 2. Block ID
+        const blockId = `${typeId}:${currentCount}`;
+
+        const color = this.state.blockColors[currentCount % this.state.blockColorsCount];
+
+        // 3. Create instance via BlockFactory
+        const newBlock = this.blockFactory.createConstructorBlock(
+            constructor,
+            typeName,
+            typeParameters,
+            blockId,
+            color
+        );
+
+        // 4. Save
+        this.state.blockObjects.push(newBlock);
+        this.notify();
+    }
+
+    spawnDefinitionBlock() {
+        const id = `defBlock:${this.state.definitionBlockCount++}`;
+        const newBlock = this.blockFactory.createDefinitionBlock(id);
+        this.state.blockObjects.push(newBlock);
+        this.notify();
+    }
+
+    updateTypeParameters(typeId, updatedParameters) {
+        // 1. New savedTypes with updated parameters
+        const newSavedTypes = this.state.savedTypes.map(item => {
+            if (item.id === typeId) {
+                return {
+                    ...item,
+                    dataType: {
+                        ...item.dataType,
+                        typeParameters: updatedParameters
+                    }
+                };
+            }
+            return item;
+        });
+
+        // 2. Save to localStorage
+        this.savedTypeManager.saveData(newSavedTypes);
+
+        // 3. Update state
+        this.state.savedTypes = newSavedTypes;
+
+        // 4. Remove blocks of this type from workspace
+        const blocksToRemove = this.state.blockObjects.filter(block =>
+            block.id.startsWith(typeId + ":")
+        );
+
+        blocksToRemove.forEach(block => {
+            this.removeBlock(block);
+        });
+
+        // 5. Notify views
+        this.notify();
+    }
+
+    // -------------- InteractionController + WorkspaceView --------------
 
     removeBlock(blockToRemove) {
         const state = this.state;
 
-        // 0) smazat DOM element, přesun do WorkspaceView, měl by to dělat automaticky po notify 
-        //block.element.remove();
-
-        // 1) Smazat z blockObjects
+        // 1) Remove from blockObjects
         state.blockObjects = state.blockObjects.filter(b => b !== blockToRemove);
 
-        // 2) Snapnuté bloky, není potřebné, pojistka
+        // 2) Remove from snappedBlocks, not needed
         state.snappedBlocks = state.snappedBlocks.filter(
             s => s.parent !== blockToRemove && s.child !== blockToRemove
         );
 
-        // 3) SnapTargets 
-        // DŮLEŽITÉ !!! - NESMÍŠ VYTVÁŘET NOVÝ appStore.snapTargets !!! PROTOŽE ZTRATÍŠ REFERENCI PRO INTERACT JS
+        // 3) Remove snapTargets 
         const validTargets = state.snapTargets.filter(
             t => t.block !== blockToRemove && t.plug.parentBlockEl !== blockToRemove.element
         );
-        // Vyprázdnění a naplnění původního pole (zachová referenci)
+
+        // CANT reassign, MUST keep reference for interact.js!!!
         state.snapTargets.length = 0;
         state.snapTargets.push(...validTargets);
 
@@ -339,48 +282,59 @@ export class appStore extends Store {
         const state = this.state;
 
         const newTargets = this.snapManager.calculateSnapTargets(movedBlockObject, state.blockObjects);
-        // Update in-place (aby interact.js viděl změnu v poli)
+        // Update in-place, CAN'T reassign !!! KEEP REFERENCE !!!
         state.snapTargets.length = 0;
         state.snapTargets.push(...newTargets);
 
-        // ŽÁDNÉ this.notify() !!!
+        // NO this.notify() !!!
     }
 
-    handleBlockDrop() {
+    handleBlockDrop(movedBlock) {
         const state = this.state;
+        const prevSnaps = state.snappedBlocks; // Old snaps
 
-        // 1. Výpočet nových snapů
-        const newCalculatedSnaps = this.snapManager.checkForSnap(
+        // 1. Keep previous snaps except those involving movedBlock
+        const snapsToKeep = prevSnaps.filter(s => s.child !== movedBlock);
+
+        // 2. New snaps for movedBlock, snapTargets exists only for movedBlock
+        const newConnection = this.snapManager.checkForSnap(
             state.blockObjects,
             state.snapTargets,
             state.plugInBlockPos
         );
 
-        // 2. Porovnání snapů
-        // Pokud se nic nezměnilo, nic neděláme a končíme!
-        // Ušetříme překreslování i výpočty layoutu.
-        const hasChanged = !this.snapManager.areSnapsEqual(
-            state.snappedBlocks,
-            newCalculatedSnaps
-        );
+        // 3. Combine previous and new snaps
+        const nextSnaps = [...snapsToKeep, ...newConnection];
+
+        // 4. Diff - check if snaps changed
+        const hasChanged = !this.snapManager.areSnapsEqual(prevSnaps, nextSnaps);
 
         if (!hasChanged) {
-            // Žádná změna v topologii -> možná jen posun, ale to řeší interact.js
-            console.log("Drop bez změny snapů - skip update");
+            console.log("Drop without changes - skip update");
             return;
         }
 
-        // 4. Pokud se snapy změnily, pokračujeme...
-        const previousSnaps = state.snappedBlocks.slice();
-        const orderedSnaps = this.snapManager.orderSnappedBlocks(newCalculatedSnaps);
+        // 5. Update state and notify
+        const orderedSnaps = this.snapManager.orderSnappedBlocks(nextSnaps);
 
-        // 5. Hromadná aktualizace stavu
-        this.state.previousSnappedBlocks = previousSnaps;
-        this.state.snappedBlocks = newCalculatedSnaps;
+        this.state.snappedBlocks = nextSnaps;
         this.state.orderedSnappedBlocks = orderedSnaps;
 
-        // 6. Oznámení View
-        // Notify pouze při změně snapů
+        this.notify();
+    }
+
+    // ------------------------------------------------------------------------
+    importDefinitions(data) {
+        if (data.hypothesis) {
+            this.state.rawHypothesis.push(...data.hypothesis);
+        }
+
+        if (data.newTypes) {
+            data.newTypes.forEach(newType => {
+                this.addSavedType(newType, "clasic");
+            });
+        }
+
         this.notify();
     }
 

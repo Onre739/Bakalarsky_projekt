@@ -10,6 +10,7 @@ export class Store {
 
     subscribe(fn) {
         this.listeners.push(fn);
+        this.notify();
         return () => {
             this.listeners = this.listeners.filter(l => l !== fn);
         };

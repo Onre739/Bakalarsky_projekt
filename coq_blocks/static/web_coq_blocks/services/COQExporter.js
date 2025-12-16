@@ -1,32 +1,25 @@
-import { DefinitionBlock } from "./Block.js";
-import {
-    getBlockObjects,
-    getSnappedBlocks
-} from "./store/appStoreActions.js";
+import { DefinitionBlock } from "../models/Block.js";
+
 export default class COQExporter {
-    constructor() {
+
+    export(blockObjects, snappedBlocks) {
+        let traversalResult = this.DFSTraverse(blockObjects, snappedBlocks);
+        console.log("Exported structure: ", traversalResult.result);
+
+        return traversalResult.output;
     }
 
-    export() {
-        let result = this.DFSTraverse();
-        console.log("exported: ", result);
-
-        let li = document.createElement("li");
-        li.innerText = result.output;
-        document.getElementById("result").appendChild(li);
-    }
-
-    DFSTraverse() {
+    DFSTraverse(blockObjects, snappedBlocks) {
         let definitions = [];
 
         // Najdi root bloky – definice
-        let rootBlocks = getBlockObjects().filter(
+        let rootBlocks = blockObjects.filter(
             block => block instanceof DefinitionBlock
         );
 
         // Pro každý root blok získej objektový strom
         rootBlocks.forEach(rootBlock => {
-            let defObj = this.traverseBlock(rootBlock);
+            let defObj = this.traverseBlock(rootBlock, snappedBlocks);
             definitions.push(defObj);
         });
 
@@ -41,7 +34,7 @@ export default class COQExporter {
     }
 
     // Rekurzivní průchod bloky a plnění stromové struktury
-    traverseBlock(block) {
+    traverseBlock(block, snappedBlocks) {
         // Objekt pro stromovou strukturu k návratu
         let ret = {
             // Automatický název konstruktoru, něco jako instanceof
@@ -51,9 +44,9 @@ export default class COQExporter {
         };
 
         block.plugObjects.forEach(plug => {
-            let snap = getSnappedBlocks().find(s => s.plug === plug);
+            let snap = snappedBlocks.find(s => s.plug === plug);
             if (snap) {
-                ret.children.push(this.traverseBlock(snap.child));
+                ret.children.push(this.traverseBlock(snap.child, snappedBlocks));
             } else {
                 ret.children.push(null); // nic nesnapnutého
             }
