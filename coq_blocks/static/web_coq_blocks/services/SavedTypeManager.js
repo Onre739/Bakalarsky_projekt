@@ -19,7 +19,8 @@ export default class SavedTypeManager {
         const item = {
             id: crypto.randomUUID(),
             sort: type, // "atomic" or "clasic"
-            dataType: newItem
+            dataType: newItem,
+            color: "#808080" // Default color
         };
         const newData = [...dataArray, item];
         this.saveData(newData);

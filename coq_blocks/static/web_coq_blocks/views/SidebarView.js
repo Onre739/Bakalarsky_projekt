@@ -134,9 +134,12 @@ export default class SidebarView {
 
             // Parameter check
             if (!typeParameters || typeParameters.length === 0) {
-                settingModalBody.innerText = "This type has no type parameters.";
+                let div = document.createElement("div");
+                div.innerText = "This type has no type parameters.";
+                div.className = "mb-3";
+                settingModalBody.appendChild(div);
+
                 if (warnDiv) warnDiv.style.display = "none";
-                return;
             }
             else {
                 if (warnDiv) warnDiv.style.display = "block";
@@ -171,7 +174,25 @@ export default class SidebarView {
                 settingModalBody.appendChild(paramDivInput);
             });
 
-            // --- 2.1.2 Save button in modal listener ---
+            // --- 2.1.2 --- Color picker ---
+            let colorLabel = document.createElement("label");
+            colorLabel.innerText = "Block Color: ";
+            colorLabel.className = "form-label mt-2"; // Bootstrap spacing
+
+            let colorInput = document.createElement("input");
+            colorInput.type = "color";
+            colorInput.className = "form-control form-control-color mb-3";
+            colorInput.value = item.color || "#808080"; // Actual color
+            colorInput.title = "Choose your color";
+
+            let colorDiv = document.createElement("div");
+            colorDiv.className = "d-flex gap-2";
+            colorDiv.appendChild(colorLabel);
+            colorDiv.appendChild(colorInput);
+
+            settingModalBody.appendChild(colorDiv);
+
+            // --- 2.1.3 Save button in modal listener ---
             const saveBtn = document.querySelector("#settingModalSaveBtn");
 
             // Tricks for removing old listeners (cloneNode)
@@ -193,8 +214,20 @@ export default class SidebarView {
                     return { [typeKey]: newValue };
                 });
 
-                // B) Call Store (action)
-                this.store.updateTypeParameters(item.id, updatedParameters);
+                // B) Get new color
+                const newColor = colorInput.value;
+
+                // C) Call Store to update
+                this.store.updateTypeColor(item.id, newColor);
+
+                // Check if parameters changed
+                const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
+                if (paramsChanged) {
+                    console.log("Parameters changed - updating definition and removing blocks.");
+                    this.store.updateTypeParameters(item.id, updatedParameters);
+                } else {
+                    console.log("Parameters unchanged - skipping block removal.");
+                }
             });
         });
 

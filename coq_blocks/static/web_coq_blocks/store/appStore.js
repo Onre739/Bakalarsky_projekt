@@ -178,12 +178,14 @@ export default class appStore extends Store {
 
         // 2. Block ID
         const blockId = `${typeItem.id}:${currentCount}`;
-        //console.log(`Spawning atomic block [${typeItem.dataType}] with ID: ${blockId}`);
 
-        // 3. Create instance via BlockFactory
-        const newBlock = this.blockFactory.createAtomicBlock(typeItem.dataType, blockId);
+        // 3. Color
+        const color = typeItem.color || "#808080";
 
-        // 4. Save
+        // 4. Create instance via BlockFactory
+        const newBlock = this.blockFactory.createAtomicBlock(typeItem.dataType, blockId, color);
+
+        // 5. Save
         this.state.blockObjects.push(newBlock);
         this.notify();
     }
@@ -196,9 +198,11 @@ export default class appStore extends Store {
         // 2. Block ID
         const blockId = `${typeId}:${currentCount}`;
 
-        const color = this.state.blockColors[currentCount % this.state.blockColorsCount];
+        // 3. Color
+        const typeItem = this.state.savedTypes.find(t => t.id === typeId);
+        const color = typeItem.color || "#808080";
 
-        // 3. Create instance via BlockFactory
+        // 4. Create instance via BlockFactory
         const newBlock = this.blockFactory.createConstructorBlock(
             constructor,
             typeName,
@@ -207,7 +211,7 @@ export default class appStore extends Store {
             color
         );
 
-        // 4. Save
+        // 5. Save
         this.state.blockObjects.push(newBlock);
         this.notify();
     }
@@ -216,6 +220,45 @@ export default class appStore extends Store {
         const id = `defBlock:${this.state.definitionBlockCount++}`;
         const newBlock = this.blockFactory.createDefinitionBlock(id);
         this.state.blockObjects.push(newBlock);
+        this.notify();
+    }
+
+    updateTypeColor(typeId, newColor) {
+        // 1. Update savedTypes
+        const newSavedTypes = this.state.savedTypes.map(item => {
+            if (item.id === typeId) {
+                return { ...item, color: newColor };
+            }
+            return item;
+        });
+
+        this.savedTypeManager.saveData(newSavedTypes);
+        this.state.savedTypes = newSavedTypes;
+
+        // 2. Update existing blocks of this type
+        const relevantBlocks = this.state.blockObjects.filter(block =>
+            block.id.startsWith(typeId + ":")
+        );
+
+        relevantBlocks.forEach(block => {
+            // A) Update block color property
+            block.color = newColor;
+
+            // B) Update main element block color
+            if (block.element) {
+                block.element.style.backgroundColor = newColor;
+            }
+
+            // C) Update Dot color, if the block has one
+            if (block.dotObject) {
+                block.dotObject.color = newColor;
+                if (block.dotObject.element) {
+                    block.dotObject.element.style.backgroundColor = newColor;
+                }
+            }
+        });
+
+
         this.notify();
     }
 
@@ -337,10 +380,6 @@ export default class appStore extends Store {
 
     // ------------------------------------------------------------------------
     importDefinitions(data) {
-        if (data.hypothesis) {
-            this.state.rawHypothesis.push(...data.hypothesis);
-        }
-
         if (data.newTypes) {
             data.newTypes.forEach(newType => {
                 this.addSavedType(newType, "clasic");

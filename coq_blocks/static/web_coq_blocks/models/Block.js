@@ -269,8 +269,8 @@ export class ConstructorBlock extends BaseBlock {
 }
 
 export class AtomicBlock extends BaseBlock {
-    constructor(dataType, id) {
-        super(id, "rgb(128, 128, 128)");
+    constructor(dataType, id, color) {
+        super(id, color);
 
         this.dataType = dataType;
 

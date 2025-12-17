@@ -7,8 +7,8 @@ export default class BlockFactory {
         return new ConstructorBlock(constructor, typeName, typeParameters, id, color);
     }
 
-    createAtomicBlock(dataType, id) {
-        return new AtomicBlock(dataType, id);
+    createAtomicBlock(dataType, id, color) {
+        return new AtomicBlock(dataType, id, color);
     }
 
     createDefinitionBlock(id) {
