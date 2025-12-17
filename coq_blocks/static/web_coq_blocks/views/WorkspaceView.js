@@ -1,3 +1,4 @@
+import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/Block.js";
 export default class WorkspaceView {
     constructor(store, snapManager) {
         this.ground = document.getElementById("ground");
@@ -103,12 +104,14 @@ export default class WorkspaceView {
         blockObjects.forEach(block => {
             // If the block is not in the DOM, add it
             if (!this.ground.contains(block.element)) {
-
                 this.ground.appendChild(block.element);
 
                 if (!block.element.classList.contains("block")) {
                     block.createElement();
                 }
+
+                // Default block sizes
+                this.initializeBlockLayout(block);
 
                 // Spawn position
                 // if (!block.element.hasAttribute('data-x')) {
@@ -124,6 +127,115 @@ export default class WorkspaceView {
     }
 
     /**
+     * Initializes the block layout (width, height, specific styles) based on its type.
+     * @param {Block} block - The block to initialize.
+     */
+    initializeBlockLayout(block) {
+        // Height
+        this.setBlockBaseHeight(block);
+
+        // Width
+        if (block instanceof DefinitionBlock) {
+            block.element.style.width = "150px";
+        }
+        else if (block instanceof ConstructorBlock) {
+            this.setConstructorBlockWidth(block);
+        }
+        else if (block instanceof AtomicBlock) {
+            this.initAtomicBlock(block);
+        }
+    }
+
+    /**
+     * Sets the base height for a block based on its plugsCount.
+     * @param {Block} block - The block to set the height for.  
+     */
+    setBlockBaseHeight(block) {
+        // If no plugs (AtomicBlock) -> 0
+        const count = block.plugsCount || 0;
+
+        // Base height: 70px for 0 plugs, otherwise (count * 50) + 20
+        const height = count === 0 ? 70 : (count * 50 + 20);
+
+        block.element.style.height = `${height}px`;
+    }
+
+    /**
+     * Sets the width for ConstructorBlock based on its content.
+     * @param {ConstructorBlock} block - The ConstructorBlock to set the width for.
+     */
+    setConstructorBlockWidth(block) {
+        let blockNameEl = block.element.querySelector(".blockName");
+        let nameWidth = blockNameEl ? blockNameEl.offsetWidth : 0;
+
+        // delBtnWidth is atribute computed in createElement
+        let widestLabel = nameWidth + (block.delBtnWidth || 20);
+
+        if (block.plugObjects) {
+            block.plugObjects.forEach(plug => {
+                // plug.width and dotLabelWidth are atributes computed in createElement
+                let dotLabelWidth = block.dotObject ? block.dotObject.dotLabelWidth : 0;
+                let total = plug.width + dotLabelWidth;
+
+                if (total > widestLabel) {
+                    widestLabel = total;
+                }
+            });
+        }
+
+        block.element.style.width = (widestLabel + 50) + "px";
+    }
+
+    /**
+     * Initialize AtomicBlock resize (listener on input)
+     * @param {AtomicBlock} block - The AtomicBlock to initialize.
+     */
+    initAtomicBlock(block) {
+        // First resize
+        this.resizeAtomicBlock(block);
+
+        // Listener for dynamic resize
+        const input = block.element.querySelector("input");
+        if (input) {
+            input.addEventListener("input", () => {
+                this.resizeAtomicBlock(block);
+            });
+        }
+    }
+
+    /**
+     * Resizes the AtomicBlock based on its input content.
+     * @param {AtomicBlock} block - The AtomicBlock to resize.
+     */
+    resizeAtomicBlock(block) {
+        const input = block.element.querySelector("input");
+        const nameEl = block.element.querySelector(".blockName");
+
+        if (!input) return;
+
+        // 1. Calculate text width
+        // Canvas method for accurate text width measurement
+        const context = document.createElement("canvas").getContext("2d");
+        context.font = getComputedStyle(input).font;
+        const text = input.value || input.placeholder || "";
+        const textWidth = context.measureText(text).width;
+
+        // 2. Set input width (min 50px, padding cca 20px)
+        const inputNewWidth = Math.max(50, textWidth + 10); // Min width limit
+        const inputNewWidthLimited = Math.min(inputNewWidth, 200); // Max width limit
+
+        input.style.width = `${inputNewWidthLimited}px`;
+
+        // 3. Set the width of the entire block
+        const nameWidth = nameEl ? nameEl.offsetWidth : 0;
+
+        // Block padding (cca 40px) + širší z prvků
+        const blockWidth = Math.max(nameWidth + 60, inputNewWidthLimited + 40);
+
+        block.element.style.width = `${blockWidth}px`;
+    }
+
+    /**
      * Manages the logic after a snap (changing parent sizes, new positions).
      * Changes DOM elements' height and position.
      * @param {number} plugInBlockPos 
@@ -133,9 +245,7 @@ export default class WorkspaceView {
 
         // 1. Reset height
         this.store.getBlockObjects().forEach(block => {
-            const baseHeight = (block.plugsCount || 0) === 0 ? 70 : (block.plugsCount * 50 + 20);
-
-            block.element.style.height = `${baseHeight}px`;
+            this.setBlockBaseHeight(block);
         });
 
         // 2. Height recount (Bottom-Up: from leaves to root)

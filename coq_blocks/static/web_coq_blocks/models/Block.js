@@ -119,8 +119,8 @@ export class DefinitionBlock extends BaseBlock {
         blockNameEl.setAttribute("class", "blockName");
         blockNameEl.innerText = "Definition";
         blockNameEl.style.position = "absolute";
-        blockNameEl.style.top = "10px";
-        blockNameEl.style.left = "40px";
+        blockNameEl.style.top = "5px";
+        blockNameEl.style.left = "30px";
         blockNameEl.style.fontWeight = "bold";
 
         newBlock.appendChild(blockNameEl);
@@ -138,9 +138,6 @@ export class DefinitionBlock extends BaseBlock {
         plugObject.createElement()
 
         this.plugObjects.push(plugObject);
-
-        newBlock.style.width = String(150) + "px";
-        newBlock.style.height = String(this.plugsCount * 50 + 20) + "px";
     }
 }
 
@@ -195,8 +192,8 @@ export class ConstructorBlock extends BaseBlock {
         let blockNameEl = document.createElement("div");
         blockNameEl.setAttribute("class", "blockName");
         blockNameEl.style.position = "absolute";
-        blockNameEl.style.top = "6px";
-        blockNameEl.style.left = "40px";
+        blockNameEl.style.top = "5px";
+        blockNameEl.style.left = "30px";
         blockNameEl.style.fontWeight = "bold";
         blockNameEl.innerText = this.blockName;
 
@@ -228,7 +225,6 @@ export class ConstructorBlock extends BaseBlock {
         let aktPlug = 0; // Aktuální plug
         this.plugsCount = this.constructorParameters.length + variablesCount; // Počet všech parametrů
         let plugPositions = this.getPlugPositions(this.plugsCount); // Zisk pozic pro plugy pro všechny parametry
-        let widestLabel = blockNameEl.offsetWidth + this.delBtnWidth; // Nejširší label pro šířku bloku
 
         this.constructorParameters.forEach((param) => {
 
@@ -260,11 +256,6 @@ export class ConstructorBlock extends BaseBlock {
                 // Přidání plugu do atributu objektu Block
                 this.plugObjects.push(plugObject);
 
-                // Nejširší label, tak aby byl blok dobře široký
-                if ((plugObject.width + this.dotObject.dotLabelWidth) > widestLabel) {
-                    widestLabel = plugObject.width + this.dotObject.dotLabelWidth;
-                }
-
                 aktPlug += 1;
             };
 
@@ -274,16 +265,6 @@ export class ConstructorBlock extends BaseBlock {
         if (this.plugsCount == 1) {
             newBlock.classList.add("1plug");
         }
-
-        // Dynamická velikost bloku podle obsahu + přidání několika pixelů pro velikost (padding ne bo nefachá dobře se snappem)
-        newBlock.style.width = String(widestLabel + 50) + "px";
-        if (this.plugsCount == 0) {
-            newBlock.style.height = "70px";
-        }
-        else {
-            newBlock.style.height = String(this.plugsCount * 50 + 20) + "px";
-        }
-
     }
 }
 
@@ -329,7 +310,7 @@ export class AtomicBlock extends BaseBlock {
 
         // Input
         let inputEl = document.createElement("input");
-        inputEl.setAttribute("class", "form-control p-0 w-50");
+        inputEl.setAttribute("class", "form-control p-0 ms-4");
         inputEl.setAttribute("id", "atomicInput");
 
         boxDiv2.appendChild(inputEl);
@@ -349,13 +330,7 @@ export class AtomicBlock extends BaseBlock {
         inputEl.addEventListener("input", () => {
             let value = inputEl.value;
             this.value = value;
-            console.log("atomic value: ", value);
-            console.log("atomic value: ", this.value);
         });
-
-        // Výška a šířka
-        newBlock.style.width = String(150) + "px";
-        newBlock.style.height = String(50 + 20) + "px";
     }
 
 }
