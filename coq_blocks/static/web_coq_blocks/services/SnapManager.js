@@ -30,29 +30,37 @@ export default class SnapManager {
                 if (blockElement) {
                     let plugObjects = blockObject.plugObjects;
 
-                    plugObjects.forEach((plugObject) => {
-                        let plugType = plugObject.type;
+                    if (plugObjects) {
+                        plugObjects.forEach((plugObject) => {
 
-                        let plugEl = plugObject.element;
-                        let rect = plugEl.getBoundingClientRect();
+                            // Check if plug is already occupied
+                            if (plugObject.occupied) {
+                                return;
+                            }
 
-                        // console.log(requiredType + "-vs-" + plugType);
-                        if (plugType === requiredType || plugType === "any") {
-                            newTargets.push({
+                            let plugType = plugObject.type;
 
-                                // getBoundingClientRect() dává souřadnice vůči viewportu (oknu)
-                                // Pro absolutními souřadnice v dokumentu se musí přičíst scroll offset
-                                x: rect.left + rect.width + window.scrollX - 3,
-                                y: rect.top + rect.height / 2 + window.scrollY,
+                            let plugEl = plugObject.element;
+                            let rect = plugEl.getBoundingClientRect();
 
-                                block: blockObject,
-                                plug: plugObject,
+                            // console.log(requiredType + "-vs-" + plugType);
+                            if (plugType === requiredType || plugType === "any") {
+                                newTargets.push({
 
-                                // Log snap targets, for whom they are (last moved block)
-                                for: movedBlockObject
-                            });
-                        }
-                    });
+                                    // getBoundingClientRect() dává souřadnice vůči viewportu (oknu)
+                                    // Pro absolutními souřadnice v dokumentu se musí přičíst scroll offset
+                                    x: rect.left + rect.width + window.scrollX - 3,
+                                    y: rect.top + rect.height / 2 + window.scrollY,
+
+                                    block: blockObject,
+                                    plug: plugObject,
+
+                                    // Log snap targets, for whom they are (last moved block)
+                                    for: movedBlockObject
+                                });
+                            }
+                        });
+                    }
                 }
             }
 
@@ -60,6 +68,30 @@ export default class SnapManager {
 
         return newTargets;
     }
+
+    /**
+     * Helper method to sync 'occupied' flag on plugs based on current snappedBlocks
+     * @param {Array} blockObjects 
+     * @param {Array} snappedBlocks 
+     */
+    updatePlugOccupancy(blockObjects, snappedBlocks) {
+        // 1. Reset all plugs to unoccupied
+        blockObjects.forEach(block => {
+            if (block.plugObjects) {
+                block.plugObjects.forEach(plug => {
+                    plug.occupied = false;
+                });
+            }
+        });
+
+        // 2. Mark plugs involved in snaps as occupied
+        snappedBlocks.forEach(snap => {
+            if (snap.plug) {
+                snap.plug.occupied = true;
+            }
+        });
+    }
+
 
     /**
      * Calculate which blocks have just snapped together.

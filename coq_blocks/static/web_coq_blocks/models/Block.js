@@ -31,12 +31,14 @@ class Dot {
 }
 class Plug {
     constructor(type, parentBlockEl, index, plugPosition) {
-        this.type = type; // datový typ
+        this.type = type; // Data type
         this.parentBlockEl = parentBlockEl; // reference na rodičovský blok
         this.index = index; // pořadí
         this.width = 0; // šířka = plug + plug label
         this.plugPosition = plugPosition; // pozice pro plug
         this.element = document.createElement("div"); // DOM element
+
+        this.occupied = false; // If plug is occupied
     }
 
     createElement() {

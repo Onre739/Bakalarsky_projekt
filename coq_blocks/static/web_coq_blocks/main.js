@@ -38,9 +38,16 @@ exportBtn.addEventListener("click", () => {
     const blocks = store.getBlockObjects();
     const snaps = store.getSnappedBlocks();
 
-    const coqString = coqExporter.export(blocks, snaps);
+    try {
+        const coqString = coqExporter.export(blocks, snaps);
+        workspaceView.showExportResult(coqString);
+    }
 
-    workspaceView.showExportResult(coqString);
+    catch (error) {
+        console.error("Error during export: ", error);
+        workspaceView.printAlert(`${error.message}`, "danger");
+    }
+
 });
 
 // ----- New Definition Block button -----

@@ -188,6 +188,10 @@ export default class WorkspaceView {
         });
     }
 
+    /**
+     * Prints the export result into the export result list.
+     * @param {string} str - The COQ string to display.
+     */
     showExportResult(str) {
         let li = document.createElement("li");
         li.innerText = str;
@@ -196,6 +200,29 @@ export default class WorkspaceView {
         if (resultList) {
             resultList.appendChild(li);
         }
+    }
+
+    /**
+     * Prints alert message
+     * @param {string} msg - The alert message.
+     * @param {string} type - The type of alert (e.g., "danger", "success").
+     */
+    printAlert(msg, type) {
+        let alertPlaceholder = document.getElementById("alertPlaceholder");
+
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible m-0" role="alert">`,
+            `   <div>${msg}</div>`,
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+            '</div>'
+        ].join('');
+
+        alertPlaceholder.append(wrapper);
+
+        setTimeout(() => {
+            wrapper.remove();
+        }, 10000);
     }
 
 }

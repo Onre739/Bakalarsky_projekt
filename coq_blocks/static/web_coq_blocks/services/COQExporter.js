@@ -3,6 +3,7 @@ import { DefinitionBlock } from "../models/Block.js";
 export default class COQExporter {
 
     export(blockObjects, snappedBlocks) {
+
         let traversalResult = this.DFSTraverse(blockObjects, snappedBlocks);
         console.log("Exported structure: ", traversalResult.result);
 
@@ -12,18 +13,18 @@ export default class COQExporter {
     DFSTraverse(blockObjects, snappedBlocks) {
         let definitions = [];
 
-        // Najdi root bloky – definice
+        // Find all root blocks (DefinitionBlocks)
         let rootBlocks = blockObjects.filter(
             block => block instanceof DefinitionBlock
         );
 
-        // Pro každý root blok získej objektový strom
+        // For each root block, get the object tree
         rootBlocks.forEach(rootBlock => {
             let defObj = this.traverseBlock(rootBlock, snappedBlocks);
             definitions.push(defObj);
         });
 
-        // Sestav závorkový string
+        // Build output strings
         let outputStrings = definitions.map(def => this.stringifyDefinition(def, 0));
         let finalOutput = outputStrings.join("\n");
 
@@ -33,29 +34,31 @@ export default class COQExporter {
         };
     }
 
-    // Rekurzivní průchod bloky a plnění stromové struktury
+    // Recursive traversal of a block and its snapped children
     traverseBlock(block, snappedBlocks) {
-        // Objekt pro stromovou strukturu k návratu
+        // Object for tree representation for return
         let ret = {
-            // Automatický název konstruktoru, něco jako instanceof
-            kind: block.constructor.name,   // třeba "DefinitionBlock", "ConstructorBlock"
+            // Auto-generated kind based on class name
+            kind: block.constructor.name,   // like "DefinitionBlock", "ConstructorBlock"
             block: block,
             children: []
         };
 
         block.plugObjects.forEach(plug => {
             let snap = snappedBlocks.find(s => s.plug === plug);
+
             if (snap) {
                 ret.children.push(this.traverseBlock(snap.child, snappedBlocks));
             } else {
-                ret.children.push(null); // nic nesnapnutého
+                let blockId = block.blockName || block.constructor.name || block.dataType || "Unknown Block";
+                throw new Error(`Export failed: Block ${blockId} has an unconnected plug.`);
             }
         });
 
         return ret;
     }
 
-    // Rekurzivní převod na závorkový formát
+    // Recursive stringification of the definition object
     stringifyDefinition(def, i) {
         let children = def.children
             .filter(p => p !== null)
@@ -65,7 +68,7 @@ export default class COQExporter {
             return `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`;
         }
 
-        // Pokud jde o 1 blok po definici, nedávám závorky (...)
+        // If it is the first block after definition, not giving parentheses ()
         else if (i == 1) {
             if (def.kind == "AtomicBlock") {
                 return `${def.block.dataType} ${def.block.value}`;
@@ -83,15 +86,5 @@ export default class COQExporter {
                 return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
             }
         }
-
-        // return def.kind == "DefinitionBlock" ? // Pokud jde o blok definice
-        //     `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`
-        //     :
-        //     i == 1 ? // Pokud jde o 1 blok po definici, nedávám závorky (...)
-        //         `: ${def.block.typeName} := ${def.block.constructorName}${children.length ? " " + children.join(" ") : ""}`
-        //         :
-        //         `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
     }
-
-
 }

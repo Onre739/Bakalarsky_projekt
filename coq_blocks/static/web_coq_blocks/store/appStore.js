@@ -281,6 +281,12 @@ export default class appStore extends Store {
     recalculateSnapTargetsSilent(movedBlockObject) {
         const state = this.state;
 
+        // Free the plug occupied by movedBlockObject (if any)
+        const currentSnap = state.snappedBlocks.find(s => s.child === movedBlockObject);
+        if (currentSnap) {
+            currentSnap.plug.occupied = false;
+        }
+
         const newTargets = this.snapManager.calculateSnapTargets(movedBlockObject, state.blockObjects);
         // Update in-place, CAN'T reassign !!! KEEP REFERENCE !!!
         state.snapTargets.length = 0;
@@ -311,14 +317,20 @@ export default class appStore extends Store {
 
         if (!hasChanged) {
             console.log("Drop without changes - skip update");
+
+            // Still need to update plug occupancy, just in case
+            this.snapManager.updatePlugOccupancy(state.blockObjects, state.snappedBlocks);
             return;
         }
 
-        // 5. Update state and notify
+        // 5. Update state with new snaps
         const orderedSnaps = this.snapManager.orderSnappedBlocks(nextSnaps);
 
         this.state.snappedBlocks = nextSnaps;
         this.state.orderedSnappedBlocks = orderedSnaps;
+
+        // 6. Update plug occupancy
+        this.snapManager.updatePlugOccupancy(state.blockObjects, state.snappedBlocks);
 
         this.notify();
     }

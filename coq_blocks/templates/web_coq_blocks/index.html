@@ -13,7 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
-    <!-- Vlastní styly -->
+    <!-- Own styles -->
     {% load static %}
     <link rel="stylesheet" href="{% static 'web_coq_blocks/myStyles.css' %}">
 
@@ -21,8 +21,9 @@
 <body>
     <header>
         <h1>COQ Definition Maker</h1>
-
     </header>
+
+    <div id="alertPlaceholder"></div>
 
     <div class="container-fluid">
 
@@ -31,7 +32,9 @@
             <div class="col-9" style="height: 100%;">
 
                 <div class="card" style="height: 100%;">
-                    <div class="card-body overflow-auto" id="ground"></div>
+                    <div class="card-body overflow-auto" id="ground">
+                    
+                    </div>
                 </div>
 
             </div>
