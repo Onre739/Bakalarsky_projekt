@@ -40,7 +40,9 @@ exportBtn.addEventListener("click", () => {
 
     try {
         const coqString = coqExporter.export(blocks, snaps);
-        workspaceView.showExportResult(coqString);
+        if (coqString) {
+            workspaceView.showExportResult(coqString);
+        }
     }
 
     catch (error) {
@@ -79,18 +81,26 @@ loadBtn.addEventListener("click", async () => {
 // ----- Atomic Type Creation button -----
 const atomicCreateBtn = document.getElementById("atomicCreateBtn");
 const atomicCreateInput = document.getElementById("atomicCreateInput");
+const atomicModalEl = document.getElementById("atomicTypeModal");
+const atomicModal = bootstrap.Modal.getInstance(atomicModalEl) || new bootstrap.Modal(atomicModalEl);
 
 atomicCreateBtn.addEventListener("click", () => {
     const dataTypeName = atomicCreateInput.value.trim();
 
     if (dataTypeName.length === 0) {
-        alert("Please enter a type name.");
+        workspaceView.printAlert("Atomic type name cannot be empty.", "warning");
+
+        // Do not close the modal
         return;
     }
 
     store.addSavedType(dataTypeName, "atomic");
+    workspaceView.printAlert(`Atomic type "${dataTypeName}" created successfully.`, "success");
 
     atomicCreateInput.value = "";
+
+    // Close the modal
+    atomicModal.hide();
 });
 
 console.log("Application initialized.");

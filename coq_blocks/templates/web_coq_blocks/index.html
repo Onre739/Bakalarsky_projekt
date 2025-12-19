@@ -205,10 +205,12 @@
                     </div>
                     <div class="modal-body">
                         <label for="atomicCreateInput" class="form-label fw-semibold">Enter atomic type name:</label>
-                        <input id="atomicCreateInput" class="form-control">
+                        <input id="atomicCreateInput" class="form-control" maxlength="16">
                     </div>
                     <div class="modal-footer p-1">
-                        <button id="atomicCreateBtn" type="button" class="btn btn-success" data-bs-dismiss="modal">Create</button>
+                        <!-- data-bs-dismiss="modal" removed because its managed in main.js -->
+                        <button id="atomicCreateBtn" type="button" class="btn btn-success">Create</button>
+                        
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>

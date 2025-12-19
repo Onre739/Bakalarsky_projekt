@@ -18,6 +18,10 @@ export default class COQExporter {
             block => block instanceof DefinitionBlock
         );
 
+        if (rootBlocks.length === 0) {
+            throw new Error("Export failed: No Definition blocks found.");
+        }
+
         // For each root block, get the object tree
         rootBlocks.forEach(rootBlock => {
             let defObj = this.traverseBlock(rootBlock, snappedBlocks);

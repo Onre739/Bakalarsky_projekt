@@ -269,24 +269,30 @@ export default class WorkspaceView {
         });
 
         // 3. New positions (Top-Down: from root to leaves)
+        const groundEl = this.ground;
+        const groundRect = groundEl.getBoundingClientRect();
+        const groundStyle = getComputedStyle(groundEl);
+
+        const scrollX = window.scrollX;
+        const scrollY = window.scrollY;
+
+        // Adding scrollX/Y to gain absolute position of the ground element in the document
+        const docGroundDiffLeft = groundRect.left + scrollX + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
+        const docGroundDiffTop = groundRect.top + scrollY + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
+        // Difference between position 0,0 of the page and 0,0 of the ground element, because interact.js takes 0,0 from ground
+        // getBoundingClientRect is position before border and padding -> so I have to add it
+
         orderedSnappedBlocks.forEach((snappedDef) => {
             snappedDef.forEach((snappedBlock) => {
                 let plugEl = snappedBlock.plug.element;
                 let plugRect = plugEl.getBoundingClientRect();
 
-                let plugLeft = plugRect.left + window.scrollX;
-                let plugTop = plugRect.top + window.scrollY;
+                let plugLeft = plugRect.left + scrollX;
+                let plugTop = plugRect.top + scrollY;
+
                 let plugWidth = plugRect.width;
                 let plugHeight = plugRect.height;
 
-                // Difference between position 0,0 of the page and 0,0 of the ground element, because interact.js takes 0,0 from ground
-                // getBoundingClientRect is position before border and padding -> so I have to add it
-                let groundEl = this.ground;
-                let groundRect = groundEl.getBoundingClientRect();
-                let groundStyle = getComputedStyle(groundEl);
-
-                let docGroundDiffLeft = groundRect.left + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
-                let docGroundDiffTop = groundRect.top + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
 
                 let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
                 let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * plugInBlockPos - docGroundDiffTop;
@@ -320,18 +326,18 @@ export default class WorkspaceView {
     printAlert(msg, type) {
         let alertPlaceholder = document.getElementById("alertPlaceholder");
 
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = [
-            `<div class="alert alert-${type} alert-dismissible m-0" role="alert">`,
+        const alertEl = document.createElement('div');
+        alertEl.className = `alert alert-${type} alert-dismissible m-0 shadow-sm`;
+        alertEl.setAttribute('role', 'alert');
+        alertEl.innerHTML = [
             `   <div>${msg}</div>`,
-            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
-            '</div>'
+            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
         ].join('');
 
-        alertPlaceholder.append(wrapper);
+        alertPlaceholder.append(alertEl);
 
         setTimeout(() => {
-            wrapper.remove();
+            alertEl.remove();
         }, 10000);
     }
 
