@@ -1,2 +1,10 @@
 # Ignorovat virtuální prostředí
 coq_blocks_env/
+
+db.sqlite3
+
+# Ignorovat Docker exporty
+*.tar
+
+# Ignorovat pycache
+__pycache__
