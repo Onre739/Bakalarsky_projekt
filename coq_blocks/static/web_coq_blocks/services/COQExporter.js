@@ -29,7 +29,7 @@ export default class COQExporter {
         });
 
         // Build output strings
-        let outputStrings = definitions.map(def => this.stringifyDefinition(def, 0));
+        let outputStrings = definitions.map(def => this.stringifyDefinition(def, 0) + ".");
         let finalOutput = outputStrings.join("\n");
 
         return {
@@ -72,19 +72,22 @@ export default class COQExporter {
             return `Definition ${def.block.varName} ${children.length ? " " + children.join(" ") : ""}`;
         }
 
-        // If it is the first block after definition, not giving parentheses ()
+        // First behind definition (i == 1) -> ": Type := Value"
         else if (i == 1) {
             if (def.kind == "AtomicBlock") {
-                return `${def.block.dataType} ${def.block.value}`;
+                return `: ${def.block.dataType} := ${def.block.value}`;
             }
             else {
+                // ConstructorBlock
                 return `: ${def.block.typeName} := ${def.block.constructorName}${children.length ? " " + children.join(" ") : ""}`;
             }
         }
 
+        // Inner values (i > 1) -> Parantheses
         else {
             if (def.kind == "AtomicBlock") {
-                return `(${def.block.dataType} ${def.block.value})`;
+                // Pokud chcete jistotu, lze použít `(${def.block.value} : ${def.block.dataType})`
+                return `(${def.block.value})`;
             }
             else {
                 return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;

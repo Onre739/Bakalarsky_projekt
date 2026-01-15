@@ -151,10 +151,31 @@ export class ConstructorBlock extends BaseBlock {
         this.constructorParameters = constructor.parameters; // Parametry konstruktoru
         this.blockName = typeName + "\u00A0:\u00A0" + constructor.name; // Název celého bloku
 
+
+        // 1. Zjistíme základní návratový typ (např. "list")
+        let baseReturnType = "type" in constructor ?
+            (constructor.type.length == 2 ? constructor.type[0] + "\u00A0" + constructor.type[1] : constructor.type[0]) : (typeName);
+
+        // 2. Pokud nemáme explicitní návratový typ (je to "list") a máme parametry (např. X="nat"), musíme je přidat.
+        // Zkontrolujeme, zda baseReturnType už parametry neobsahuje (pro jistotu)
+        const hasImplicitReturnType = !("type" in constructor);
+
+        if (hasImplicitReturnType && this.typeParameters && Array.isArray(this.typeParameters) && this.typeParameters.length > 0) {
+            // Získáme hodnoty parametrů (např. ["nat"] z [{X: "nat"}])
+            const paramValues = this.typeParameters.map(p => Object.values(p)[0]).filter(v => v);
+
+            if (paramValues.length > 0) {
+                // Sestavíme "list nat"
+                baseReturnType += "\u00A0" + paramValues.join("\u00A0");
+            }
+        }
+
+        this.returnType = baseReturnType;
+
         // Pokud má konstruktor hodnotu type, tak jde o konstruktor explicitním návratovým dat. typem, jinak se vždy vrací název datového typu
         // + kontrola jestli je typ složen t 1 nebo 2 slov
-        this.returnType = "type" in constructor ?
-            (constructor.type.length == 2 ? constructor.type[0] + "\u00A0" + constructor.type[1] : constructor.type[0]) : (typeName);
+        // this.returnType = "type" in constructor ?
+        //     (constructor.type.length == 2 ? constructor.type[0] + "\u00A0" + constructor.type[1] : constructor.type[0]) : (typeName);
 
         // Má konstruktor explicitní datový typ?
         this.explicitConstructorType = "type" in constructor ? true : false;

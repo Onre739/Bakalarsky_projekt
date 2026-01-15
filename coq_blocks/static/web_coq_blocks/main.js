@@ -59,6 +59,16 @@ newDefBtn.addEventListener("click", () => {
     store.spawnDefinitionBlock();
 });
 
+// ----- Clear Playground button -----
+const clearPlaygroundBtn = document.getElementById("clearPlaygroundBtn");
+
+if (clearPlaygroundBtn) {
+    clearPlaygroundBtn.addEventListener("click", () => {
+        if (confirm("Opravdu chcete smazat celou plochu? Tato akce je nevratná.")) {
+            store.clearPlayground();
+        }
+    });
+}
 // ----- Classic Type Creation button -----
 const loadBtn = document.getElementById("loadBtn");
 const defInput = document.getElementById("defInput");

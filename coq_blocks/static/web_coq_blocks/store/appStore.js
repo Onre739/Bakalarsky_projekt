@@ -223,6 +223,17 @@ export default class appStore extends Store {
         this.notify();
     }
 
+    clearPlayground() {
+        this.state.blockObjects = [];
+        this.state.snappedBlocks = [];
+        this.state.orderedSnappedBlocks = [];
+        this.state.typeBlockCount.clear();
+        this.state.atomicBlockCount.clear();
+        this.state.definitionBlockCount = 0;
+
+        this.notify();
+    }
+
     updateTypeColor(typeId, newColor) {
         // 1. Update savedTypes
         const newSavedTypes = this.state.savedTypes.map(item => {
