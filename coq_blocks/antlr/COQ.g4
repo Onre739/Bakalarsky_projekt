@@ -1,27 +1,31 @@
 grammar COQ;
 
-prog: (hypothesisDef* inductiveDef+)+ EOF;
+prog: inductiveDef+ EOF;
 
-hypothesisDef: 'Hypothesis' NAME ':' 'Type' '.';
-
-inductiveDef: 'Inductive' NAME typeParameters* (':' ('Type' | 'Set'))? ':=' ( explicitConstructor+ | implicitConstructor+ 
-                                                                            | explicitConsShort | implicitConsShort) '.';
+inductiveDef: 'Inductive' NAME typeParameters* (':' ('Type' | 'Set'))? ':=' 
+              ( arrowConstructor+ | binderConstructor+ 
+              | arrowConsShort | binderConsShort ) '.';
 
 typeParameters:   '(' NAME+ ':' 'Type' ')'
                 | '{' NAME+ ':' 'Type' '}';
 
-explicitConstructor: '|' NAME ':' explicitParam* NAME NAME?;
+// --- ARROW STYLE (Šipková forma) ---
+arrowConstructor: '|' NAME ':' arrowParam* type_expression;
+arrowConsShort:   NAME ':' arrowParam* type_expression;
 
-implicitConstructor: '|' NAME implicitParam*;
+arrowParam: type_expression '->';
 
-explicitConsShort: NAME ':' NAME NAME? explicitParam*;
+// --- BINDER STYLE (Závorková forma) ---
+binderConstructor: '|' NAME binderParam*;
+binderConsShort:   NAME binderParam*;
 
-implicitConsShort: NAME implicitParam*;
+binderParam: '(' NAME+ ':' type_expression ')'; 
 
-explicitParam: NAME NAME? '->';
 
-implicitParam: '(' NAME+ ':' NAME NAME?')';
-
+type_expression: type_term+;
+type_term: NAME                    # TypeTermName      
+         | '(' type_expression ')' # TypeTermParens    
+    ;
 
 NAME: [a-zA-Z]+[0-9]*[_]?[a-zA-Z]*[0-9]*[']*; // Umožňuje _ jednou nebo vůbec a ' na konci názvu
 WS: [ \t\r\n]+ -> skip; // Ignorování bílých znaků (mezery, tabulátory, nové řádky)

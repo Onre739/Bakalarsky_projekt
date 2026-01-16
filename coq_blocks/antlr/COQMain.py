@@ -5,18 +5,16 @@ from .COQParser import COQParser
 from .MyVisitor import MyVisitor
 
 
-def main(string):
+def process_coq_code(string):
     input_stream = InputStream(string)
+    
     lexer = COQLexer(input_stream)
     stream = CommonTokenStream(lexer)
+
     parser = COQParser(stream)
     tree = parser.prog()
-    print("Parse tree:", tree.toStringTree(recog=parser))  # Vytiskne parsovací strom
-    visitor = MyVisitor()
-    objResponse = visitor.visit(tree)
-
-    print("ObjResponse:")
-    for i in objResponse:
-        print(i)
     
-    return objResponse
+    visitor = MyVisitor()
+    parsed_objects = visitor.visit(tree)
+
+    return parsed_objects

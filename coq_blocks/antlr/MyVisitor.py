@@ -1,133 +1,180 @@
 from .COQParser import COQParser
-from .COQLexer import COQLexer
 from .COQVisitor import COQVisitor
 
 from BlockClasses import *
 
 class MyVisitor(COQVisitor):
-    def visitImplicitParam(self, ctx: COQParser.ImplicitParamContext):
-        variables = []
-        type = []
-        colon_found = False
+    # =========================================================================
+    # 1. Parsing types (recursive with args)
+    # =========================================================================
 
-        for child in ctx.getChildren():
-            child = child.getText()
-            if child != '(' and child != ')':
-                if child == ':':
-                    colon_found = True
-                elif colon_found:
-                    type.append(child)
-                else:
-                    variables.append(child)
-
-        return ImplicitParameter(variables, type)
-    
-    def visitExplicitParam(self, ctx: COQParser.ExplicitParamContext):
-        type = [param.getText() for param in ctx.NAME()]
-
-        return ExplicitParameter(type)
-
-    def visitImplicitConstructor(self, ctx: COQParser.ImplicitConstructorContext):
-        parameters = []
-        name = ctx.NAME().getText()
-        for constructorParameterCtx in ctx.implicitParam():
-            new_constructor_parameter = self.visit(constructorParameterCtx)
-            parameters.append(new_constructor_parameter)
-        return ImplicitConstructor(name, parameters)
-    
-    def visitExplicitConstructor(self, ctx: COQParser.ExplicitConstructorContext):
-        parameters = []
-        values = [param.getText() for param in ctx.NAME()]
-        name = values.pop(0)
-        type = values
-
-        for constructorParameterCtx in ctx.explicitParam():
-            new_constructor_parameter = self.visit(constructorParameterCtx)
-            parameters.append(new_constructor_parameter)
-        return ExplicitConstructor(name, parameters, type)
-    
-    def visitImplicitConsShort(self, ctx: COQParser.ImplicitConsShortContext):
-        parameters = []
-        name = ctx.NAME().getText()
-        for constructorParameterCtx in ctx.implicitParam():
-            new_constructor_parameter = self.visit(constructorParameterCtx)
-            parameters.append(new_constructor_parameter)
-        return ImplicitConstructor(name, parameters)
-    
-    def visitExplicitConsShort(self, ctx: COQParser.ExplicitConsShortContext):
-        parameters = []
-        values = [param.getText() for param in ctx.NAME()]
-        name = values.pop(0)
-        type = values
-
-        for constructorParameterCtx in ctx.explicitParam():
-            new_constructor_parameter = self.visit(constructorParameterCtx)
-            parameters.append(new_constructor_parameter)
-        return ExplicitConstructor(name, parameters, type)
+    def visitType_expression(self, ctx: COQParser.Type_expressionContext):
+        # Expression can have multiple type terms ( type_expression: type_term+; )
+        terms = ctx.type_term()
         
+        if not terms:
+            return CoqType(name="Unknown")
+
+        # 1. First term is the base type
+        base_coq_type = self.visit(terms[0])    # Instance of CoqType ! ; visiting visitTypeTermName or visitTypeTermParens
+        
+        final_name = base_coq_type.name
+        final_args = base_coq_type.args         # Empty list []
+
+        # 2. Other terms are arguments of the base type
+        for term_ctx in terms[1:]:
+            arg_type = self.visit(term_ctx)
+            final_args.append(arg_type)
+
+        return CoqType(name=final_name, args=final_args)
+
+    def visitTypeTermName(self, ctx: COQParser.TypeTermNameContext):
+        # Just a simple type name
+        return CoqType(name=ctx.NAME().getText(), args=[])
+
+    def visitTypeTermParens(self, ctx: COQParser.TypeTermParensContext):
+        # Nested type in parentheses -> recursive call
+        return self.visit(ctx.type_expression())
+    
+    # =========================================================================
+    # 2. Parsing constructor parameters (Binder vs Arrow)
+    # =========================================================================
+
+    def visitBinderParam(self, ctx: COQParser.BinderParamContext):
+        # Gramatics: '(' NAME+ ':' type_expression ')'
+        # Form: (n : nat)
+        
+        variable_names = [n.getText() for n in ctx.NAME()]
+
+        coq_type = self.visit(ctx.type_expression())
+        
+        return ConstructorArg(type=coq_type, names=variable_names)
+
+    def visitArrowParam(self, ctx: COQParser.ArrowParamContext):
+        # Gramatics: type_expression '->'
+        # Form: nat -> ...
+        
+        coq_type = self.visit(ctx.type_expression())
+        
+        return ConstructorArg(type=coq_type, names=[])
+
+    # =========================================================================
+    # 3. Parsing constructors (Binder vs Arrow)
+    # =========================================================================
+
+    def visitBinderConstructor(self, ctx: COQParser.BinderConstructorContext):
+        # Form: | cons (n : nat) ...
+        name = ctx.NAME().getText()
+        args = []
+        
+        if ctx.binderParam():
+            for param_ctx in ctx.binderParam():
+                args.append(self.visit(param_ctx))
+                
+        return CoqConstructor(
+            name=name, 
+            args=args, 
+            syntax_style="binder"
+        )
+    
+    def visitArrowConstructor(self, ctx: COQParser.ArrowConstructorContext):
+        # Form: | cons : nat -> list nat
+        name = ctx.NAME().getText()
+        args = []
+        
+        if ctx.arrowParam():
+            for param_ctx in ctx.arrowParam():
+                args.append(self.visit(param_ctx))
+        
+        # Arrow constructor has explicit return type at the end
+        return_type = self.visit(ctx.type_expression())
+
+        return CoqConstructor(
+            name=name, 
+            args=args, 
+            syntax_style="arrow", 
+            return_type=return_type
+        )
+
+    # --- Shortend version (without | after := ; but only 1 constructor) ---
+    def visitBinderConsShort(self, ctx: COQParser.BinderConsShortContext):
+        name = ctx.NAME().getText()
+        args = []
+        if ctx.binderParam():
+            for param_ctx in ctx.binderParam():
+                args.append(self.visit(param_ctx))
+        return CoqConstructor(name=name, args=args, syntax_style="binder")
+
+    def visitArrowConsShort(self, ctx: COQParser.ArrowConsShortContext):
+        name = ctx.NAME().getText()
+        args = []
+        if ctx.arrowParam():
+            for param_ctx in ctx.arrowParam():
+                args.append(self.visit(param_ctx))
+        
+        return_type = self.visit(ctx.type_expression())
+
+        return CoqConstructor(
+            name=name, 
+            args=args, 
+            syntax_style="arrow",
+            return_type=return_type
+        )
+
+    # =========================================================================
+    # 4. Parsing main structure
+    # =========================================================================
     def visitTypeParameters(self, ctx: COQParser.TypeParametersContext):
-        typeParameters = [param.getText() for param in ctx.NAME()]
-        return ExplicitParameter(typeParameters)
+        # Grammar: '(' NAME+ ':' 'Type' ')'
+        # Returns a list of parameter names, e.g. ["X", "Y"]
+        return [param.getText() for param in ctx.NAME()]
 
     def visitInductiveDef(self, ctx: COQParser.InductiveDefContext):
-        # Získání názvu typu
-        name = ctx.NAME().getText()
-        print("DEF")
+        type_name = ctx.NAME().getText()
+        print(f"Processing inductive type: {type_name}")
 
-        # Získání typeParametrů (pokud existují)
-        typeParameters = []
-        for typeParamCtx in ctx.typeParameters():
-            new_type_param = self.visit(typeParamCtx)
-            typeParameters.append(new_type_param)
+        # 1. Type Parameters
+        type_parameters = []
+        if ctx.typeParameters():
+            for tp_ctx in ctx.typeParameters():
+                # visitTypeParameters returns list, we need to extend
+                params_list = self.visit(tp_ctx)
+                type_parameters.extend(params_list)
 
-        # Získání implicitních konstruktorů
-        implicitConstructors = []
-        for constructorCtx in ctx.implicitConstructor():
-            new_constructor = self.visit(constructorCtx)
-            implicitConstructors.append(new_constructor)
+        # 2. Constructors
+        all_constructors = []
 
-        # Pro zkrácené verze konstruktorů
-        if ctx.implicitConsShort() is not None:
-            new_constructor = self.visit(ctx.implicitConsShort())
-            implicitConstructors.append(new_constructor)
+        # Binder style ( ... )
+        if ctx.binderConstructor():
+            for c_ctx in ctx.binderConstructor():
+                all_constructors.append(self.visit(c_ctx))
+        
+        # Arrow style ... -> ...
+        if ctx.arrowConstructor():
+            for c_ctx in ctx.arrowConstructor():
+                all_constructors.append(self.visit(c_ctx))
+                
+        # Shortened versions (without | after := ; only one constructor !!)
+        if ctx.binderConsShort():
+            all_constructors.append(self.visit(ctx.binderConsShort()))
+            
+        if ctx.arrowConsShort():
+            all_constructors.append(self.visit(ctx.arrowConsShort()))
 
-        # Získání explicitních konstruktorů
-        explicitConstructors = []
-        for constructorCtx in ctx.explicitConstructor():
-            new_constructor = self.visit(constructorCtx)
-            explicitConstructors.append(new_constructor)
-
-        # Pro zkrácené verze konstruktorů
-        if ctx.explicitConsShort() is not None:
-            new_constructor = self.visit(ctx.explicitConsShort())
-            explicitConstructors.append(new_constructor)
-
-        print(name)
-        print(typeParameters)
-        print(implicitConstructors)
-        print(explicitConstructors)
-        new_type = NewType(name, typeParameters, implicitConstructors, explicitConstructors)
-        return new_type
-
-    def visitHypothesisDef(self, ctx: COQParser.HypothesisDefContext):
-        name = ctx.NAME().getText()
-        new_hypothesis = Hypothesis(name)
-        return new_hypothesis
+        # 3. Final assembly
+        return CoqInductiveType(
+            name=type_name,
+            type_parameters=type_parameters,
+            constructors=all_constructors
+        )
 
     def visitProg(self, ctx: COQParser.ProgContext):
-        # Procházíme všechny induktivní definice
-        types = []
-        hypothesis = []
-        print("PROG")
+        print("Starting to parse COQ type expressions...")
+        results = []
 
-        for hypothesisCtx in ctx.hypothesisDef():
-            new_hypothesis = self.visit(hypothesisCtx)
-            hypothesis.append(new_hypothesis)
-
-        for inductiveCtx in ctx.inductiveDef():
-            new_type = self.visit(inductiveCtx)
-            types.append(new_type)
+        if ctx.inductiveDef():
+            for i_ctx in ctx.inductiveDef():
+                results.append(self.visit(i_ctx))
         
-        # Vrací pole objektů !!! První jsou hypotézy
-        return hypothesis + types
+        return results
 

@@ -78,7 +78,9 @@ loadBtn.addEventListener("click", async () => {
 
     try {
         const data = await definitionLoader.load(definitionText);
-        store.importDefinitions(data);
+        console.log("Loaded definition data:", data);
+
+        // store.importDefinitions(data);
         defInput.value = "";
         console.log("Definitions loaded successfully.");
 

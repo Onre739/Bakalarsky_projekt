@@ -14,11 +14,6 @@ class COQVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#hypothesisDef.
-    def visitHypothesisDef(self, ctx:COQParser.HypothesisDefContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by COQParser#inductiveDef.
     def visitInductiveDef(self, ctx:COQParser.InductiveDefContext):
         return self.visitChildren(ctx)
@@ -29,33 +24,48 @@ class COQVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#explicitConstructor.
-    def visitExplicitConstructor(self, ctx:COQParser.ExplicitConstructorContext):
+    # Visit a parse tree produced by COQParser#arrowConstructor.
+    def visitArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#implicitConstructor.
-    def visitImplicitConstructor(self, ctx:COQParser.ImplicitConstructorContext):
+    # Visit a parse tree produced by COQParser#arrowConsShort.
+    def visitArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#explicitConsShort.
-    def visitExplicitConsShort(self, ctx:COQParser.ExplicitConsShortContext):
+    # Visit a parse tree produced by COQParser#arrowParam.
+    def visitArrowParam(self, ctx:COQParser.ArrowParamContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#implicitConsShort.
-    def visitImplicitConsShort(self, ctx:COQParser.ImplicitConsShortContext):
+    # Visit a parse tree produced by COQParser#binderConstructor.
+    def visitBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#explicitParam.
-    def visitExplicitParam(self, ctx:COQParser.ExplicitParamContext):
+    # Visit a parse tree produced by COQParser#binderConsShort.
+    def visitBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#implicitParam.
-    def visitImplicitParam(self, ctx:COQParser.ImplicitParamContext):
+    # Visit a parse tree produced by COQParser#binderParam.
+    def visitBinderParam(self, ctx:COQParser.BinderParamContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by COQParser#type_expression.
+    def visitType_expression(self, ctx:COQParser.Type_expressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by COQParser#TypeTermName.
+    def visitTypeTermName(self, ctx:COQParser.TypeTermNameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by COQParser#TypeTermParens.
+    def visitTypeTermParens(self, ctx:COQParser.TypeTermParensContext):
         return self.visitChildren(ctx)
 
 

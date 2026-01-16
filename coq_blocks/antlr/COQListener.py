@@ -17,15 +17,6 @@ class COQListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by COQParser#hypothesisDef.
-    def enterHypothesisDef(self, ctx:COQParser.HypothesisDefContext):
-        pass
-
-    # Exit a parse tree produced by COQParser#hypothesisDef.
-    def exitHypothesisDef(self, ctx:COQParser.HypothesisDefContext):
-        pass
-
-
     # Enter a parse tree produced by COQParser#inductiveDef.
     def enterInductiveDef(self, ctx:COQParser.InductiveDefContext):
         pass
@@ -44,57 +35,84 @@ class COQListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by COQParser#explicitConstructor.
-    def enterExplicitConstructor(self, ctx:COQParser.ExplicitConstructorContext):
+    # Enter a parse tree produced by COQParser#arrowConstructor.
+    def enterArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
         pass
 
-    # Exit a parse tree produced by COQParser#explicitConstructor.
-    def exitExplicitConstructor(self, ctx:COQParser.ExplicitConstructorContext):
-        pass
-
-
-    # Enter a parse tree produced by COQParser#implicitConstructor.
-    def enterImplicitConstructor(self, ctx:COQParser.ImplicitConstructorContext):
-        pass
-
-    # Exit a parse tree produced by COQParser#implicitConstructor.
-    def exitImplicitConstructor(self, ctx:COQParser.ImplicitConstructorContext):
+    # Exit a parse tree produced by COQParser#arrowConstructor.
+    def exitArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
         pass
 
 
-    # Enter a parse tree produced by COQParser#explicitConsShort.
-    def enterExplicitConsShort(self, ctx:COQParser.ExplicitConsShortContext):
+    # Enter a parse tree produced by COQParser#arrowConsShort.
+    def enterArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
         pass
 
-    # Exit a parse tree produced by COQParser#explicitConsShort.
-    def exitExplicitConsShort(self, ctx:COQParser.ExplicitConsShortContext):
-        pass
-
-
-    # Enter a parse tree produced by COQParser#implicitConsShort.
-    def enterImplicitConsShort(self, ctx:COQParser.ImplicitConsShortContext):
-        pass
-
-    # Exit a parse tree produced by COQParser#implicitConsShort.
-    def exitImplicitConsShort(self, ctx:COQParser.ImplicitConsShortContext):
+    # Exit a parse tree produced by COQParser#arrowConsShort.
+    def exitArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
         pass
 
 
-    # Enter a parse tree produced by COQParser#explicitParam.
-    def enterExplicitParam(self, ctx:COQParser.ExplicitParamContext):
+    # Enter a parse tree produced by COQParser#arrowParam.
+    def enterArrowParam(self, ctx:COQParser.ArrowParamContext):
         pass
 
-    # Exit a parse tree produced by COQParser#explicitParam.
-    def exitExplicitParam(self, ctx:COQParser.ExplicitParamContext):
+    # Exit a parse tree produced by COQParser#arrowParam.
+    def exitArrowParam(self, ctx:COQParser.ArrowParamContext):
         pass
 
 
-    # Enter a parse tree produced by COQParser#implicitParam.
-    def enterImplicitParam(self, ctx:COQParser.ImplicitParamContext):
+    # Enter a parse tree produced by COQParser#binderConstructor.
+    def enterBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
         pass
 
-    # Exit a parse tree produced by COQParser#implicitParam.
-    def exitImplicitParam(self, ctx:COQParser.ImplicitParamContext):
+    # Exit a parse tree produced by COQParser#binderConstructor.
+    def exitBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
+        pass
+
+
+    # Enter a parse tree produced by COQParser#binderConsShort.
+    def enterBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
+        pass
+
+    # Exit a parse tree produced by COQParser#binderConsShort.
+    def exitBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
+        pass
+
+
+    # Enter a parse tree produced by COQParser#binderParam.
+    def enterBinderParam(self, ctx:COQParser.BinderParamContext):
+        pass
+
+    # Exit a parse tree produced by COQParser#binderParam.
+    def exitBinderParam(self, ctx:COQParser.BinderParamContext):
+        pass
+
+
+    # Enter a parse tree produced by COQParser#type_expression.
+    def enterType_expression(self, ctx:COQParser.Type_expressionContext):
+        pass
+
+    # Exit a parse tree produced by COQParser#type_expression.
+    def exitType_expression(self, ctx:COQParser.Type_expressionContext):
+        pass
+
+
+    # Enter a parse tree produced by COQParser#TypeTermName.
+    def enterTypeTermName(self, ctx:COQParser.TypeTermNameContext):
+        pass
+
+    # Exit a parse tree produced by COQParser#TypeTermName.
+    def exitTypeTermName(self, ctx:COQParser.TypeTermNameContext):
+        pass
+
+
+    # Enter a parse tree produced by COQParser#TypeTermParens.
+    def enterTypeTermParens(self, ctx:COQParser.TypeTermParensContext):
+        pass
+
+    # Exit a parse tree produced by COQParser#TypeTermParens.
+    def exitTypeTermParens(self, ctx:COQParser.TypeTermParensContext):
         pass
 
 
