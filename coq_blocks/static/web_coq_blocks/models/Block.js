@@ -296,7 +296,6 @@ export class ConstructorBlock extends BaseBlock {
         let allPlugsData = [];
 
         const args = this.constructorObj.args || [];
-        console.log("ConstructorBlock: Processing args:", this.constructorObj.args, "with typeParamMap:", typeParamMap);
 
         args.forEach(arg => {
             const resolvedType = resolveTypeParams(arg.type, typeParamMap);
@@ -314,8 +313,6 @@ export class ConstructorBlock extends BaseBlock {
 
         this.plugsCount = allPlugsData.length;
         let plugPositions = this.getPlugPositions(this.plugsCount);
-
-        console.log("ConstructorBlock: Creating plugs:", allPlugsData);
 
         // Plug elements 
         allPlugsData.forEach((plugData, index) => {

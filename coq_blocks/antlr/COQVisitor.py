@@ -24,28 +24,18 @@ class COQVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#arrowConstructor.
-    def visitArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
+    # Visit a parse tree produced by COQParser#ArrowEntry.
+    def visitArrowEntry(self, ctx:COQParser.ArrowEntryContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by COQParser#arrowConsShort.
-    def visitArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
+    # Visit a parse tree produced by COQParser#BinderEntry.
+    def visitBinderEntry(self, ctx:COQParser.BinderEntryContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by COQParser#arrowParam.
     def visitArrowParam(self, ctx:COQParser.ArrowParamContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by COQParser#binderConstructor.
-    def visitBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by COQParser#binderConsShort.
-    def visitBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
         return self.visitChildren(ctx)
 
 

@@ -10,52 +10,43 @@ else:
 
 def serializedATN():
     return [
-        4,1,14,140,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
-        6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,1,0,4,0,24,8,0,11,0,12,0,25,
-        1,0,1,0,1,1,1,1,1,1,5,1,33,8,1,10,1,12,1,36,9,1,1,1,1,1,3,1,40,8,
-        1,1,1,1,1,4,1,44,8,1,11,1,12,1,45,1,1,4,1,49,8,1,11,1,12,1,50,1,
-        1,1,1,3,1,55,8,1,1,1,1,1,1,2,1,2,4,2,61,8,2,11,2,12,2,62,1,2,1,2,
-        1,2,1,2,1,2,4,2,70,8,2,11,2,12,2,71,1,2,1,2,1,2,3,2,77,8,2,1,3,1,
-        3,1,3,1,3,5,3,83,8,3,10,3,12,3,86,9,3,1,3,1,3,1,4,1,4,1,4,5,4,93,
-        8,4,10,4,12,4,96,9,4,1,4,1,4,1,5,1,5,1,5,1,6,1,6,1,6,5,6,106,8,6,
-        10,6,12,6,109,9,6,1,7,1,7,5,7,113,8,7,10,7,12,7,116,9,7,1,8,1,8,
-        4,8,120,8,8,11,8,12,8,121,1,8,1,8,1,8,1,8,1,9,4,9,129,8,9,11,9,12,
-        9,130,1,10,1,10,1,10,1,10,1,10,3,10,138,8,10,1,10,0,0,11,0,2,4,6,
-        8,10,12,14,16,18,20,0,1,1,0,3,4,146,0,23,1,0,0,0,2,29,1,0,0,0,4,
-        76,1,0,0,0,6,78,1,0,0,0,8,89,1,0,0,0,10,99,1,0,0,0,12,102,1,0,0,
-        0,14,110,1,0,0,0,16,117,1,0,0,0,18,128,1,0,0,0,20,137,1,0,0,0,22,
-        24,3,2,1,0,23,22,1,0,0,0,24,25,1,0,0,0,25,23,1,0,0,0,25,26,1,0,0,
-        0,26,27,1,0,0,0,27,28,5,0,0,1,28,1,1,0,0,0,29,30,5,1,0,0,30,34,5,
-        13,0,0,31,33,3,4,2,0,32,31,1,0,0,0,33,36,1,0,0,0,34,32,1,0,0,0,34,
-        35,1,0,0,0,35,39,1,0,0,0,36,34,1,0,0,0,37,38,5,2,0,0,38,40,7,0,0,
-        0,39,37,1,0,0,0,39,40,1,0,0,0,40,41,1,0,0,0,41,54,5,5,0,0,42,44,
-        3,6,3,0,43,42,1,0,0,0,44,45,1,0,0,0,45,43,1,0,0,0,45,46,1,0,0,0,
-        46,55,1,0,0,0,47,49,3,12,6,0,48,47,1,0,0,0,49,50,1,0,0,0,50,48,1,
-        0,0,0,50,51,1,0,0,0,51,55,1,0,0,0,52,55,3,8,4,0,53,55,3,14,7,0,54,
-        43,1,0,0,0,54,48,1,0,0,0,54,52,1,0,0,0,54,53,1,0,0,0,55,56,1,0,0,
-        0,56,57,5,6,0,0,57,3,1,0,0,0,58,60,5,7,0,0,59,61,5,13,0,0,60,59,
-        1,0,0,0,61,62,1,0,0,0,62,60,1,0,0,0,62,63,1,0,0,0,63,64,1,0,0,0,
-        64,65,5,2,0,0,65,66,5,3,0,0,66,77,5,8,0,0,67,69,5,9,0,0,68,70,5,
-        13,0,0,69,68,1,0,0,0,70,71,1,0,0,0,71,69,1,0,0,0,71,72,1,0,0,0,72,
-        73,1,0,0,0,73,74,5,2,0,0,74,75,5,3,0,0,75,77,5,10,0,0,76,58,1,0,
-        0,0,76,67,1,0,0,0,77,5,1,0,0,0,78,79,5,11,0,0,79,80,5,13,0,0,80,
-        84,5,2,0,0,81,83,3,10,5,0,82,81,1,0,0,0,83,86,1,0,0,0,84,82,1,0,
-        0,0,84,85,1,0,0,0,85,87,1,0,0,0,86,84,1,0,0,0,87,88,3,18,9,0,88,
-        7,1,0,0,0,89,90,5,13,0,0,90,94,5,2,0,0,91,93,3,10,5,0,92,91,1,0,
-        0,0,93,96,1,0,0,0,94,92,1,0,0,0,94,95,1,0,0,0,95,97,1,0,0,0,96,94,
-        1,0,0,0,97,98,3,18,9,0,98,9,1,0,0,0,99,100,3,18,9,0,100,101,5,12,
-        0,0,101,11,1,0,0,0,102,103,5,11,0,0,103,107,5,13,0,0,104,106,3,16,
-        8,0,105,104,1,0,0,0,106,109,1,0,0,0,107,105,1,0,0,0,107,108,1,0,
-        0,0,108,13,1,0,0,0,109,107,1,0,0,0,110,114,5,13,0,0,111,113,3,16,
-        8,0,112,111,1,0,0,0,113,116,1,0,0,0,114,112,1,0,0,0,114,115,1,0,
-        0,0,115,15,1,0,0,0,116,114,1,0,0,0,117,119,5,7,0,0,118,120,5,13,
-        0,0,119,118,1,0,0,0,120,121,1,0,0,0,121,119,1,0,0,0,121,122,1,0,
-        0,0,122,123,1,0,0,0,123,124,5,2,0,0,124,125,3,18,9,0,125,126,5,8,
-        0,0,126,17,1,0,0,0,127,129,3,20,10,0,128,127,1,0,0,0,129,130,1,0,
-        0,0,130,128,1,0,0,0,130,131,1,0,0,0,131,19,1,0,0,0,132,138,5,13,
-        0,0,133,134,5,7,0,0,134,135,3,18,9,0,135,136,5,8,0,0,136,138,1,0,
-        0,0,137,132,1,0,0,0,137,133,1,0,0,0,138,21,1,0,0,0,16,25,34,39,45,
-        50,54,62,71,76,84,94,107,114,121,130,137
+        4,1,14,113,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        6,2,7,7,7,1,0,4,0,18,8,0,11,0,12,0,19,1,0,1,0,1,1,1,1,1,1,5,1,27,
+        8,1,10,1,12,1,30,9,1,1,1,1,1,3,1,34,8,1,1,1,1,1,4,1,38,8,1,11,1,
+        12,1,39,1,1,1,1,1,2,1,2,4,2,46,8,2,11,2,12,2,47,1,2,1,2,1,2,1,2,
+        1,2,4,2,55,8,2,11,2,12,2,56,1,2,1,2,1,2,3,2,62,8,2,1,3,3,3,65,8,
+        3,1,3,1,3,1,3,5,3,70,8,3,10,3,12,3,73,9,3,1,3,1,3,3,3,77,8,3,1,3,
+        1,3,5,3,81,8,3,10,3,12,3,84,9,3,3,3,86,8,3,1,4,1,4,1,4,1,5,1,5,4,
+        5,93,8,5,11,5,12,5,94,1,5,1,5,1,5,1,5,1,6,4,6,102,8,6,11,6,12,6,
+        103,1,7,1,7,1,7,1,7,1,7,3,7,111,8,7,1,7,0,0,8,0,2,4,6,8,10,12,14,
+        0,1,1,0,3,4,119,0,17,1,0,0,0,2,23,1,0,0,0,4,61,1,0,0,0,6,85,1,0,
+        0,0,8,87,1,0,0,0,10,90,1,0,0,0,12,101,1,0,0,0,14,110,1,0,0,0,16,
+        18,3,2,1,0,17,16,1,0,0,0,18,19,1,0,0,0,19,17,1,0,0,0,19,20,1,0,0,
+        0,20,21,1,0,0,0,21,22,5,0,0,1,22,1,1,0,0,0,23,24,5,1,0,0,24,28,5,
+        13,0,0,25,27,3,4,2,0,26,25,1,0,0,0,27,30,1,0,0,0,28,26,1,0,0,0,28,
+        29,1,0,0,0,29,33,1,0,0,0,30,28,1,0,0,0,31,32,5,2,0,0,32,34,7,0,0,
+        0,33,31,1,0,0,0,33,34,1,0,0,0,34,35,1,0,0,0,35,37,5,5,0,0,36,38,
+        3,6,3,0,37,36,1,0,0,0,38,39,1,0,0,0,39,37,1,0,0,0,39,40,1,0,0,0,
+        40,41,1,0,0,0,41,42,5,6,0,0,42,3,1,0,0,0,43,45,5,7,0,0,44,46,5,13,
+        0,0,45,44,1,0,0,0,46,47,1,0,0,0,47,45,1,0,0,0,47,48,1,0,0,0,48,49,
+        1,0,0,0,49,50,5,2,0,0,50,51,5,3,0,0,51,62,5,8,0,0,52,54,5,9,0,0,
+        53,55,5,13,0,0,54,53,1,0,0,0,55,56,1,0,0,0,56,54,1,0,0,0,56,57,1,
+        0,0,0,57,58,1,0,0,0,58,59,5,2,0,0,59,60,5,3,0,0,60,62,5,10,0,0,61,
+        43,1,0,0,0,61,52,1,0,0,0,62,5,1,0,0,0,63,65,5,11,0,0,64,63,1,0,0,
+        0,64,65,1,0,0,0,65,66,1,0,0,0,66,67,5,13,0,0,67,71,5,2,0,0,68,70,
+        3,8,4,0,69,68,1,0,0,0,70,73,1,0,0,0,71,69,1,0,0,0,71,72,1,0,0,0,
+        72,74,1,0,0,0,73,71,1,0,0,0,74,86,3,12,6,0,75,77,5,11,0,0,76,75,
+        1,0,0,0,76,77,1,0,0,0,77,78,1,0,0,0,78,82,5,13,0,0,79,81,3,10,5,
+        0,80,79,1,0,0,0,81,84,1,0,0,0,82,80,1,0,0,0,82,83,1,0,0,0,83,86,
+        1,0,0,0,84,82,1,0,0,0,85,64,1,0,0,0,85,76,1,0,0,0,86,7,1,0,0,0,87,
+        88,3,12,6,0,88,89,5,12,0,0,89,9,1,0,0,0,90,92,5,7,0,0,91,93,5,13,
+        0,0,92,91,1,0,0,0,93,94,1,0,0,0,94,92,1,0,0,0,94,95,1,0,0,0,95,96,
+        1,0,0,0,96,97,5,2,0,0,97,98,3,12,6,0,98,99,5,8,0,0,99,11,1,0,0,0,
+        100,102,3,14,7,0,101,100,1,0,0,0,102,103,1,0,0,0,103,101,1,0,0,0,
+        103,104,1,0,0,0,104,13,1,0,0,0,105,111,5,13,0,0,106,107,5,7,0,0,
+        107,108,3,12,6,0,108,109,5,8,0,0,109,111,1,0,0,0,110,105,1,0,0,0,
+        110,106,1,0,0,0,111,15,1,0,0,0,15,19,28,33,39,47,56,61,64,71,76,
+        82,85,94,103,110
     ]
 
 class COQParser ( Parser ):
@@ -79,19 +70,14 @@ class COQParser ( Parser ):
     RULE_prog = 0
     RULE_inductiveDef = 1
     RULE_typeParameters = 2
-    RULE_arrowConstructor = 3
-    RULE_arrowConsShort = 4
-    RULE_arrowParam = 5
-    RULE_binderConstructor = 6
-    RULE_binderConsShort = 7
-    RULE_binderParam = 8
-    RULE_type_expression = 9
-    RULE_type_term = 10
+    RULE_constructor = 3
+    RULE_arrowParam = 4
+    RULE_binderParam = 5
+    RULE_type_expression = 6
+    RULE_type_term = 7
 
-    ruleNames =  [ "prog", "inductiveDef", "typeParameters", "arrowConstructor", 
-                   "arrowConsShort", "arrowParam", "binderConstructor", 
-                   "binderConsShort", "binderParam", "type_expression", 
-                   "type_term" ]
+    ruleNames =  [ "prog", "inductiveDef", "typeParameters", "constructor", 
+                   "arrowParam", "binderParam", "type_expression", "type_term" ]
 
     EOF = Token.EOF
     T__0=1
@@ -162,19 +148,19 @@ class COQParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 23 
+            self.state = 17 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 22
+                self.state = 16
                 self.inductiveDef()
-                self.state = 25 
+                self.state = 19 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==1):
                     break
 
-            self.state = 27
+            self.state = 21
             self.match(COQParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -195,14 +181,6 @@ class COQParser ( Parser ):
         def NAME(self):
             return self.getToken(COQParser.NAME, 0)
 
-        def arrowConsShort(self):
-            return self.getTypedRuleContext(COQParser.ArrowConsShortContext,0)
-
-
-        def binderConsShort(self):
-            return self.getTypedRuleContext(COQParser.BinderConsShortContext,0)
-
-
         def typeParameters(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(COQParser.TypeParametersContext)
@@ -210,18 +188,11 @@ class COQParser ( Parser ):
                 return self.getTypedRuleContext(COQParser.TypeParametersContext,i)
 
 
-        def arrowConstructor(self, i:int=None):
+        def constructor(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(COQParser.ArrowConstructorContext)
+                return self.getTypedRuleContexts(COQParser.ConstructorContext)
             else:
-                return self.getTypedRuleContext(COQParser.ArrowConstructorContext,i)
-
-
-        def binderConstructor(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(COQParser.BinderConstructorContext)
-            else:
-                return self.getTypedRuleContext(COQParser.BinderConstructorContext,i)
+                return self.getTypedRuleContext(COQParser.ConstructorContext,i)
 
 
         def getRuleIndex(self):
@@ -251,27 +222,27 @@ class COQParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 29
+            self.state = 23
             self.match(COQParser.T__0)
-            self.state = 30
+            self.state = 24
             self.match(COQParser.NAME)
-            self.state = 34
+            self.state = 28
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==7 or _la==9:
-                self.state = 31
+                self.state = 25
                 self.typeParameters()
-                self.state = 36
+                self.state = 30
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 39
+            self.state = 33
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==2:
-                self.state = 37
+                self.state = 31
                 self.match(COQParser.T__1)
-                self.state = 38
+                self.state = 32
                 _la = self._input.LA(1)
                 if not(_la==3 or _la==4):
                     self._errHandler.recoverInline(self)
@@ -280,53 +251,21 @@ class COQParser ( Parser ):
                     self.consume()
 
 
-            self.state = 41
+            self.state = 35
             self.match(COQParser.T__4)
-            self.state = 54
+            self.state = 37 
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
-            if la_ == 1:
-                self.state = 43 
+            _la = self._input.LA(1)
+            while True:
+                self.state = 36
+                self.constructor()
+                self.state = 39 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while True:
-                    self.state = 42
-                    self.arrowConstructor()
-                    self.state = 45 
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-                    if not (_la==11):
-                        break
+                if not (_la==11 or _la==13):
+                    break
 
-                pass
-
-            elif la_ == 2:
-                self.state = 48 
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                while True:
-                    self.state = 47
-                    self.binderConstructor()
-                    self.state = 50 
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-                    if not (_la==11):
-                        break
-
-                pass
-
-            elif la_ == 3:
-                self.state = 52
-                self.arrowConsShort()
-                pass
-
-            elif la_ == 4:
-                self.state = 53
-                self.binderConsShort()
-                pass
-
-
-            self.state = 56
+            self.state = 41
             self.match(COQParser.T__5)
         except RecognitionException as re:
             localctx.exception = re
@@ -376,53 +315,53 @@ class COQParser ( Parser ):
         self.enterRule(localctx, 4, self.RULE_typeParameters)
         self._la = 0 # Token type
         try:
-            self.state = 76
+            self.state = 61
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [7]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 58
+                self.state = 43
                 self.match(COQParser.T__6)
-                self.state = 60 
+                self.state = 45 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 59
+                    self.state = 44
                     self.match(COQParser.NAME)
-                    self.state = 62 
+                    self.state = 47 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==13):
                         break
 
-                self.state = 64
+                self.state = 49
                 self.match(COQParser.T__1)
-                self.state = 65
+                self.state = 50
                 self.match(COQParser.T__2)
-                self.state = 66
+                self.state = 51
                 self.match(COQParser.T__7)
                 pass
             elif token in [9]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 67
+                self.state = 52
                 self.match(COQParser.T__8)
-                self.state = 69 
+                self.state = 54 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
-                    self.state = 68
+                    self.state = 53
                     self.match(COQParser.NAME)
-                    self.state = 71 
+                    self.state = 56 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==13):
                         break
 
-                self.state = 73
+                self.state = 58
                 self.match(COQParser.T__1)
-                self.state = 74
+                self.state = 59
                 self.match(COQParser.T__2)
-                self.state = 75
+                self.state = 60
                 self.match(COQParser.T__9)
                 pass
             else:
@@ -437,19 +376,33 @@ class COQParser ( Parser ):
         return localctx
 
 
-    class ArrowConstructorContext(ParserRuleContext):
+    class ConstructorContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
+
+        def getRuleIndex(self):
+            return COQParser.RULE_constructor
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+
+    class ArrowEntryContext(ConstructorContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a COQParser.ConstructorContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
         def NAME(self):
             return self.getToken(COQParser.NAME, 0)
-
         def type_expression(self):
             return self.getTypedRuleContext(COQParser.Type_expressionContext,0)
-
 
         def arrowParam(self, i:int=None):
             if i is None:
@@ -458,124 +411,117 @@ class COQParser ( Parser ):
                 return self.getTypedRuleContext(COQParser.ArrowParamContext,i)
 
 
-        def getRuleIndex(self):
-            return COQParser.RULE_arrowConstructor
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArrowConstructor" ):
-                listener.enterArrowConstructor(self)
+            if hasattr( listener, "enterArrowEntry" ):
+                listener.enterArrowEntry(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArrowConstructor" ):
-                listener.exitArrowConstructor(self)
+            if hasattr( listener, "exitArrowEntry" ):
+                listener.exitArrowEntry(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitArrowConstructor" ):
-                return visitor.visitArrowConstructor(self)
+            if hasattr( visitor, "visitArrowEntry" ):
+                return visitor.visitArrowEntry(self)
             else:
                 return visitor.visitChildren(self)
 
 
+    class BinderEntryContext(ConstructorContext):
 
-
-    def arrowConstructor(self):
-
-        localctx = COQParser.ArrowConstructorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 6, self.RULE_arrowConstructor)
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 78
-            self.match(COQParser.T__10)
-            self.state = 79
-            self.match(COQParser.NAME)
-            self.state = 80
-            self.match(COQParser.T__1)
-            self.state = 84
-            self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
-                    self.state = 81
-                    self.arrowParam() 
-                self.state = 86
-                self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
-
-            self.state = 87
-            self.type_expression()
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class ArrowConsShortContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a COQParser.ConstructorContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
 
         def NAME(self):
             return self.getToken(COQParser.NAME, 0)
-
-        def type_expression(self):
-            return self.getTypedRuleContext(COQParser.Type_expressionContext,0)
-
-
-        def arrowParam(self, i:int=None):
+        def binderParam(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(COQParser.ArrowParamContext)
+                return self.getTypedRuleContexts(COQParser.BinderParamContext)
             else:
-                return self.getTypedRuleContext(COQParser.ArrowParamContext,i)
+                return self.getTypedRuleContext(COQParser.BinderParamContext,i)
 
-
-        def getRuleIndex(self):
-            return COQParser.RULE_arrowConsShort
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterArrowConsShort" ):
-                listener.enterArrowConsShort(self)
+            if hasattr( listener, "enterBinderEntry" ):
+                listener.enterBinderEntry(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitArrowConsShort" ):
-                listener.exitArrowConsShort(self)
+            if hasattr( listener, "exitBinderEntry" ):
+                listener.exitBinderEntry(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitArrowConsShort" ):
-                return visitor.visitArrowConsShort(self)
+            if hasattr( visitor, "visitBinderEntry" ):
+                return visitor.visitBinderEntry(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
+    def constructor(self):
 
-    def arrowConsShort(self):
-
-        localctx = COQParser.ArrowConsShortContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 8, self.RULE_arrowConsShort)
+        localctx = COQParser.ConstructorContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 6, self.RULE_constructor)
+        self._la = 0 # Token type
         try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 89
-            self.match(COQParser.NAME)
-            self.state = 90
-            self.match(COQParser.T__1)
-            self.state = 94
+            self.state = 85
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
-            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
-                if _alt==1:
-                    self.state = 91
-                    self.arrowParam() 
-                self.state = 96
+            la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
+            if la_ == 1:
+                localctx = COQParser.ArrowEntryContext(self, localctx)
+                self.enterOuterAlt(localctx, 1)
+                self.state = 64
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
+                _la = self._input.LA(1)
+                if _la==11:
+                    self.state = 63
+                    self.match(COQParser.T__10)
 
-            self.state = 97
-            self.type_expression()
+
+                self.state = 66
+                self.match(COQParser.NAME)
+                self.state = 67
+                self.match(COQParser.T__1)
+                self.state = 71
+                self._errHandler.sync(self)
+                _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
+                while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                    if _alt==1:
+                        self.state = 68
+                        self.arrowParam() 
+                    self.state = 73
+                    self._errHandler.sync(self)
+                    _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
+
+                self.state = 74
+                self.type_expression()
+                pass
+
+            elif la_ == 2:
+                localctx = COQParser.BinderEntryContext(self, localctx)
+                self.enterOuterAlt(localctx, 2)
+                self.state = 76
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if _la==11:
+                    self.state = 75
+                    self.match(COQParser.T__10)
+
+
+                self.state = 78
+                self.match(COQParser.NAME)
+                self.state = 82
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while _la==7:
+                    self.state = 79
+                    self.binderParam()
+                    self.state = 84
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+
+                pass
+
+
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -619,145 +565,13 @@ class COQParser ( Parser ):
     def arrowParam(self):
 
         localctx = COQParser.ArrowParamContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 10, self.RULE_arrowParam)
+        self.enterRule(localctx, 8, self.RULE_arrowParam)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 99
+            self.state = 87
             self.type_expression()
-            self.state = 100
+            self.state = 88
             self.match(COQParser.T__11)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class BinderConstructorContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def NAME(self):
-            return self.getToken(COQParser.NAME, 0)
-
-        def binderParam(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(COQParser.BinderParamContext)
-            else:
-                return self.getTypedRuleContext(COQParser.BinderParamContext,i)
-
-
-        def getRuleIndex(self):
-            return COQParser.RULE_binderConstructor
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBinderConstructor" ):
-                listener.enterBinderConstructor(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBinderConstructor" ):
-                listener.exitBinderConstructor(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBinderConstructor" ):
-                return visitor.visitBinderConstructor(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def binderConstructor(self):
-
-        localctx = COQParser.BinderConstructorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_binderConstructor)
-        self._la = 0 # Token type
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 102
-            self.match(COQParser.T__10)
-            self.state = 103
-            self.match(COQParser.NAME)
-            self.state = 107
-            self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            while _la==7:
-                self.state = 104
-                self.binderParam()
-                self.state = 109
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class BinderConsShortContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def NAME(self):
-            return self.getToken(COQParser.NAME, 0)
-
-        def binderParam(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(COQParser.BinderParamContext)
-            else:
-                return self.getTypedRuleContext(COQParser.BinderParamContext,i)
-
-
-        def getRuleIndex(self):
-            return COQParser.RULE_binderConsShort
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBinderConsShort" ):
-                listener.enterBinderConsShort(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBinderConsShort" ):
-                listener.exitBinderConsShort(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBinderConsShort" ):
-                return visitor.visitBinderConsShort(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def binderConsShort(self):
-
-        localctx = COQParser.BinderConsShortContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 14, self.RULE_binderConsShort)
-        self._la = 0 # Token type
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 110
-            self.match(COQParser.NAME)
-            self.state = 114
-            self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            while _la==7:
-                self.state = 111
-                self.binderParam()
-                self.state = 116
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -807,29 +621,29 @@ class COQParser ( Parser ):
     def binderParam(self):
 
         localctx = COQParser.BinderParamContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 16, self.RULE_binderParam)
+        self.enterRule(localctx, 10, self.RULE_binderParam)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 117
+            self.state = 90
             self.match(COQParser.T__6)
-            self.state = 119 
+            self.state = 92 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 118
+                self.state = 91
                 self.match(COQParser.NAME)
-                self.state = 121 
+                self.state = 94 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==13):
                     break
 
-            self.state = 123
+            self.state = 96
             self.match(COQParser.T__1)
-            self.state = 124
+            self.state = 97
             self.type_expression()
-            self.state = 125
+            self.state = 98
             self.match(COQParser.T__7)
         except RecognitionException as re:
             localctx.exception = re
@@ -877,21 +691,22 @@ class COQParser ( Parser ):
     def type_expression(self):
 
         localctx = COQParser.Type_expressionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_type_expression)
-        self._la = 0 # Token type
+        self.enterRule(localctx, 12, self.RULE_type_expression)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 128 
+            self.state = 101 
             self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            while True:
-                self.state = 127
-                self.type_term()
-                self.state = 130 
+            _alt = 1
+            while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
+                if _alt == 1:
+                    self.state = 100
+                    self.type_term()
+
+                else:
+                    raise NoViableAltException(self)
+                self.state = 103 
                 self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                if not (_la==7 or _la==13):
-                    break
+                _alt = self._interp.adaptivePredict(self._input,13,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -972,25 +787,25 @@ class COQParser ( Parser ):
     def type_term(self):
 
         localctx = COQParser.Type_termContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 20, self.RULE_type_term)
+        self.enterRule(localctx, 14, self.RULE_type_term)
         try:
-            self.state = 137
+            self.state = 110
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [13]:
                 localctx = COQParser.TypeTermNameContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
-                self.state = 132
+                self.state = 105
                 self.match(COQParser.NAME)
                 pass
             elif token in [7]:
                 localctx = COQParser.TypeTermParensContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 133
+                self.state = 106
                 self.match(COQParser.T__6)
-                self.state = 134
+                self.state = 107
                 self.type_expression()
-                self.state = 135
+                self.state = 108
                 self.match(COQParser.T__7)
                 pass
             else:

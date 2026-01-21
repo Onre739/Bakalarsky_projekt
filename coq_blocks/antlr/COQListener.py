@@ -35,21 +35,21 @@ class COQListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by COQParser#arrowConstructor.
-    def enterArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
+    # Enter a parse tree produced by COQParser#ArrowEntry.
+    def enterArrowEntry(self, ctx:COQParser.ArrowEntryContext):
         pass
 
-    # Exit a parse tree produced by COQParser#arrowConstructor.
-    def exitArrowConstructor(self, ctx:COQParser.ArrowConstructorContext):
+    # Exit a parse tree produced by COQParser#ArrowEntry.
+    def exitArrowEntry(self, ctx:COQParser.ArrowEntryContext):
         pass
 
 
-    # Enter a parse tree produced by COQParser#arrowConsShort.
-    def enterArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
+    # Enter a parse tree produced by COQParser#BinderEntry.
+    def enterBinderEntry(self, ctx:COQParser.BinderEntryContext):
         pass
 
-    # Exit a parse tree produced by COQParser#arrowConsShort.
-    def exitArrowConsShort(self, ctx:COQParser.ArrowConsShortContext):
+    # Exit a parse tree produced by COQParser#BinderEntry.
+    def exitBinderEntry(self, ctx:COQParser.BinderEntryContext):
         pass
 
 
@@ -59,24 +59,6 @@ class COQListener(ParseTreeListener):
 
     # Exit a parse tree produced by COQParser#arrowParam.
     def exitArrowParam(self, ctx:COQParser.ArrowParamContext):
-        pass
-
-
-    # Enter a parse tree produced by COQParser#binderConstructor.
-    def enterBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
-        pass
-
-    # Exit a parse tree produced by COQParser#binderConstructor.
-    def exitBinderConstructor(self, ctx:COQParser.BinderConstructorContext):
-        pass
-
-
-    # Enter a parse tree produced by COQParser#binderConsShort.
-    def enterBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
-        pass
-
-    # Exit a parse tree produced by COQParser#binderConsShort.
-    def exitBinderConsShort(self, ctx:COQParser.BinderConsShortContext):
         pass
 
 

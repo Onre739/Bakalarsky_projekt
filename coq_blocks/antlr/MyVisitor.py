@@ -61,23 +61,7 @@ class MyVisitor(COQVisitor):
     # =========================================================================
     # 3. Parsing constructors (Binder vs Arrow)
     # =========================================================================
-
-    def visitBinderConstructor(self, ctx: COQParser.BinderConstructorContext):
-        # Form: | cons (n : nat) ...
-        name = ctx.NAME().getText()
-        args = []
-        
-        if ctx.binderParam():
-            for param_ctx in ctx.binderParam():
-                args.append(self.visit(param_ctx))
-                
-        return CoqConstructor(
-            name=name, 
-            args=args, 
-            syntax_style="binder"
-        )
-    
-    def visitArrowConstructor(self, ctx: COQParser.ArrowConstructorContext):
+    def visitArrowEntry(self, ctx: COQParser.ArrowEntryContext):        
         # Form: | cons : nat -> list nat
         name = ctx.NAME().getText()
         args = []
@@ -94,32 +78,22 @@ class MyVisitor(COQVisitor):
             args=args, 
             syntax_style="arrow", 
             return_type=return_type
-        )
+    )
 
-    # --- Shortend version (without | after := ; but only 1 constructor) ---
-    def visitBinderConsShort(self, ctx: COQParser.BinderConsShortContext):
+    def visitBinderEntry(self, ctx: COQParser.BinderEntryContext):        
+        # Form: | cons (n : nat) ...
         name = ctx.NAME().getText()
         args = []
+        
         if ctx.binderParam():
             for param_ctx in ctx.binderParam():
                 args.append(self.visit(param_ctx))
-        return CoqConstructor(name=name, args=args, syntax_style="binder")
-
-    def visitArrowConsShort(self, ctx: COQParser.ArrowConsShortContext):
-        name = ctx.NAME().getText()
-        args = []
-        if ctx.arrowParam():
-            for param_ctx in ctx.arrowParam():
-                args.append(self.visit(param_ctx))
-        
-        return_type = self.visit(ctx.type_expression())
-
+                
         return CoqConstructor(
             name=name, 
             args=args, 
-            syntax_style="arrow",
-            return_type=return_type
-        )
+            syntax_style="binder"
+    )
 
     # =========================================================================
     # 4. Parsing main structure
@@ -144,23 +118,10 @@ class MyVisitor(COQVisitor):
         # 2. Constructors
         all_constructors = []
 
-        # Binder style ( ... )
-        if ctx.binderConstructor():
-            for c_ctx in ctx.binderConstructor():
-                all_constructors.append(self.visit(c_ctx))
-        
-        # Arrow style ... -> ...
-        if ctx.arrowConstructor():
-            for c_ctx in ctx.arrowConstructor():
+        if ctx.constructor():
+            for c_ctx in ctx.constructor():
                 all_constructors.append(self.visit(c_ctx))
                 
-        # Shortened versions (without | after := ; only one constructor !!)
-        if ctx.binderConsShort():
-            all_constructors.append(self.visit(ctx.binderConsShort()))
-            
-        if ctx.arrowConsShort():
-            all_constructors.append(self.visit(ctx.arrowConsShort()))
-
         # 3. Final assembly
         return CoqInductiveType(
             name=type_name,

@@ -1,26 +1,21 @@
 grammar COQ;
 
 prog: inductiveDef+ EOF;
-
+         
 inductiveDef: 'Inductive' NAME typeParameters* (':' ('Type' | 'Set'))? ':=' 
-              ( arrowConstructor+ | binderConstructor+ 
-              | arrowConsShort | binderConsShort ) '.';
+              constructor+ '.';
 
-typeParameters:   '(' NAME+ ':' 'Type' ')'
-                | '{' NAME+ ':' 'Type' '}';
+typeParameters: '(' NAME+ ':' 'Type' ')'
+              | '{' NAME+ ':' 'Type' '}'
+              ;
 
-// --- ARROW STYLE (Šipková forma) ---
-arrowConstructor: '|' NAME ':' arrowParam* type_expression;
-arrowConsShort:   NAME ':' arrowParam* type_expression;
+constructor: ('|')? NAME ':' arrowParam* type_expression    # ArrowEntry
+           | ('|')? NAME binderParam*                       # BinderEntry
+           ;
 
 arrowParam: type_expression '->';
 
-// --- BINDER STYLE (Závorková forma) ---
-binderConstructor: '|' NAME binderParam*;
-binderConsShort:   NAME binderParam*;
-
 binderParam: '(' NAME+ ':' type_expression ')'; 
-
 
 type_expression: type_term+;
 type_term: NAME                    # TypeTermName      
