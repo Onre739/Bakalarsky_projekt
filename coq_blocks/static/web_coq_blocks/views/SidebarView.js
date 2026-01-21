@@ -44,8 +44,10 @@ export default class SidebarView {
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between border-0 pe-1";
 
+        const typeName = item.name ? item.name : "Unknown";
+
         li.innerHTML = `
-            <div>${item.dataType}</div>
+            <div>${typeName}</div>
             <div class="d-flex gap-1">
                 <button id="spawn-btn-${item.id}" class="btn btn-success btn-sm d-flex align-items-center spawn-btn">
                     <svg svg xmlns = "http://www.w3.org/2000/svg" width = "16" height = "16" fill = "currentColor" class="bi bi-plus-circle-dotted" viewBox = "0 0 16 16" >
@@ -75,14 +77,12 @@ export default class SidebarView {
     }
 
     renderClasicItem(item) {
-        const newTypeObj = item.dataType;
+        const newTypeObj = item;
         const typeName = newTypeObj.name;
         const typeParameters = newTypeObj.typeParameters;
+        const id = newTypeObj.id;
 
-        const explicitConstructors = newTypeObj.explicitConstructors || [];
-        const implicitConstructors = newTypeObj.implicitConstructors || [];
-
-        const constructors = explicitConstructors.length > 0 ? explicitConstructors : implicitConstructors;
+        const constructors = newTypeObj.constructors || [];
 
         // --- 1. Main element (Accordion Item) ---
         const typeEl = document.createElement("div");
@@ -97,9 +97,9 @@ export default class SidebarView {
             <button class="accordion-button collapsed px-3 py-1 bg-light-subtle text-success" 
                     type="button" 
                     data-bs-toggle="collapse" 
-                    data-bs-target="#collapse-${item.id}" 
+                    data-bs-target="#collapse-${id}" 
                     aria-expanded="false" 
-                    aria-controls="collapse-${item.id}"
+                    aria-controls="collapse-${id}"
                     style="font-weight: 500;">
                 ${typeName}
             </button>
@@ -163,7 +163,7 @@ export default class SidebarView {
 
                 // Input ID for later retrieval
                 // Stricture: typeParamInput-ITEMID-TYPEKEY-INDEX
-                paramDivInput.id = `typeParamInput:${item.id}:${typeKey}:${index}`;
+                paramDivInput.id = `typeParamInput:${id}:${typeKey}:${index}`;
 
                 // Set stored value
                 if (storedValue !== null) {
@@ -207,7 +207,7 @@ export default class SidebarView {
                     const typeKey = Object.keys(param)[0];
 
                     // Find input by ID and get its value
-                    const input = document.getElementById(`typeParamInput:${item.id}:${typeKey}:${idx}`);
+                    const input = document.getElementById(`typeParamInput:${id}:${typeKey}:${idx}`);
                     const newValue = input.value.trim() === "" ? null : input.value.trim();
 
                     // Return the updated parameter object
@@ -218,13 +218,13 @@ export default class SidebarView {
                 const newColor = colorInput.value;
 
                 // C) Call Store to update
-                this.store.updateTypeColor(item.id, newColor);
+                this.store.updateTypeColor(id, newColor);
 
                 // Check if parameters changed
                 const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
                 if (paramsChanged) {
                     console.log("Parameters changed - updating definition and removing blocks.");
-                    this.store.updateTypeParameters(item.id, updatedParameters);
+                    this.store.updateTypeParameters(id, updatedParameters);
                 } else {
                     console.log("Parameters unchanged - skipping block removal.");
                 }
@@ -235,14 +235,14 @@ export default class SidebarView {
         const deleteTypeBtn = headerEl.querySelector(".delete-type-btn");
         deleteTypeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            this.store.removeSavedType(item.id);
+            this.store.removeSavedType(id);
         });
 
         typeEl.appendChild(headerEl);
 
         // --- 3. Body (Collapse Content) ---
         const contentEl = document.createElement("div");
-        contentEl.id = `collapse-${item.id}`;
+        contentEl.id = `collapse-${id}`;
         contentEl.className = "accordion-collapse collapse";
 
         const bodyEl = document.createElement("div");
@@ -267,7 +267,7 @@ export default class SidebarView {
 
             const spawnBtn = listItem.querySelector(".spawn-cons-btn");
             spawnBtn.addEventListener("click", () => {
-                this.store.spawnClasicBlock(constructor, typeName, typeParameters, item.id);
+                this.store.spawnClasicBlock(constructor, typeName, typeParameters, id);
             });
 
             listGroup.appendChild(listItem);

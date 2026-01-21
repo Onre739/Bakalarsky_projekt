@@ -80,7 +80,7 @@ loadBtn.addEventListener("click", async () => {
         const data = await definitionLoader.load(definitionText);
         console.log("Loaded definition data:", data);
 
-        // store.importDefinitions(data);
+        store.importDefinitions(data);
         defInput.value = "";
         console.log("Definitions loaded successfully.");
 
@@ -106,7 +106,7 @@ atomicCreateBtn.addEventListener("click", () => {
         return;
     }
 
-    store.addSavedType(dataTypeName, "atomic");
+    store.addAtomicType(dataTypeName);
     workspaceView.printAlert(`Atomic type "${dataTypeName}" created successfully.`, "success");
 
     atomicCreateInput.value = "";

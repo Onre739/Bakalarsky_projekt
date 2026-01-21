@@ -14,22 +14,18 @@ export default class SavedTypeManager {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     }
 
-    // Helpful method for adding (called by Store)
-    addItem(dataArray, newItem, type) {
-        const item = {
-            id: crypto.randomUUID(),
-            sort: type, // "atomic" or "clasic"
-            dataType: newItem,
-            color: "#808080" // Default color
-        };
-        const newData = [...dataArray, item];
+    // Method for adding (called by Store)
+    addItem(dataArray, newItem) {
+        const newData = [...dataArray, newItem];
+
         this.saveData(newData);
         return newData;
     }
 
-    // Helpful method for removing (called by Store)
+    // Method for removing (called by Store)
     removeItem(dataArray, id) {
         const newData = dataArray.filter(item => item.id !== id);
+
         this.saveData(newData);
         return newData;
     }

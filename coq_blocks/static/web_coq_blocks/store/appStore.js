@@ -133,35 +133,55 @@ export default class appStore extends Store {
         this.notify();
     }
 
-    addSavedType(rawTypeData, sort) {
-        let dataToSave = rawTypeData;
+    addAtomicType(name) {
+        // ID generation; crypto.randomUUID() or basic fallback
+        const newId = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : 'atomic-' + Math.random().toString(36).substr(2, 9);
 
-        // Transform parameters for "clasic" types
-        if (sort === "clasic") {
-            dataToSave = {
-                explicitConstructors: rawTypeData.explicitConstructors,
-                implicitConstructors: rawTypeData.implicitConstructors,
-                name: rawTypeData.name,
+        // Simulate python type object
+        const atomicTypeObj = {
+            id: newId,
+            name: name,
+            sort: "atomic",
+            color: "#808080",
+            typeParameters: [], // No type parameters
+            constructors: []    // No constructors
+        };
 
-                // Transform { type: ["A"] } to { "A": null }
-                typeParameters: rawTypeData.typeParameters.flatMap(param => {
-                    if (param.type && Array.isArray(param.type)) {
-                        return param.type.map(t => ({ [t]: null }));
-                    }
-                    return [];
-                })
-            };
-        }
-
-        // 1. Save to localStorage via SavedTypeManager
-        const newSavedTypes = this.savedTypeManager.addItem(
+        // Save to localStorage via SavedTypeManager
+        const newSavedType = this.savedTypeManager.addItem(
             this.state.savedTypes,
-            dataToSave, // Transformed data
-            sort
+            atomicTypeObj,
         );
 
-        // 2. Actualize state
-        this.state.savedTypes = newSavedTypes;
+        // State update
+        this.state.savedTypes = newSavedType;
+        this.notify();
+    }
+
+    addSavedType(newTypeObj) {
+        let typeParams = newTypeObj.typeParameters || [];
+
+        // Transform type parameters from Python format to frontend format
+        // Python: ["X", "Y"]; Frontend: [{ "X": null }, { "Y": null }]
+        const frontendTypeParams = typeParams.map(paramName => {
+            if (typeof paramName === 'object') return paramName;
+            return { [paramName]: null };
+        });
+
+        // New data to save
+        const dataToSave = {
+            ...newTypeObj,
+            typeParameters: frontendTypeParams
+        };
+
+        // Save to localStorage via SavedTypeManager
+        const newSavedType = this.savedTypeManager.addItem(
+            this.state.savedTypes,
+            dataToSave, // Transformed data
+        );
+
+        // State update
+        this.state.savedTypes = newSavedType;
         this.notify();
     }
 
@@ -183,7 +203,7 @@ export default class appStore extends Store {
         const color = typeItem.color || "#808080";
 
         // 4. Create instance via BlockFactory
-        const newBlock = this.blockFactory.createAtomicBlock(typeItem.dataType, blockId, color);
+        const newBlock = this.blockFactory.createAtomicBlock(typeItem.name, blockId, color);
 
         // 5. Save
         this.state.blockObjects.push(newBlock);
@@ -200,7 +220,7 @@ export default class appStore extends Store {
 
         // 3. Color
         const typeItem = this.state.savedTypes.find(t => t.id === typeId);
-        const color = typeItem.color || "#808080";
+        const color = typeItem ? (typeItem.color || "#808080") : "#808080";
 
         // 4. Create instance via BlockFactory
         const newBlock = this.blockFactory.createConstructorBlock(
@@ -230,6 +250,7 @@ export default class appStore extends Store {
         this.state.typeBlockCount.clear();
         this.state.atomicBlockCount.clear();
         this.state.definitionBlockCount = 0;
+        this.state.snapTargets.length = 0;
 
         this.notify();
     }
@@ -279,10 +300,7 @@ export default class appStore extends Store {
             if (item.id === typeId) {
                 return {
                     ...item,
-                    dataType: {
-                        ...item.dataType,
-                        typeParameters: updatedParameters
-                    }
+                    typeParameters: updatedParameters
                 };
             }
             return item;
@@ -391,9 +409,9 @@ export default class appStore extends Store {
 
     // ------------------------------------------------------------------------
     importDefinitions(data) {
-        if (data.newTypes) {
-            data.newTypes.forEach(newType => {
-                this.addSavedType(newType, "clasic");
+        if (data) {
+            data.forEach(newType => {
+                this.addSavedType(newType);
             });
         }
 

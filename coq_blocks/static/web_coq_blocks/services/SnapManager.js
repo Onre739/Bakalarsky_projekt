@@ -1,8 +1,56 @@
-import { ConstructorBlock, AtomicBlock, DefinitionBlock } from "../models/Block.js";
+import { DefinitionBlock } from "../models/Block.js";
 
 export default class SnapManager {
     constructor() {
 
+    }
+
+    /**
+     * Helper method to compare two types (which can be strings or recursive objects).
+     * @param {string|Object} typeA 
+     * @param {string|Object} typeB 
+     * @returns {boolean}
+     */
+    areTypesEqual(typeA, typeB) {
+        // 1. Handling "any"
+        if (typeA === "any" || typeB === "any") return true;
+
+        // 2. Handling null/undefined
+        if (!typeA || !typeB) return false;
+
+        // 3. If they are simple strings (e.g., "nat" === "nat")
+        if (typeof typeA === 'string' && typeof typeB === 'string') {
+            return typeA === typeB;
+        }
+
+        // 4. If one is string and other object -> try to compare string with object.name
+        if (typeof typeA === 'string' && typeof typeB === 'object') {
+            return typeA === typeB.name && (!typeB.args || typeB.args.length === 0);
+        }
+        if (typeof typeA === 'object' && typeof typeB === 'string') {
+            return typeA.name === typeB && (!typeA.args || typeA.args.length === 0);
+        }
+
+        // 5. Structural comparison of Objects (Recursive)
+        if (typeof typeA === 'object' && typeof typeB === 'object') {
+            // A) Compare names
+            if (typeA.name !== typeB.name) return false;
+
+            // B) Compare number of arguments
+            const argsA = typeA.args || [];
+            const argsB = typeB.args || [];
+            if (argsA.length !== argsB.length) return false;
+
+            // C) Recursively compare arguments
+            for (let i = 0; i < argsA.length; i++) {
+                if (!this.areTypesEqual(argsA[i], argsB[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -43,8 +91,8 @@ export default class SnapManager {
                             let plugEl = plugObject.element;
                             let rect = plugEl.getBoundingClientRect();
 
-                            // console.log(requiredType + "-vs-" + plugType);
-                            if (plugType === requiredType || plugType === "any") {
+                            // Compare types
+                            if (this.areTypesEqual(plugType, requiredType)) {
                                 newTargets.push({
 
                                     // getBoundingClientRect() dává souřadnice vůči viewportu (oknu)

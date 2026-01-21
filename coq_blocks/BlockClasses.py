@@ -40,7 +40,7 @@ class CoqConstructor:
             "id": self.id,
             "name": self.name,
             "syntaxStyle": self.syntax_style,
-            "parameters": [arg.to_dict() for arg in self.args]
+            "args": [arg.to_dict() for arg in self.args]
         }
         
         # Include returnType only if it exists
