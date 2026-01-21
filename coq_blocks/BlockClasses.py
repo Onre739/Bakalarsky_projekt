@@ -57,6 +57,7 @@ class CoqInductiveType:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     sort: str = "clasic"    # "clasic" |  "atomic"
     color: str = "#808080"
+    full_text: str = ""      # Full original text of the inductive type
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -65,5 +66,6 @@ class CoqInductiveType:
             "color": self.color,
             "name": self.name,
             "typeParameters": self.type_parameters,
-            "constructors": [c.to_dict() for c in self.constructors]
+            "constructors": [c.to_dict() for c in self.constructors],
+            "fullText": self.full_text
         }

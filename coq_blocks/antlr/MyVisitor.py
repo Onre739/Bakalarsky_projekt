@@ -107,6 +107,13 @@ class MyVisitor(COQVisitor):
         type_name = ctx.NAME().getText()
         print(f"Processing inductive type: {type_name}")
 
+        # Original text extraction
+        start_index = ctx.start.start
+        stop_index = ctx.stop.stop
+        raw_text = ctx.start.getInputStream().getText(start_index, stop_index)
+
+        print(f"DEBUG FULL TEXT: {repr(raw_text)}")
+
         # 1. Type Parameters
         type_parameters = []
         if ctx.typeParameters():
@@ -126,7 +133,8 @@ class MyVisitor(COQVisitor):
         return CoqInductiveType(
             name=type_name,
             type_parameters=type_parameters,
-            constructors=all_constructors
+            constructors=all_constructors,
+            full_text=raw_text
         )
 
     def visitProg(self, ctx: COQParser.ProgContext):

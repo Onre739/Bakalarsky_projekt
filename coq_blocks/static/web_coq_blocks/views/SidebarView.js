@@ -42,23 +42,32 @@ export default class SidebarView {
 
     renderAtomicItem(item) {
         const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between border-0 pe-1";
+        li.className = "list-group-item d-flex justify-content-between align-items-center border-0 pe-2";
 
         const typeName = item.name ? item.name : "Unknown";
 
         li.innerHTML = `
             <div>${typeName}</div>
-            <div class="d-flex gap-1">
-                <button id="spawn-btn-${item.id}" class="btn btn-success btn-sm d-flex align-items-center spawn-btn">
-                    <svg svg xmlns = "http://www.w3.org/2000/svg" width = "16" height = "16" fill = "currentColor" class="bi bi-plus-circle-dotted" viewBox = "0 0 16 16" >
-                        <path d="M8 0q-.264 0-.523.017l.064.998a7 7 0 0 1 .918 0l.064-.998A8 8 0 0 0 8 0M6.44.152q-.52.104-1.012.27l.321.948q.43-.147.884-.237L6.44.153zm4.132.271a8 8 0 0 0-1.011-.27l-.194.98q.453.09.884.237zm1.873.925a8 8 0 0 0-.906-.524l-.443.896q.413.205.793.459zM4.46.824q-.471.233-.905.524l.556.83a7 7 0 0 1 .793-.458zM2.725 1.985q-.394.346-.74.74l.752.66q.303-.345.648-.648zm11.29.74a8 8 0 0 0-.74-.74l-.66.752q.346.303.648.648zm1.161 1.735a8 8 0 0 0-.524-.905l-.83.556q.254.38.458.793l.896-.443zM1.348 3.555q-.292.433-.524.906l.896.443q.205-.413.459-.793zM.423 5.428a8 8 0 0 0-.27 1.011l.98.194q.09-.453.237-.884zM15.848 6.44a8 8 0 0 0-.27-1.012l-.948.321q.147.43.237.884zM.017 7.477a8 8 0 0 0 0 1.046l.998-.064a7 7 0 0 1 0-.918zM16 8a8 8 0 0 0-.017-.523l-.998.064a7 7 0 0 1 0 .918l.998.064A8 8 0 0 0 16 8M.152 9.56q.104.52.27 1.012l.948-.321a7 7 0 0 1-.237-.884l-.98.194zm15.425 1.012q.168-.493.27-1.011l-.98-.194q-.09.453-.237.884zM.824 11.54a8 8 0 0 0 .524.905l.83-.556a7 7 0 0 1-.458-.793zm13.828.905q.292-.434.524-.906l-.896-.443q-.205.413-.459.793zm-12.667.83q.346.394.74.74l.66-.752a7 7 0 0 1-.648-.648zm11.29.74q.394-.346.74-.74l-.752-.66q-.302.346-.648.648zm-1.735 1.161q.471-.233.905-.524l-.556-.83a7 7 0 0 1-.793.458zm-7.985-.524q.434.292.906.524l.443-.896a7 7 0 0 1-.793-.459zm1.873.925q.493.168 1.011.27l.194-.98a7 7 0 0 1-.884-.237zm4.132.271a8 8 0 0 0 1.012-.27l-.321-.948a7 7 0 0 1-.884.237l.194.98zm-2.083.135a8 8 0 0 0 1.046 0l-.064-.998a7 7 0 0 1-.918 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
-                    </svg>    
-                </button>
-                <button id="delete-btn-${item.id}" class="btn btn-danger btn-sm d-flex align-items-center delete-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                    </svg>
-                </button>
+            
+            <div class="d-flex align-items-center gap-2">
+                <svg id="spawn-btn-${item.id}" 
+                     class="spawn-btn text-success" 
+                     style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                     onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
+                     onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
+                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                     <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"/>
+                     <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911z"/>
+                </svg>
+
+                <svg id="delete-btn-${item.id}" 
+                     class="delete-btn text-danger" 
+                     style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                     onmouseover="this.classList.replace('text-danger', 'text-danger-emphasis'); this.style.transform='scale(1.1)'" 
+                     onmouseout="this.classList.replace('text-danger-emphasis', 'text-danger'); this.style.transform='scale(1)'"
+                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
+                </svg>
             </div>
         `;
 
@@ -90,33 +99,36 @@ export default class SidebarView {
 
         // --- 2. Header ---
         const headerEl = document.createElement("h5");
-        headerEl.className = "accordion-header d-flex bg-light-subtle";
+        headerEl.className = "accordion-header d-flex align-items-center bg-light-subtle pe-2";
 
-        // HTML for header (Name + Buttons)
         headerEl.innerHTML = `
-            <button class="accordion-button collapsed px-3 py-1 bg-light-subtle text-success" 
+            <button class="accordion-button collapsed px-3 py-2 bg-light-subtle text-success flex-grow-1" 
                     type="button" 
                     data-bs-toggle="collapse" 
-                    data-bs-target="#collapse-${id}" 
+                    data-bs-target="#collapse-${item.id}" 
                     aria-expanded="false" 
-                    aria-controls="collapse-${id}"
-                    style="font-weight: 500;">
+                    aria-controls="collapse-${item.id}"
+                    style="font-weight: 500; box-shadow: none;"> 
                 ${typeName}
             </button>
             
-            <button class="btn btn-secondary btn-sm d-flex align-items-center mx-0 my-2 settings-btn" 
-                    data-bs-toggle="modal" data-bs-target="#settingModal">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+            <div class="d-flex align-items-center gap-2">
+                <svg class="settings-btn text-secondary" style="cursor: pointer; transition: color 0.2s;"
+                     data-bs-toggle="modal" 
+                     data-bs-target="#settingModal" 
+                     onmouseover="this.classList.replace('text-secondary', 'text-dark'); this.style.transform='scale(1.1)'" 
+                     onmouseout="this.classList.replace('text-dark', 'text-secondary'); this.style.transform='scale(1)'"
+                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.86z"/>
                 </svg>
-            </button>
 
-            <button class="btn btn-danger btn-sm d-flex align-items-center mx-1 my-2 delete-type-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                <svg class="delete-type-btn text-danger" style="cursor: pointer; transition: color 0.2s;"
+                     onmouseover="this.classList.replace('text-danger', 'text-danger-emphasis'); this.style.transform='scale(1.1)'" 
+                     onmouseout="this.classList.replace('text-danger-emphasis', 'text-danger'); this.style.transform='scale(1)'"
+                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
                 </svg>
-            </button>
+            </div>
         `;
 
         // --- 2.1 Setting button listener ---
@@ -130,13 +142,37 @@ export default class SidebarView {
             // Reset body
             let settingModalBody = document.getElementById("settingModalBody");
             settingModalBody.innerHTML = "";
-            const warnDiv = document.getElementById("settingModalWarnDiv");
+
+            // --- 2.1.0 Original Definiton ---
+            let codeLabel = document.createElement("label");
+            codeLabel.innerText = "Original Definition: ";
+            codeLabel.className = "form-label fw-bold";
+
+            let codeArea = document.createElement("div");
+            codeArea.className = "form-control font-monospace bg-light";
+            codeArea.style.fontSize = "0.85em";
+
+            codeArea.style.whiteSpace = "pre-wrap"; // Respektuje \n a zalamuje řádky
+            // codeArea.style.whiteSpace = "pre";   // Respektuje \n, ale NEZALAMUJE dlouhé řádky (udělá scrollbar)
+
+            codeArea.style.maxHeight = "200px";     // Omezení výšky
+            codeArea.style.overflowY = "auto";      // Scrollbar, pokud je text dlouhý
+            codeArea.textContent = item.fullText || "Definition source not available.";
+
+            settingModalBody.appendChild(codeLabel);
+            settingModalBody.appendChild(codeArea);
+
+            // --- 2.1.1 Generate inputs for each type parameter ---
+            let paramLabel = document.createElement("div");
+            paramLabel.innerText = "Parameters: ";
+            paramLabel.className = "form-label fw-bold mt-3";
+            settingModalBody.appendChild(paramLabel);
 
             // Parameter check
+            const warnDiv = document.getElementById("settingModalWarnDiv");
             if (!typeParameters || typeParameters.length === 0) {
                 let div = document.createElement("div");
                 div.innerText = "This type has no type parameters.";
-                div.className = "mb-3";
                 settingModalBody.appendChild(div);
 
                 if (warnDiv) warnDiv.style.display = "none";
@@ -145,39 +181,38 @@ export default class SidebarView {
                 if (warnDiv) warnDiv.style.display = "block";
             }
 
-            // --- 2.1.1 Generate inputs for each type parameter ---
             typeParameters.forEach((param, index) => {
                 // Param structure: { "A": "hodnota" } nebo { "A": null }
                 const typeKey = Object.keys(param)[0];
                 const storedValue = param[typeKey];
 
-                // Label
-                let paramDivLabel = document.createElement("label");
-                paramDivLabel.innerText = `Type parameter ${typeKey}: `;
-                paramDivLabel.className = "form-label";
+                let rowDiv = document.createElement("div");
+                rowDiv.className = "d-flex align-items-center mb-3";
 
-                // Create input
+                let paramDivLabel = document.createElement("label");
+                paramDivLabel.innerText = `${typeKey}:`;
+                paramDivLabel.className = "form-label me-3 mb-0 text-nowrap";
+                paramDivLabel.htmlFor = `typeParamInput:${id}:${typeKey}:${index}`;
+
                 let paramDivInput = document.createElement("input");
                 paramDivInput.type = "text";
-                paramDivInput.className = "form-control mb-3";
-
-                // Input ID for later retrieval
-                // Stricture: typeParamInput-ITEMID-TYPEKEY-INDEX
+                paramDivInput.className = "form-control";
                 paramDivInput.id = `typeParamInput:${id}:${typeKey}:${index}`;
 
-                // Set stored value
                 if (storedValue !== null) {
                     paramDivInput.value = storedValue;
                 }
 
-                settingModalBody.appendChild(paramDivLabel);
-                settingModalBody.appendChild(paramDivInput);
+                rowDiv.appendChild(paramDivLabel);
+                rowDiv.appendChild(paramDivInput);
+                settingModalBody.appendChild(rowDiv);
             });
 
             // --- 2.1.2 --- Color picker ---
             let colorLabel = document.createElement("label");
             colorLabel.innerText = "Block Color: ";
-            colorLabel.className = "form-label mt-2"; // Bootstrap spacing
+            colorLabel.className = "form-label fw-bold mt-3";
+            settingModalBody.appendChild(colorLabel);
 
             let colorInput = document.createElement("input");
             colorInput.type = "color";
@@ -187,7 +222,6 @@ export default class SidebarView {
 
             let colorDiv = document.createElement("div");
             colorDiv.className = "d-flex gap-2";
-            colorDiv.appendChild(colorLabel);
             colorDiv.appendChild(colorInput);
 
             settingModalBody.appendChild(colorDiv);
@@ -254,19 +288,24 @@ export default class SidebarView {
         // --- 4. Constructors ---
         constructors.forEach(constructor => {
             const listItem = document.createElement("li");
-            listItem.className = "list-group-item d-flex justify-content-between border-0 ps-3 pe-1";
+            listItem.className = "list-group-item d-flex justify-content-between align-items-center border-0 ps-3 pe-2";
 
             listItem.innerHTML = `
                 <div>${constructor.name}</div>
-                <button class="btn btn-success btn-sm d-flex align-items-center spawn-cons-btn">
-                    <svg svg xmlns = "http://www.w3.org/2000/svg" width = "16" height = "16" fill = "currentColor" class="bi bi-plus-circle-dotted" viewBox = "0 0 16 16" >
-                        <path d="M8 0q-.264 0-.523.017l.064.998a7 7 0 0 1 .918 0l.064-.998A8 8 0 0 0 8 0M6.44.152q-.52.104-1.012.27l.321.948q.43-.147.884-.237L6.44.153zm4.132.271a8 8 0 0 0-1.011-.27l-.194.98q.453.09.884.237zm1.873.925a8 8 0 0 0-.906-.524l-.443.896q.413.205.793.459zM4.46.824q-.471.233-.905.524l.556.83a7 7 0 0 1 .793-.458zM2.725 1.985q-.394.346-.74.74l.752.66q.303-.345.648-.648zm11.29.74a8 8 0 0 0-.74-.74l-.66.752q.346.303.648.648zm1.161 1.735a8 8 0 0 0-.524-.905l-.83.556q.254.38.458.793l.896-.443zM1.348 3.555q-.292.433-.524.906l.896.443q.205-.413.459-.793zM.423 5.428a8 8 0 0 0-.27 1.011l.98.194q.09-.453.237-.884zM15.848 6.44a8 8 0 0 0-.27-1.012l-.948.321q.147.43.237.884zM.017 7.477a8 8 0 0 0 0 1.046l.998-.064a7 7 0 0 1 0-.918zM16 8a8 8 0 0 0-.017-.523l-.998.064a7 7 0 0 1 0 .918l.998.064A8 8 0 0 0 16 8M.152 9.56q.104.52.27 1.012l.948-.321a7 7 0 0 1-.237-.884l-.98.194zm15.425 1.012q.168-.493.27-1.011l-.98-.194q-.09.453-.237.884zM.824 11.54a8 8 0 0 0 .524.905l.83-.556a7 7 0 0 1-.458-.793zm13.828.905q.292-.434.524-.906l-.896-.443q-.205.413-.459.793zm-12.667.83q.346.394.74.74l.66-.752a7 7 0 0 1-.648-.648zm11.29.74q.394-.346.74-.74l-.752-.66q-.302.346-.648.648zm-1.735 1.161q.471-.233.905-.524l-.556-.83a7 7 0 0 1-.793.458zm-7.985-.524q.434.292.906.524l.443-.896a7 7 0 0 1-.793-.459zm1.873.925q.493.168 1.011.27l.194-.98a7 7 0 0 1-.884-.237zm4.132.271a8 8 0 0 0 1.012-.27l-.321-.948a7 7 0 0 1-.884.237l.194.98zm-2.083.135a8 8 0 0 0 1.046 0l-.064-.998a7 7 0 0 1-.918 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
-                    </svg>
-                </button>
+                
+                <svg class="spawn-cons-btn text-success" 
+                     style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                     onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
+                     onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
+                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"/>
+                    <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911z"/>
+                </svg>
             `;
 
             const spawnBtn = listItem.querySelector(".spawn-cons-btn");
-            spawnBtn.addEventListener("click", () => {
+            spawnBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
                 this.store.spawnClasicBlock(constructor, typeName, typeParameters, id);
             });
 
