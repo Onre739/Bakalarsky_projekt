@@ -1,4 +1,5 @@
 import { Store } from './Store.js';
+import { TypeParser } from '../services/TypeParser.js';
 
 // Design pattern: Singleton Store for application state management
 export default class appStore extends Store {
@@ -222,11 +223,28 @@ export default class appStore extends Store {
         const typeItem = this.state.savedTypes.find(t => t.id === typeId);
         const color = typeItem ? (typeItem.color || "#808080") : "#808080";
 
-        // 4. Create instance via BlockFactory
+        // 4. Parse type parameters strings into objects
+        const parsedParams = typeParameters.map(paramObj => {
+            const key = Object.keys(paramObj)[0];
+            const rawValue = paramObj[key];
+
+            let finalValue = rawValue;
+
+            if (typeof rawValue === 'string' && rawValue.trim() !== "") {
+                const parsed = TypeParser.parse(rawValue);
+                if (parsed) {
+                    finalValue = parsed;
+                }
+            }
+
+            return { [key]: finalValue };
+        });
+
+        // 5. Create instance via BlockFactory
         const newBlock = this.blockFactory.createConstructorBlock(
             constructor,
             typeName,
-            typeParameters,
+            parsedParams,
             blockId,
             color
         );

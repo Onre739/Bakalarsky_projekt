@@ -171,16 +171,21 @@ export default class WorkspaceView {
         // delBtnWidth is atribute computed in createElement
         let widestLabel = nameWidth + (block.delBtnWidth || 20);
 
-        if (block.plugObjects) {
+        // plug.width and dotLabelWidth are atributes computed in createElement
+        let dotLabelWidth = block.dotObject ? block.dotObject.dotLabelWidth : 0;
+
+        if (block.plugObjects && block.plugObjects.length > 0) {
             block.plugObjects.forEach(plug => {
-                // plug.width and dotLabelWidth are atributes computed in createElement
-                let dotLabelWidth = block.dotObject ? block.dotObject.dotLabelWidth : 0;
                 let total = plug.width + dotLabelWidth;
 
                 if (total > widestLabel) {
                     widestLabel = total;
                 }
             });
+        }
+
+        if (dotLabelWidth > widestLabel) {
+            widestLabel = dotLabelWidth;
         }
 
         block.element.style.width = (widestLabel + 50) + "px";
@@ -204,33 +209,43 @@ export default class WorkspaceView {
     }
 
     /**
-     * Resizes the AtomicBlock based on its input content.
+     * Resizes the AtomicBlock based on its input content AND dot label width.
      * @param {AtomicBlock} block - The AtomicBlock to resize.
      */
     resizeAtomicBlock(block) {
         const input = block.element.querySelector("input");
-        const nameEl = block.element.querySelector(".blockName");
+        const nameEl = block.element.querySelector(".blockName"); // Pro jistotu, kdyby tam ještě byl
 
         if (!input) return;
 
-        // 1. Calculate text width
+        // 1. Calculate input text width
         // Canvas method for accurate text width measurement
         const context = document.createElement("canvas").getContext("2d");
         context.font = getComputedStyle(input).font;
         const text = input.value || input.placeholder || "";
         const textWidth = context.measureText(text).width;
 
-        // 2. Set input width (min 50px, padding cca 20px)
-        const inputNewWidth = Math.max(50, textWidth + 10); // Min width limit
-        const inputNewWidthLimited = Math.min(inputNewWidth, 200); // Max width limit
+        // 2. Set input width (min 50px, max 200px, padding cca 10px)
+        const inputNewWidth = Math.max(50, textWidth + 10);
+        const inputNewWidthLimited = Math.min(inputNewWidth, 200);
 
         input.style.width = `${inputNewWidthLimited}px`;
 
-        // 3. Set the width of the entire block
+        // 3. Get widths of other elements
         const nameWidth = nameEl ? nameEl.offsetWidth : 0;
 
-        // Block padding (cca 40px) + širší z prvků
-        const blockWidth = Math.max(nameWidth + 60, inputNewWidthLimited + 40);
+        // 4. Get dot label width
+        let dotLabelWidth = 0;
+        if (block.dotObject && block.dotObject.dotLabelWidth) {
+            dotLabelWidth = block.dotObject.dotLabelWidth;
+        }
+
+        // 5. Calculate final block width
+        const widthForDot = dotLabelWidth;
+        const widthForInput = inputNewWidthLimited + 20; // Input + padding of block 
+        const widthForName = nameWidth + 60; // Name + padding
+
+        const blockWidth = Math.max(widthForName, widthForInput, widthForDot + widthForInput);
 
         block.element.style.width = `${blockWidth}px`;
     }

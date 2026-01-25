@@ -27,30 +27,39 @@ function formatType(typeObj) {
 
 /**
  * Recursively replaces type parameters
- * @param {Object} typeObj - Type to be replaced
- * @param {Object} typeParamMap - Map { "X": "nat", "Y": "bool" }
+ * @param {Object} typeObj - Type to be replaced (e.g. { name: "A", args: [] })
+ * @param {Object} typeParamMap - Map { "A": { name: "nat", args:[] }, "B": { name: "list", args:[...] } }
  * @returns {Object} New type object with replaced parameters
  */
 function resolveTypeParams(typeObj, typeParamMap) {
     if (!typeObj) return null;
     if (!typeParamMap || Object.keys(typeParamMap).length === 0) return typeObj;
 
-    // If typeObj is a string
+    // 1. If typeObj is a string (exception case), check directly in the map
     if (typeof typeObj === 'string') {
-        if (typeParamMap[typeObj]) {
-            // We need to replace it with object
-            return { name: typeParamMap[typeObj], args: [] };
+        const replacement = typeParamMap[typeObj];
+        if (replacement) {
+            if (typeof replacement === 'object') {
+                return JSON.parse(JSON.stringify(replacement));
+            }
+            return { name: replacement, args: [] };
         }
         return { name: typeObj, args: [] };
     }
 
-    // If the type name matches a parameter (e.g. name="X")
-    if (typeParamMap[typeObj.name]) {
-        // Polymorphic type cannot have arguments !!! X : pair a b 
-        return { name: typeParamMap[typeObj.name], args: [] };
+    // 2. Check if typeObj.name is a type parameter to be replaced
+    const replacement = typeParamMap[typeObj.name];
+
+    if (replacement) {
+        if (typeof replacement === 'object') {
+            return JSON.parse(JSON.stringify(replacement));
+        }
+
+        // Fallback to string replacement
+        return { name: replacement, args: [] };
     }
 
-    // Recursively process arguments
+    // 3. Recurse for arguments
     const newArgs = (typeObj.args || []).map(arg => resolveTypeParams(arg, typeParamMap));
 
     return {
@@ -232,18 +241,31 @@ export class ConstructorBlock extends BaseBlock {
         } else {  // Binder style (return_type not given)
 
             // Get name of type parameter and use it, if not given, use the key as placeholder
-            // {X: "nat"} uses nat; {X: "nat"} uses X
-            // Does not need substitution here, because while creating plugs we already apply it
+            // {X: "nat"} uses nat; {X: null} uses X
+            // Does not need substitution here, we are building the type
 
             const paramArgs = [];
             if (this.typeParameters && Array.isArray(this.typeParameters)) {
                 this.typeParameters.forEach(p => {
                     const key = Object.keys(p)[0];
                     const val = p[key];
-                    paramArgs.push({
-                        name: val ? val : key,
-                        args: []
-                    });
+
+
+                    if (val && typeof val === 'object') { // If value is already an object
+                        paramArgs.push(JSON.parse(JSON.stringify(val)));
+                    }
+                    else if (val) { // If value is given as string, must create type object
+                        paramArgs.push({
+                            name: val,
+                            args: []
+                        });
+                    }
+                    else { // If value is not given, use key as placeholder
+                        paramArgs.push({
+                            name: key,
+                            args: []
+                        });
+                    }
                 });
             }
 
@@ -350,7 +372,7 @@ export class AtomicBlock extends BaseBlock {
         let boxDiv1 = document.createElement("div");
         boxDiv1.setAttribute("class", "d-flex justify-content-center");
         let boxDiv2 = document.createElement("div");
-        boxDiv2.setAttribute("class", "d-flex justify-content-center");
+        boxDiv2.setAttribute("class", "d-flex justify-content-end");
 
         // Title
         let blockNameEl = document.createElement("div");
@@ -363,7 +385,8 @@ export class AtomicBlock extends BaseBlock {
 
         // Input
         let inputEl = document.createElement("input");
-        inputEl.setAttribute("class", "form-control p-0 ms-4");
+        inputEl.setAttribute("class", "form-control p-0 mx-2");
+        inputEl.setAttribute("maxlength", "12");
         inputEl.setAttribute("id", "atomicInput");
 
         boxDiv2.appendChild(inputEl);
