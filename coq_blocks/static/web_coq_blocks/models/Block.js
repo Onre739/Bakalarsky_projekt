@@ -250,7 +250,6 @@ export class ConstructorBlock extends BaseBlock {
                     const key = Object.keys(p)[0];
                     const val = p[key];
 
-
                     if (val && typeof val === 'object') { // If value is already an object
                         paramArgs.push(JSON.parse(JSON.stringify(val)));
                     }
