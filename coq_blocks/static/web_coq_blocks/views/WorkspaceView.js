@@ -24,27 +24,10 @@ export default class WorkspaceView {
         // 2. Block resize
         this.afterSnapActions(plugInBlockPos, orderedSnaps);
 
-        // 3. Drag control
-        const blockedDraggableItems = this.snapManager.getBlockedDraggableItems(currentSnaps);
-        this.draggableClassControl(blockObjects, blockedDraggableItems);
-
-        // 4. Delete button control
+        // 3. Delete button control
         const notSnappedBlocks = this.snapManager.getNotSnappedBlocks(blockObjects, currentSnaps);
         const removeBlockCallback = (block) => this.store.removeBlock(block);
         this.deleteBtnClassControl(notSnappedBlocks, blockObjects, removeBlockCallback);
-
-    }
-
-    draggableClassControl(blockObjects, blockedDraggableItems) {
-        // Add / remove draggable class for all blocks
-
-        blockObjects.forEach(block => {
-            if (blockedDraggableItems.has(block)) {
-                block.element.classList.remove("draggable");
-            } else {
-                block.element.classList.add("draggable");
-            }
-        });
 
     }
 
@@ -106,6 +89,9 @@ export default class WorkspaceView {
             if (!this.ground.contains(block.element)) {
                 this.ground.appendChild(block.element);
 
+                // All blocks are draggable
+                block.element.classList.add("draggable");
+
                 if (!block.element.classList.contains("block")) {
                     block.createElement();
                 }
@@ -114,13 +100,14 @@ export default class WorkspaceView {
                 this.initializeBlockLayout(block);
 
                 // Spawn position
-                // if (!block.element.hasAttribute('data-x')) {
-                //     const x = window.scrollX + 100;
-                //     const y = window.scrollY + 100;
-                //     block.element.style.transform = `translate(${x}px, ${y}px)`;
-                //     block.element.setAttribute('data-x', x);
-                //     block.element.setAttribute('data-y', y);
-                // }
+                if (!block.element.hasAttribute('data-x')) {
+                    const visibleCenterX = this.ground.scrollLeft + (this.ground.clientWidth / 2) - 50;
+                    const visibleCenterY = this.ground.scrollTop + (this.ground.clientHeight / 2) - 50;
+
+                    block.element.style.transform = `translate(${visibleCenterX}px, ${visibleCenterY}px)`;
+                    block.element.setAttribute('data-x', visibleCenterX);
+                    block.element.setAttribute('data-y', visibleCenterY);
+                }
 
             }
         });
@@ -288,29 +275,39 @@ export default class WorkspaceView {
         const groundRect = groundEl.getBoundingClientRect();
         const groundStyle = getComputedStyle(groundEl);
 
-        const scrollX = window.scrollX;
-        const scrollY = window.scrollY;
+        // Scroll for window, it is disabled, but ground might be scrolled
+        // const scrollX = window.scrollX;
+        // const scrollY = window.scrollY;
 
-        // Adding scrollX/Y to gain absolute position of the ground element in the document
-        const docGroundDiffLeft = groundRect.left + scrollX + parseFloat(groundStyle.borderLeftWidth) + parseFloat(groundStyle.paddingLeft);
-        const docGroundDiffTop = groundRect.top + scrollY + parseFloat(groundStyle.borderTopWidth) + parseFloat(groundStyle.paddingTop);
         // Difference between position 0,0 of the page and 0,0 of the ground element, because interact.js takes 0,0 from ground
         // getBoundingClientRect is position before border and padding -> so I have to add it
+
+        const groundBorderLeft = parseFloat(groundStyle.borderLeftWidth) || 0;
+        const groundBorderTop = parseFloat(groundStyle.borderTopWidth) || 0;
+        const groundPaddingLeft = parseFloat(groundStyle.paddingLeft) || 0;
+        const groundPaddingTop = parseFloat(groundStyle.paddingTop) || 0;
+
+        // Position of upper left corner of ground element
+        const groundContentX = groundRect.left + groundBorderLeft + groundPaddingLeft;
+        const groundContentY = groundRect.top + groundBorderTop + groundPaddingTop;
 
         orderedSnappedBlocks.forEach((snappedDef) => {
             snappedDef.forEach((snappedBlock) => {
                 let plugEl = snappedBlock.plug.element;
                 let plugRect = plugEl.getBoundingClientRect();
 
-                let plugLeft = plugRect.left + scrollX;
-                let plugTop = plugRect.top + scrollY;
+                let plugX = plugRect.left;
+                let plugY = plugRect.top;
 
                 let plugWidth = plugRect.width;
                 let plugHeight = plugRect.height;
 
+                let x = (plugX + plugWidth) - groundContentX - 3;
+                let y = (plugY + plugHeight / 2) - (snappedBlock.child.element.offsetHeight * plugInBlockPos) - groundContentY;
 
-                let x = plugLeft + plugWidth - docGroundDiffLeft - 3;
-                let y = plugTop + plugHeight / 2 - snappedBlock.child.element.offsetHeight * plugInBlockPos - docGroundDiffTop;
+                // Ground scroll offset
+                x += groundEl.scrollLeft;
+                y += groundEl.scrollTop;
 
                 snappedBlock.child.element.style.transform = `translate(${x}px, ${y}px)`;
                 snappedBlock.child.element.setAttribute('data-x', x);

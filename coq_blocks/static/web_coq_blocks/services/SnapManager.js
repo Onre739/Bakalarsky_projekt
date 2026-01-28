@@ -272,32 +272,6 @@ export default class SnapManager {
         return allOrdered;
     }
 
-
-    /**
-     * Calculates which blocks should be locked (not draggable).
-     * @param {Array} snappedBlocks 
-     * @returns {Set} Set of blocks that should not be moved
-     */
-    getBlockedDraggableItems(snappedBlocks) {
-        // Find leaf snaps
-        let leafSnaps = snappedBlocks.filter(block1 =>
-            !snappedBlocks.some(block2 => block1.child === block2.parent)
-        );
-
-        // Find branch snaps
-        let branchSnaps = snappedBlocks.filter(block1 =>
-            snappedBlocks.some(block2 => block1.child === block2.parent)
-        );
-
-        // Set of all blocks that should not be draggable (parents of branch + parents of leaf)
-        let blocked = new Set([
-            ...branchSnaps.map(b => b.parent),
-            ...leafSnaps.map(b => b.parent),
-        ]);
-
-        return blocked;
-    }
-
     /**
      * Calculates which blocks are not snapped.
      * @param {Array} blockObjects - All blocks

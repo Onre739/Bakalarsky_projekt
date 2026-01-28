@@ -425,6 +425,27 @@ export default class appStore extends Store {
         this.notify();
     }
 
+    /**
+     * Recursively finds the block and all its children.
+     * @param {Object} rootBlock - The block being dragged.
+     * @returns {Array} Array of Block objects (the cluster).
+     */
+    getSubtree(rootBlock) {
+        let cluster = [rootBlock];
+
+        const childrenSnaps = this.state.snappedBlocks.filter(
+            s => s.plug.parentBlockEl === rootBlock.element
+        );
+
+        childrenSnaps.forEach(snap => {
+            // Recursively add the child and its subtree
+            const descendants = this.getSubtree(snap.child);
+            cluster = cluster.concat(descendants);
+        });
+
+        return cluster;
+    }
+
     // ------------------------------------------------------------------------
     importDefinitions(data) {
         if (data) {

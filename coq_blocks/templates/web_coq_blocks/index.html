@@ -24,39 +24,15 @@
 
     <div class="d-flex vh-100 overflow-hidden">
 
-        <div id="ground" class="flex-grow-1 position-relative bg-light" style="height: 100%;"></div>
+        <div id="ground" class="flex-grow-1 position-relative bg-light overflow-auto" style="height: 100%;"></div>
 
         <!-- ------------------- SIDEBAR ------------------- -->
         <div class="card d-flex flex-column p-3 overflow-hidden bg-white shadow-sm" style="width: 350px; min-width: 350px; height: 100%;">
             <!-- --------- HEADER  --------- -->                
             <h3>COQ Definition Maker</h3>
     
-            <div class="btn-group mb-2 border-bottom pb-2" role="group">
-                <input type="radio" class="btn-check" name="btnradio" id="showSavedTypesBtn" autocomplete="off" checked 
-                    onclick="document.getElementById('savedTypesDiv').classList.remove('d-none'); document.getElementById('exportsDiv').classList.add('d-none');">
-                <label class="btn btn-outline-success d-flex align-items-center gap-1 justify-content-center" for="showSavedTypesBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
-                        <path d="M11 2H9v3h2z"/>
-                        <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
-                    </svg>
-                
-                    Saved Types
-                </label>
-    
-                <input type="radio" class="btn-check" name="btnradio" id="showExportsBtn" autocomplete="off" 
-                    onclick="document.getElementById('savedTypesDiv').classList.add('d-none'); document.getElementById('exportsDiv').classList.remove('d-none');">
-                <label class="btn btn-outline-success d-flex align-items-center gap-1 justify-content-center" for="showExportsBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
-                        <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
-                    </svg>
-                
-                    Exports
-                </label>
-            </div>
-    
             <!-- --------- BODY --------- -->
-            <div class="flex-grow-1 overflow-auto pe-1">
+            <div class="flex-grow-1 overflow-auto border-top pt-2">
         
                 <div id="savedTypesDiv" class="">
     
@@ -139,39 +115,69 @@
                     </svg>
                     Control Panel:
                 </h5>
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div class="d-flex gap-3 align-items-center">
+                        
+                        <svg id="exportBtn" 
+                            class="text-success" 
+                            style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                            onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
+                            onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <title>Export Project</title> <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                        </svg>
+        
+                        <svg id="newDefBtn" 
+                            class="text-success" 
+                            style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                            onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
+                            onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <title>New Definition Block</title>
+                            <path d="M11 2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM5 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4z"/>
+                        </svg>
+        
+                        <svg id="clearPlaygroundBtn" 
+                            class="text-danger" 
+                            style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                            onmouseover="this.classList.replace('text-danger', 'text-danger-emphasis'); this.style.transform='scale(1.1)'" 
+                            onmouseout="this.classList.replace('text-danger-emphasis', 'text-danger'); this.style.transform='scale(1)'"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <title>Clear Playground</title>
+                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                        </svg>
+                        
+                    </div>
     
-                <div class="d-flex gap-3 align-items-center">
-                    
-                    <svg id="exportBtn" 
-                        class="text-success" 
-                        style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
-                        onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
-                        onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
-                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <title>Export Project</title> <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
-                        <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
-                    </svg>
-    
-                    <svg id="newDefBtn" 
-                        class="text-success" 
-                        style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
-                        onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
-                        onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"
-                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <title>New Definition Block</title>
-                        <path d="M11 2a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3zM5 1a4 4 0 0 0-4 4v6a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V5a4 4 0 0 0-4-4z"/>
-                    </svg>
-    
-                    <svg id="clearPlaygroundBtn" 
-                        class="text-danger" 
-                        style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
-                        onmouseover="this.classList.replace('text-danger', 'text-danger-emphasis'); this.style.transform='scale(1.1)'" 
-                        onmouseout="this.classList.replace('text-danger-emphasis', 'text-danger'); this.style.transform='scale(1)'"
-                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <title>Clear Playground</title>
-                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-                    </svg>
+                    <div class="btn-group btn-group-sm border-start ps-2 rounded-0" style="width: 65%;" role="group">
+                        <input type="radio" class="btn-check" name="btnradio" id="showSavedTypesBtn" autocomplete="off" checked 
+                            onclick="document.getElementById('savedTypesDiv').classList.remove('d-none'); document.getElementById('exportsDiv').classList.add('d-none');">
+                        <label class="btn btn-outline-success d-flex align-items-center gap-1 justify-content-center" for="showSavedTypesBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z"/>
+                                <path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>
+                            </svg>
+                        
+                            Saved Types
+                        </label>
+            
+                        <input type="radio" class="btn-check" name="btnradio" id="showExportsBtn" autocomplete="off" 
+                            onclick="document.getElementById('savedTypesDiv').classList.add('d-none'); document.getElementById('exportsDiv').classList.remove('d-none');">
+                        <label class="btn btn-outline-success d-flex align-items-center gap-1 justify-content-center" for="showExportsBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                                <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                            </svg>
+                        
+                            Exports
+                        </label>
+                    </div>
+
                 </div>
+                
             </div>
         </div>
     </div>

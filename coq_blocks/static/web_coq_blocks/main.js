@@ -42,6 +42,7 @@ exportBtn.addEventListener("click", () => {
         const coqString = coqExporter.export(blocks, snaps);
         if (coqString) {
             workspaceView.showExportResult(coqString);
+            workspaceView.printAlert("Export successful!!\n See result in export panel", "success");
         }
     }
 

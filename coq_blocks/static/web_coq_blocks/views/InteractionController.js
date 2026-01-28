@@ -3,6 +3,7 @@ export default class InteractionController {
         this.store = store;
         this.snapManager = snapManager;
         this.currentMovedBlock = null;
+        this.draggingCluster = [];
     }
 
     initializeAutomaticResizeConfig() {
@@ -12,30 +13,53 @@ export default class InteractionController {
             listeners: {
                 start: (event) => {
                     let target = event.target;
-                    target.style.zIndex = this.store.getAndIncrementZIndex();
 
-                    // Find BlockObject by target element
+                    // 1. Find the main dragged block
                     let movedBlockObject = this.store.getBlockObjectByElement(target);
+
                     if (movedBlockObject) {
                         this.currentMovedBlock = movedBlockObject;
 
+                        // 2. CLUSTER LOGIC: Find all children to move along
+                        this.draggingCluster = this.store.getSubtree(movedBlockObject);
+
+                        // 3. Update Z-Index for the WHOLE cluster
+                        this.draggingCluster.forEach(block => {
+                            const newZIndex = this.store.getAndIncrementZIndex();
+                            block.element.style.zIndex = newZIndex;
+                        });
+
+                        // 4. Recalculate snap targets (Only for the head block!)
                         // Find new snap targets silently (without notify)
                         this.store.recalculateSnapTargetsSilent(movedBlockObject);
                         console.log("Updated snap targets:", this.store.getSnapTargets());
                     }
-                    else console.log("Moved block not found in appStore");
+                    else {
+                        console.log("Moved block not found in appStore");
+                        this.draggingCluster = [];
+                    }
                 },
 
                 move: (event) => {
-                    // IMPORTANT, x and y are calculated from GROUND ELEMENT !! not from the start of the document
-                    let target = event.target;
-                    let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-                    let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+                    // Loop through ALL blocks in the cluster and apply the SAME delta
+                    if (this.draggingCluster.length > 0) {
 
-                    // Save position change
-                    target.style.transform = `translate(${x}px, ${y}px)`;
-                    target.setAttribute('data-x', x);
-                    target.setAttribute('data-y', y);
+                        this.draggingCluster.forEach(block => {
+                            const el = block.element;
+
+                            // Calculate new position based on previous attribute + delta
+                            // IMPORTANT, x and y are calculated from GROUND ELEMENT !! not from the start of the document
+                            let x = (parseFloat(el.getAttribute('data-x')) || 0) + event.dx;
+                            let y = (parseFloat(el.getAttribute('data-y')) || 0) + event.dy;
+
+                            // Update DOM
+                            el.style.transform = `translate(${x}px, ${y}px)`;
+
+                            // Save new state to DOM attributes
+                            el.setAttribute('data-x', x);
+                            el.setAttribute('data-y', y);
+                        });
+                    }
                 },
 
                 end: (event) => {
@@ -43,12 +67,13 @@ export default class InteractionController {
 
                         // Actions after block drop: snap check, resize, drag control, delete buttons
                         this.store.handleBlockDrop(this.currentMovedBlock);
-                        this.currentMovedBlock = null; // Reset
+
+                        // Reset
+                        this.currentMovedBlock = null;
+                        this.draggingCluster = [];
                     }
 
                     console.log('Drag ended', event);
-                    console.log("Snapped blocks:", this.store.getSnappedBlocks());
-                    console.log("Ordered snapped blocks:", this.store.getOrderedSnappedBlocks());
                 }
             },
             modifiers: [
