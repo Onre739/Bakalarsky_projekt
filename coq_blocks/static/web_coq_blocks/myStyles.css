@@ -1,16 +1,23 @@
-.deleteButton {
-    width: 20px;
-    height: 20px;
-    background-color: #3ac86500;
-    border: 1px solid;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
+.delete-block-btn {
     position: absolute;
     top: 5px;
     left: 5px;
-    border-radius: 5px;
+    width: 20px;
+    height: 20px;
+
+    cursor: pointer;
+    color: #000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: transform 0.2s, background-color 0.2s;
+    z-index: 100;
+}
+
+.delete-block-btn:hover {
+    transform: scale(1.2);
 }
 
 .block {

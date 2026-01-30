@@ -61,31 +61,28 @@ export default class WorkspaceView {
 
         // 2. Traverse all blocks and add/remove delete button
         blockObjects.forEach((blockObject) => {
-            let deleteBtn = blockObject.element.querySelector(".deleteButton");
+            let deleteBtn = blockObject.element.querySelector(".delete-block-btn");
+            if (!deleteBtn) return;
 
             const shouldHaveButton = notSnappedSet.has(blockObject);
 
-            // A) Should have delete button and doesn't have it -> create
-            if (shouldHaveButton && !deleteBtn) {
-                deleteBtn = document.createElement("button");
-                deleteBtn.setAttribute("class", "deleteButton");
-                deleteBtn.innerText = "X";
+            // Visibility control
+            if (shouldHaveButton) {
+                deleteBtn.style.display = "flex";
+            } else {
+                deleteBtn.style.display = "none";
+            }
 
-                // IMPORTANT: stopPropagation, so that clicking the button doesn't trigger drag of the block
+            // Listener control
+            if (!deleteBtn.dataset.hasDeleteListener) {
                 deleteBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
                     removeBlockCallback(blockObject);
                 });
 
-                blockObject.element.appendChild(deleteBtn);
-
+                // Custom flag to avoid multiple listeners
+                deleteBtn.dataset.hasDeleteListener = "true";
             }
-
-            // B) Shouldn't have delete button and has it -> remove
-            else if (!shouldHaveButton && deleteBtn) {
-                deleteBtn.remove();
-            }
-
         });
     }
 
