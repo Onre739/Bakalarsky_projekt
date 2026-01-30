@@ -8,7 +8,7 @@ import SnapManager from './services/SnapManager.js';
 import WorkspaceView from './views/WorkspaceView.js';
 import SidebarView from './views/SidebarView.js';
 
-// Initialize store and main components
+// ----- Initialize store and main components -----
 const snapManager = new SnapManager();
 const savedTypeManager = new SavedTypeManager();
 const definitionLoader = new DefinitionLoader();
@@ -19,7 +19,28 @@ const store = new AppStore(snapManager, savedTypeManager, null);
 const blockFactory = new BlockFactory(store);
 store.setBlockFactory(blockFactory);
 
-const workspaceView = new WorkspaceView(store, snapManager);
+// Handler for exporting
+const handleSingleExport = (rootBlock) => {
+    const allSnaps = store.getSnappedBlocks();
+
+    try {
+        const coqString = coqExporter.exportSingle(rootBlock, allSnaps);
+
+        if (coqString) {
+            workspaceView.showExportResult(coqString);
+            workspaceView.printAlert("Export successful!!", "success");
+
+            const showExportsBtn = document.getElementById('showExportsBtn');
+            if (showExportsBtn) showExportsBtn.click();
+        }
+
+    } catch (error) {
+        console.error(error);
+        workspaceView.printAlert(error.message, "danger");
+    }
+};
+
+const workspaceView = new WorkspaceView(store, snapManager, handleSingleExport);
 const sidebarView = new SidebarView(store);
 
 // Initialize interaction controller, interact.js
@@ -29,29 +50,6 @@ interactionController.initializeAutomaticResizeConfig();
 // Subscribe views to store updates
 workspaceView.subscribeToStore();
 sidebarView.subscribeToStore();
-
-// ----------------- Global Listeners -----------------
-// ----- Export button -----
-const exportBtn = document.getElementById("exportBtn");
-
-exportBtn.addEventListener("click", () => {
-    const blocks = store.getBlockObjects();
-    const snaps = store.getSnappedBlocks();
-
-    try {
-        const coqString = coqExporter.export(blocks, snaps);
-        if (coqString) {
-            workspaceView.showExportResult(coqString);
-            workspaceView.printAlert("Export successful!!\n See result in export panel", "success");
-        }
-    }
-
-    catch (error) {
-        console.error("Error during export: ", error);
-        workspaceView.printAlert(`${error.message}`, "danger");
-    }
-
-});
 
 // ----- New Definition Block button -----
 const newDefBtn = document.getElementById("newDefBtn");

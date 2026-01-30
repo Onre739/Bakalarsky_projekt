@@ -5,9 +5,18 @@ export default class COQExporter {
     export(blockObjects, snappedBlocks) {
 
         let traversalResult = this.DFSTraverse(blockObjects, snappedBlocks);
-        console.log("Exported structure: ", traversalResult.result);
 
         return traversalResult.output;
+    }
+
+    exportSingle(rootBlock, snappedBlocks) {
+
+        // Object tree
+        let defObj = this.traverseBlock(rootBlock, snappedBlocks);
+
+        let finalOutput = this.stringifyDefinition(defObj, 0) + ".";
+
+        return finalOutput;
     }
 
     DFSTraverse(blockObjects, snappedBlocks) {
@@ -60,7 +69,7 @@ export default class COQExporter {
                     (block.typeObj ? block.typeObj.name : null) || // AtomicBlock ("nat")
                     "Unknown Block";
 
-                throw new Error(`Export failed: Block '${blockId}' has an unconnected socket.`);
+                throw new Error(`Export failed: Block '${blockId}' has an unconnected plug.`);
             }
         });
 

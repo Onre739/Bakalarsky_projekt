@@ -1,9 +1,10 @@
 import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/Block.js";
 export default class WorkspaceView {
-    constructor(store, snapManager) {
+    constructor(store, snapManager, exportCallback) {
         this.ground = document.getElementById("ground");
         this.store = store;
         this.snapManager = snapManager;
+        this.exportCallback = exportCallback;
     }
 
     subscribeToStore() {
@@ -29,6 +30,29 @@ export default class WorkspaceView {
         const removeBlockCallback = (block) => this.store.removeBlock(block);
         this.deleteBtnClassControl(notSnappedBlocks, blockObjects, removeBlockCallback);
 
+        // 4. Export button control
+        this.bindExportButtons(blockObjects);
+
+    }
+
+    bindExportButtons(blockObjects) {
+        blockObjects.forEach(block => {
+            const icon = block.element.querySelector(".export-icon");
+
+            // Custom flag 'hasExportListener' -> in HTML atribute: data-has-export-listener="true" 
+            if (icon && !icon.dataset.hasExportListener) {
+
+                icon.addEventListener("click", (e) => {
+                    e.stopPropagation();
+
+                    if (this.exportCallback) {
+                        this.exportCallback(block);
+                    }
+                });
+
+                icon.dataset.hasExportListener = "true";
+            }
+        });
     }
 
     deleteBtnClassControl(notSnappedBlocks, blockObjects, removeBlockCallback) {

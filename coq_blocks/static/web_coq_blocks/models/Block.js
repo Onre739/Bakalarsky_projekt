@@ -187,6 +187,38 @@ export class DefinitionBlock extends BaseBlock {
 
         newBlock.appendChild(blockNameEl);
 
+        // Export button
+        // --- Export Icon ---
+        let exportIcon = document.createElement("div");
+        exportIcon.className = "export-icon";
+
+        // Stylování kontejneru ikony
+        exportIcon.style.position = "absolute";
+        exportIcon.style.bottom = "5px";
+        exportIcon.style.left = "5px";
+        exportIcon.style.cursor = "pointer";
+        exportIcon.style.color = "#000";
+        exportIcon.style.transition = "transform 0.2s, color 0.2s";
+        exportIcon.title = "Export this definition";
+
+        // Vložíme SVG
+        exportIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+            <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+        </svg>`;
+
+        exportIcon.onmouseover = () => {
+            exportIcon.style.transform = "scale(1.2)";
+            exportIcon.style.color = "#000"; // Úplně bílá při najetí
+        };
+        exportIcon.onmouseout = () => {
+            exportIcon.style.transform = "scale(1)";
+            exportIcon.style.color = "#000";
+        };
+
+        exportIcon.addEventListener("mousedown", (e) => e.stopPropagation());
+        newBlock.appendChild(exportIcon);
+
         // ------ PLUGS
 
         let aktPlug = 0; // Current plug
