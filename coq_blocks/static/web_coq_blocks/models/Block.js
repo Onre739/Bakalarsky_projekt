@@ -145,6 +145,47 @@ class BaseBlock {
         throw new Error("Must be implemented by subclass");
     }
 
+    /**
+     * Initializes common block features:
+     * - Main DIV attributes (id, class, style)
+     * - Delete Button (hidden by default)
+     * - Block Name (optional helper)
+     */
+    initBlockElement() {
+        // 1. Setup Main Element
+        this.element.setAttribute("id", this.id);
+        this.element.className = "block draggable";
+        this.element.style.backgroundColor = this.color;
+        //this.element.style.position = "absolute"; // Pro jistotu, aby fungovalo top/left dětí
+
+        // 2. Setup Delete Button
+        let deleteBtn = document.createElement("div");
+        deleteBtn.className = "delete-block-btn";
+        deleteBtn.style.display = "none";
+
+        deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+        </svg>`;
+
+        deleteBtn.addEventListener("mousedown", (e) => e.stopPropagation());
+        this.element.appendChild(deleteBtn);
+    }
+
+    /**
+     * Helper to create and append the block title
+     * @param {string} text - Title text
+     */
+    addBlockName(text) {
+        let blockNameEl = document.createElement("div");
+        blockNameEl.setAttribute("class", "blockName");
+        blockNameEl.style.position = "absolute";
+        blockNameEl.style.top = "5px";
+        blockNameEl.style.left = "30px";
+        blockNameEl.style.fontWeight = "bold";
+        blockNameEl.innerText = text;
+        this.element.appendChild(blockNameEl);
+    }
+
     // Get plug positions based on number of plugs
     getPlugPositions(n) {
         // Calculation is from 0 to 90%, then shifted by 10% due to the title
@@ -170,29 +211,17 @@ export class DefinitionBlock extends BaseBlock {
     }
 
     createElement() {
-
-        let newBlock = this.element
-        newBlock.setAttribute("id", this.id);
-        newBlock.setAttribute("class", "block draggable");
-        newBlock.style.backgroundColor = this.color;
+        // Initialize block element
+        this.initBlockElement();
 
         // Block name
-        let blockNameEl = document.createElement("div");
-        blockNameEl.setAttribute("class", "blockName");
-        blockNameEl.innerText = "Definition";
-        blockNameEl.style.position = "absolute";
-        blockNameEl.style.top = "5px";
-        blockNameEl.style.left = "30px";
-        blockNameEl.style.fontWeight = "bold";
+        this.addBlockName("Definition");
 
-        newBlock.appendChild(blockNameEl);
+        let newBlock = this.element
 
         // Export button
-        // --- Export Icon ---
         let exportIcon = document.createElement("div");
         exportIcon.className = "export-icon";
-
-        // Stylování kontejneru ikony
         exportIcon.style.position = "absolute";
         exportIcon.style.bottom = "5px";
         exportIcon.style.left = "5px";
@@ -201,7 +230,6 @@ export class DefinitionBlock extends BaseBlock {
         exportIcon.style.transition = "transform 0.2s, color 0.2s";
         exportIcon.title = "Export this definition";
 
-        // Vložíme SVG
         exportIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
             <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
             <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
@@ -209,7 +237,7 @@ export class DefinitionBlock extends BaseBlock {
 
         exportIcon.onmouseover = () => {
             exportIcon.style.transform = "scale(1.2)";
-            exportIcon.style.color = "#000"; // Úplně bílá při najetí
+            exportIcon.style.color = "#000";
         };
         exportIcon.onmouseout = () => {
             exportIcon.style.transform = "scale(1)";
@@ -219,20 +247,6 @@ export class DefinitionBlock extends BaseBlock {
         // To prevent drag on export icon click
         exportIcon.addEventListener("mousedown", (e) => e.stopPropagation());
         newBlock.appendChild(exportIcon);
-
-        // --- DELETE BUTTON ---
-        let deleteBtn = document.createElement("div");
-        deleteBtn.className = "delete-block-btn";
-        deleteBtn.style.display = "none";
-
-        deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-        </svg>`;
-
-        // To prevent drag on delete button click
-        deleteBtn.addEventListener("mousedown", (e) => e.stopPropagation());
-
-        newBlock.appendChild(deleteBtn);
 
         // ------ PLUGS
 
@@ -327,36 +341,13 @@ export class ConstructorBlock extends BaseBlock {
     }
 
     createElement() {
-        // ------------------------ New block
-        let newBlock = this.element
-        newBlock.setAttribute("id", this.id);
-        newBlock.setAttribute("class", "block draggable");
-        newBlock.style.backgroundColor = this.color;
+        // Initialize block element
+        this.initBlockElement();
 
-        // Title
-        let blockNameEl = document.createElement("div");
-        blockNameEl.setAttribute("class", "blockName");
-        blockNameEl.style.position = "absolute";
-        blockNameEl.style.top = "5px";
-        blockNameEl.style.left = "30px";
-        blockNameEl.style.fontWeight = "bold";
-        blockNameEl.innerText = this.blockName;
+        // Block name
+        this.addBlockName(this.blockName);
 
-        newBlock.appendChild(blockNameEl);
-
-        // --- DELETE BUTTON ---
-        let deleteBtn = document.createElement("div");
-        deleteBtn.className = "delete-block-btn";
-        deleteBtn.style.display = "none";
-
-        deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-        </svg>`;
-
-        // To prevent drag on delete button click
-        deleteBtn.addEventListener("mousedown", (e) => e.stopPropagation());
-
-        newBlock.appendChild(deleteBtn);
+        let newBlock = this.element;
 
         // ------------------------ Dot
         let dot = new Dot(this.returnTypeObj, newBlock, this.color);
@@ -415,7 +406,6 @@ export class AtomicBlock extends BaseBlock {
         super(id, color);
 
         this.typeObj = { name: typeName, args: [] };
-
         this.value = null;
         this.dotObject = null;
         this.plugObjects = [];
@@ -423,52 +413,23 @@ export class AtomicBlock extends BaseBlock {
     }
 
     createElement() {
-        // ------------------------ New block
-        let newBlock = this.element
-        newBlock.setAttribute("id", this.id);
-        newBlock.setAttribute("class", "block draggable");
-        newBlock.style.backgroundColor = this.color;
+        // Initialize block element
+        this.initBlockElement();
+        let newBlock = this.element;
+        newBlock.classList.add("d-flex", "justify-content-end", "align-items-center");
 
-        let boxDiv1 = document.createElement("div");
-        boxDiv1.setAttribute("class", "d-flex justify-content-center");
-        let boxDiv2 = document.createElement("div");
-        boxDiv2.setAttribute("class", "d-flex justify-content-end");
-
-        // Title
-        let blockNameEl = document.createElement("div");
-        blockNameEl.setAttribute("class", "blockName");
-        blockNameEl.style.position = "relative";
-        blockNameEl.style.fontWeight = "bold";
-        blockNameEl.innerText = this.typeObj.name;
-
-        boxDiv1.appendChild(blockNameEl);
+        // Block name
+        this.addBlockName(this.typeObj.name);
 
         // Input
         let inputEl = document.createElement("input");
-        inputEl.setAttribute("class", "form-control p-0 mx-2");
+        inputEl.setAttribute("class", "form-control p-0 mx-2 mt-3");
         inputEl.setAttribute("maxlength", "12");
         inputEl.setAttribute("id", "atomicInput");
 
-        boxDiv2.appendChild(inputEl);
-        newBlock.appendChild(boxDiv1);
-        newBlock.appendChild(boxDiv2);
+        newBlock.appendChild(inputEl);
 
-        // --- DELETE BUTTON ---
-        let deleteBtn = document.createElement("div");
-        deleteBtn.className = "delete-block-btn";
-        deleteBtn.style.display = "none";
-
-        deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
-        </svg>`;
-
-        // To prevent drag on delete button click
-        deleteBtn.addEventListener("mousedown", (e) => e.stopPropagation());
-
-        newBlock.appendChild(deleteBtn);
-
-        // ------------------------ Dot
-
+        // Dot
         let dot = new Dot(this.typeObj, newBlock, this.color);
         dot.createElement(); // DOM element
         this.dotObject = dot;
