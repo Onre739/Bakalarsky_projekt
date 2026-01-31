@@ -306,6 +306,16 @@ export default class appStore extends Store {
                     block.dotObject.element.style.backgroundColor = newColor;
                 }
             }
+
+            // D) Update plugs color, if the block has plugs
+            if (block.plugObjects && block.plugObjects.length > 0) {
+                block.plugObjects.forEach(plug => {
+                    plug.color = newColor;
+                    if (plug.element) {
+                        plug.element.style.backgroundColor = newColor;
+                    }
+                });
+            }
         });
 
 

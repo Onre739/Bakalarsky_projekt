@@ -45,9 +45,11 @@
 .block-plug {
     border: 2px solid;
     border-right-color: transparent;
-    background-color: #ffffff;
+    /* background-color: #ffffff; */
     top: 50%;
     right: -5px;
+    z-index: 10;
+    box-shadow: inset 5px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
 .block-dot {

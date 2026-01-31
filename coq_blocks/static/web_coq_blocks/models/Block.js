@@ -100,13 +100,15 @@ class Dot {
     }
 }
 class Plug {
-    constructor(typeObj, parentBlockEl, index, plugPosition) {
+    constructor(typeObj, parentBlockEl, index, plugPosition, color) {
         this.typeObj = typeObj; // Data type object, or string "any" (exception, SnapManager -> areTypesEqual handles it)
         this.type = typeObj;
         this.parentBlockEl = parentBlockEl; // Reference to parent block
         this.index = index; // Order
-        this.width = 0; // Width = plug + plug label
         this.plugPosition = plugPosition; // Plug position
+        this.color = color;
+
+        this.width = 0; // Width = plug + plug label
         this.element = document.createElement("div"); // DOM element
         this.occupied = false; // If plug is occupied
     }
@@ -116,6 +118,7 @@ class Plug {
         this.parentBlockEl.appendChild(plug);
         plug.setAttribute("class", "block-plug");
         plug.style.top = this.plugPosition + "%";
+        plug.style.backgroundColor = this.color;
 
         // Label pro plug
         let typeLabel = document.createElement("div");
@@ -254,7 +257,7 @@ export class DefinitionBlock extends BaseBlock {
         let plugPositions = this.getPlugPositions(this.plugsCount); // Get plug positions
 
         // Create plug object; string "any" is exception (string not object), SnapManager -> areTypesEqual handles it
-        let plugObject = new Plug("any", newBlock, aktPlug, plugPositions[aktPlug]);
+        let plugObject = new Plug("any", newBlock, aktPlug, plugPositions[aktPlug], this.color);
 
         // Create plug element for DOM
         plugObject.createElement()
@@ -388,7 +391,7 @@ export class ConstructorBlock extends BaseBlock {
 
         // Plug elements 
         allPlugsData.forEach((plugData, index) => {
-            let plugObject = new Plug(plugData.type, newBlock, index, plugPositions[index]);
+            let plugObject = new Plug(plugData.type, newBlock, index, plugPositions[index], this.color);
             plugObject.createElement();
             this.plugObjects.push(plugObject);
         });
