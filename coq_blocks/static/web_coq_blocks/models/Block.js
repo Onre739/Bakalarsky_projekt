@@ -117,7 +117,7 @@ class Plug {
         let plug = this.element;
         this.parentBlockEl.appendChild(plug);
         plug.setAttribute("class", "block-plug");
-        plug.style.top = this.plugPosition + "%";
+        plug.style.top = this.plugPosition + "px";
         plug.style.backgroundColor = this.color;
 
         // Label pro plug
@@ -140,8 +140,6 @@ class BaseBlock {
         this.id = id;
         this.color = color;
         this.element = document.createElement("div"); // DOM element
-        this.delBtnWidth = 20;
-
     }
 
     createElement() {
@@ -154,6 +152,8 @@ class BaseBlock {
      * - Delete Button 
      */
     initBlockElement() {
+        this.element.style.zIndex = 100000; // Initial high z-index for spawning
+
         // 1. Setup Main Element
         this.element.setAttribute("id", this.id);
         this.element.className = "block draggable";
@@ -184,24 +184,9 @@ class BaseBlock {
         blockNameEl.style.top = "5px";
         blockNameEl.style.left = "30px";
         blockNameEl.style.fontWeight = "bold";
+        blockNameEl.style.whiteSpace = "nowrap";
         blockNameEl.innerText = text;
         this.element.appendChild(blockNameEl);
-    }
-
-    // Get plug positions based on number of plugs
-    getPlugPositions(n) {
-        // Calculation is from 0 to 90%, then shifted by 10% due to the title
-
-        if (n === 0) return []; // No plugs
-        if (n === 1) return ["60"]; // Single plug in the middle
-
-        let margin = 45 / n;
-        let positions = [];
-        for (let i = 1; i <= n; i++) {
-            let position = ((i - 1) * (90 - 2 * margin) / (n - 1)) + margin;
-            positions.push(String(position + 10));
-        }
-        return positions;
     }
 }
 
@@ -254,10 +239,9 @@ export class DefinitionBlock extends BaseBlock {
 
         let aktPlug = 0; // Current plug
         this.plugsCount = 1;
-        let plugPositions = this.getPlugPositions(this.plugsCount); // Get plug positions
 
         // Create plug object; string "any" is exception (string not object), SnapManager -> areTypesEqual handles it
-        let plugObject = new Plug("any", newBlock, aktPlug, plugPositions[aktPlug], this.color);
+        let plugObject = new Plug("any", newBlock, aktPlug, 0, this.color);
 
         // Create plug element for DOM
         plugObject.createElement()
@@ -387,11 +371,10 @@ export class ConstructorBlock extends BaseBlock {
         });
 
         this.plugsCount = allPlugsData.length;
-        let plugPositions = this.getPlugPositions(this.plugsCount);
 
         // Plug elements 
         allPlugsData.forEach((plugData, index) => {
-            let plugObject = new Plug(plugData.type, newBlock, index, plugPositions[index], this.color);
+            let plugObject = new Plug(plugData.type, newBlock, index, 0, this.color);
             plugObject.createElement();
             this.plugObjects.push(plugObject);
         });
@@ -418,16 +401,18 @@ export class AtomicBlock extends BaseBlock {
         // Initialize block element
         this.initBlockElement();
         let newBlock = this.element;
-        newBlock.classList.add("d-flex", "justify-content-end", "align-items-center");
 
         // Block name
         this.addBlockName(this.typeObj.name);
 
         // Input
         let inputEl = document.createElement("input");
-        inputEl.setAttribute("class", "form-control p-0 mx-2 mt-3");
+        inputEl.setAttribute("class", "form-control p-0");
         inputEl.setAttribute("maxlength", "12");
         inputEl.setAttribute("id", "atomicInput");
+        inputEl.style.position = "absolute";
+        inputEl.style.right = "10px";
+        inputEl.style.top = "30px";
 
         newBlock.appendChild(inputEl);
 

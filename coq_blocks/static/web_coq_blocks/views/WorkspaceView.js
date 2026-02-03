@@ -5,6 +5,15 @@ export default class WorkspaceView {
         this.store = store;
         this.snapManager = snapManager;
         this.exportCallback = exportCallback;
+
+        const LAYOUT_CONFIG = {
+            PADDING_TOP: 20,      // Padding for block name
+            PADDING_BOTTOM: 10,
+            MIN_ROW_HEIGHT: 50,   // Row for plug, minimum height if no child is snapped
+            ROW_GAP: 2,           // Gap between rows
+        };
+
+        this.LAYOUT_CONFIG = LAYOUT_CONFIG;
     }
 
     subscribeToStore() {
@@ -16,14 +25,14 @@ export default class WorkspaceView {
     updateUI() {
         const blockObjects = this.store.getBlockObjects();
         const currentSnaps = this.store.getSnappedBlocks();
-        const plugInBlockPos = this.store.getPlugInBlockPos();
+        const dotYPosition = this.store.getDotYPosition();
         const orderedSnaps = this.store.getOrderedSnappedBlocks();
 
         // 1. Synchronize DOM elements (adding/removing blocks)
         this.syncBlocksWithDOM(blockObjects);
 
         // 2. Block resize
-        this.afterSnapActions(plugInBlockPos, orderedSnaps);
+        this.afterSnapActions(blockObjects, dotYPosition, orderedSnaps, currentSnaps);
 
         // 3. Delete button control
         const notSnappedBlocks = this.snapManager.getNotSnappedBlocks(blockObjects, currentSnaps);
@@ -139,45 +148,39 @@ export default class WorkspaceView {
      * @param {Block} block - The block to initialize.
      */
     initializeBlockLayout(block) {
-        // Height
-        this.setBlockBaseHeight(block);
-
-        // Width
         if (block instanceof DefinitionBlock) {
             block.element.style.width = "150px";
+            this.verticalLayoutResize(block, null);
         }
         else if (block instanceof ConstructorBlock) {
-            this.setConstructorBlockWidth(block);
+            this.constructorHorizontalResize(block);
+            this.verticalLayoutResize(block, null);
         }
         else if (block instanceof AtomicBlock) {
-            this.initAtomicBlock(block);
+            this.atomicHorizontalResize(block);
+            this.verticalLayoutResize(block, null);
+
+            // Atomic block input listener for dynamic resizing
+            const input = block.element.querySelector("input");
+            if (input) {
+                input.addEventListener("input", () => {
+                    this.atomicHorizontalResize(block);
+                });
+            }
         }
-    }
-
-    /**
-     * Sets the base height for a block based on its plugsCount.
-     * @param {Block} block - The block to set the height for.  
-     */
-    setBlockBaseHeight(block) {
-        // If no plugs (AtomicBlock) -> 0
-        const count = block.plugsCount || 0;
-
-        // Base height: 70px for 0 plugs, otherwise (count * 50) + 20
-        const height = count === 0 ? 70 : (count * 50 + 20);
-
-        block.element.style.height = `${height}px`;
     }
 
     /**
      * Sets the width for ConstructorBlock based on its content.
      * @param {ConstructorBlock} block - The ConstructorBlock to set the width for.
      */
-    setConstructorBlockWidth(block) {
+    constructorHorizontalResize(block) {
         let blockNameEl = block.element.querySelector(".blockName");
+        let blockDeleteBtnEl = block.element.querySelector(".delete-block-btn");
+
         let nameWidth = blockNameEl ? blockNameEl.offsetWidth : 0;
 
-        // delBtnWidth is atribute computed in createElement
-        let widestLabel = nameWidth + (block.delBtnWidth || 20);
+        let widestLabel = nameWidth + (blockDeleteBtnEl ? blockDeleteBtnEl.offsetWidth : 20);
 
         // plug.width and dotLabelWidth are atributes computed in createElement
         let dotLabelWidth = block.dotObject ? block.dotObject.dotLabelWidth : 0;
@@ -200,27 +203,10 @@ export default class WorkspaceView {
     }
 
     /**
-     * Initialize AtomicBlock resize (listener on input)
-     * @param {AtomicBlock} block - The AtomicBlock to initialize.
-     */
-    initAtomicBlock(block) {
-        // First resize
-        this.resizeAtomicBlock(block);
-
-        // Listener for dynamic resize
-        const input = block.element.querySelector("input");
-        if (input) {
-            input.addEventListener("input", () => {
-                this.resizeAtomicBlock(block);
-            });
-        }
-    }
-
-    /**
      * Resizes the AtomicBlock based on its input content AND dot label width.
      * @param {AtomicBlock} block - The AtomicBlock to resize.
      */
-    resizeAtomicBlock(block) {
+    atomicHorizontalResize(block) {
         const input = block.element.querySelector("input");
         const nameEl = block.element.querySelector(".blockName"); // Pro jistotu, kdyby tam ještě byl
 
@@ -259,39 +245,94 @@ export default class WorkspaceView {
     }
 
     /**
+     * Calculates exact positions for plugs, dot and height for the parent block based on children sizes.
+     * @param {Block} parentBlock 
+     * @param {Array} currentSnaps - Array of all snap objects used to lookup children
+     */
+    verticalLayoutResize(parentBlock, currentSnaps) {
+        let currentY = this.LAYOUT_CONFIG.PADDING_TOP;
+
+        // 1. Dot positioning
+        if (parentBlock.dotObject) {
+            const firstRowCenter = currentY + (this.LAYOUT_CONFIG.MIN_ROW_HEIGHT / 2);
+            const dotTop = firstRowCenter - (parentBlock.dotObject.element.offsetHeight / 2);
+
+            parentBlock.dotObject.element.style.top = `${dotTop}px`;
+        }
+
+        // 2. Plugs positioning
+        if (parentBlock.plugObjects && parentBlock.plugObjects.length > 0) {
+            parentBlock.plugObjects.forEach(plug => {
+
+                let rowHeight = this.LAYOUT_CONFIG.MIN_ROW_HEIGHT;
+
+                const snap = currentSnaps ? currentSnaps.find(s => s.plug === plug) : null;
+
+                // If child exists, use its height
+                if (snap && snap.child) {
+                    rowHeight = Math.max(this.LAYOUT_CONFIG.MIN_ROW_HEIGHT, snap.child.element.offsetHeight);
+                }
+
+                // Place plug, not in the center of the row, but in the center of default row height !
+                const plugCenterY = currentY + (this.LAYOUT_CONFIG.MIN_ROW_HEIGHT / 2);
+                plug.element.style.top = `${plugCenterY - (plug.element.offsetHeight / 2)}px`;
+
+                // Increment Y position for next row
+                currentY += rowHeight + this.LAYOUT_CONFIG.ROW_GAP;
+            });
+        }
+        else {
+            currentY += this.LAYOUT_CONFIG.MIN_ROW_HEIGHT;
+        }
+
+        // 3. Final height of the parent block, minus the last ROW_GAP
+        const finalHeight = currentY + this.LAYOUT_CONFIG.PADDING_BOTTOM - (parentBlock.plugObjects.length > 0 ? this.LAYOUT_CONFIG.ROW_GAP : 0);
+        parentBlock.element.style.height = `${finalHeight}px`;
+    }
+
+    /**
      * Manages the logic after a snap (changing parent sizes, new positions).
      * Changes DOM elements' height and position.
-     * @param {number} plugInBlockPos 
+     * @param {number} dotYPosition - Y position of the dot in pixels
      * @param {Array} orderedSnappedBlocks - Ordered snaps (array of arrays)
      */
-    afterSnapActions(plugInBlockPos, orderedSnappedBlocks) {
+    afterSnapActions(blockObjects, dotYPosition, orderedSnappedBlocks, allSnaps) {
+        const activeParents = new Set();
 
-        // 1. Reset height
-        this.store.getBlockObjects().forEach(block => {
-            this.setBlockBaseHeight(block);
+        // 1. --- Height recount (Bottom-Up: from leaves to root) ---
+        orderedSnappedBlocks.forEach(tree => {
+            tree.forEach(snap => {
+                activeParents.add(snap.parent);
+            });
         });
 
-        // 2. Height recount (Bottom-Up: from leaves to root)
-        // orderedSnappedBlocks is already sorted from root to leaves
-        // Need to go backwards (from the deepest child up) to correctly sum heights.
+        // CLEANUP, for blocks that have NO children snapped, only for ConstructorBlocks
+        blockObjects.forEach(block => {
+            if (block instanceof ConstructorBlock && !activeParents.has(block)) {
+                this.verticalLayoutResize(block, allSnaps);
+            }
+        });
+
+        const processedParents = new Set();
+
+        // orderedSnappedBlocks is sorted from root to leaves -> must go backwards (from the deepest child up) to correctly sum heights
+        // Includes plugs and dot positioning
         orderedSnappedBlocks.forEach(tree => {
-            // Make a copy and reverse the order -> going from leaves to root
+            // Make a copy and reverse the order
             [...tree].reverse().forEach(snap => {
                 const parent = snap.parent;
-                const child = snap.child;
 
-                // Blocks with only 1 plug do not change height
-                if (parent.plugsCount !== 1) {
-                    const childHeight = child.element.offsetHeight; // Current height of the child (may already be increased)
-                    const parentCurrentHeight = parent.element.offsetHeight;
-
-                    // Set new height for the parent
-                    parent.element.style.height = `${parentCurrentHeight + childHeight}px`;
+                // Recalculate layout for the parent block, only for ConstructorBlocks
+                if (parent instanceof ConstructorBlock) {
+                    this.verticalLayoutResize(parent, allSnaps);
+                    processedParents.add(parent);
                 }
             });
         });
 
-        // 3. New positions (Top-Down: from root to leaves)
+
+
+        // 2. --- New positions (Top-Down: from root to leaves) ---
         const groundEl = this.ground;
         const groundRect = groundEl.getBoundingClientRect();
         const groundStyle = getComputedStyle(groundEl);
@@ -324,7 +365,7 @@ export default class WorkspaceView {
                 let plugHeight = plugRect.height;
 
                 let x = (plugX + plugWidth) - groundContentX - 3;
-                let y = (plugY + plugHeight / 2) - (snappedBlock.child.element.offsetHeight * plugInBlockPos) - groundContentY;
+                let y = (plugY + plugHeight / 2) - dotYPosition - groundContentY;
 
                 // Ground scroll offset
                 x += groundEl.scrollLeft;

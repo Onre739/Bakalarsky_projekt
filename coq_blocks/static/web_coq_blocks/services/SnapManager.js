@@ -12,6 +12,8 @@ export default class SnapManager {
      * @returns {boolean}
      */
     areTypesEqual(typeA, typeB) {
+        return true;
+
         // 1. Handling "any"
         if (typeA === "any" || typeB === "any") return true;
 
@@ -140,15 +142,14 @@ export default class SnapManager {
         });
     }
 
-
     /**
      * Calculate which blocks have just snapped together.
      * @param {Array} blockObjects - All blocks
      * @param {Array} snapTargets - All active snap targets
-     * @param {number} plugInBlockPos - Constant position of the plug (e.g., 0.6)
+     * @param {number} dotOffset - Fixed pixel distance of the Dot from top of block (e.g. 60)
      * @returns {Array} Array of new snaps [{parent, plugIndex, plug, child}, ...]
      */
-    checkForSnap(blockObjects, snapTargets, plugInBlockPos) {
+    checkForSnap(blockObjects, snapTargets, dotOffset) {
         let newSnappedBlocks = [];
 
         // Check positions of each block against snap targets
@@ -163,13 +164,13 @@ export default class SnapManager {
             let rect = blockObject.element.getBoundingClientRect();
             let blockLeft = rect.left + window.scrollX;
             let blockTop = rect.top + window.scrollY;
-            let blockHeight = rect.height;
 
             let candidates = [];
 
             relevantTargets.forEach(snapTarget => {
+                let currentDotY = blockTop + dotOffset;
                 let deltaX = Math.abs(snapTarget.x - blockLeft);
-                let deltaY = Math.abs(snapTarget.y - (blockTop + blockHeight * plugInBlockPos));
+                let deltaY = Math.abs(snapTarget.y - currentDotY);
 
                 // If it is within range
                 if (deltaX < 15 && deltaY < 15) { // Tolerance 15px

@@ -82,10 +82,12 @@ loadBtn.addEventListener("click", async () => {
         store.importDefinitions(data);
         defInput.value = "";
         console.log("Definitions loaded successfully.");
+        workspaceView.printAlert("Definition loaded successfully.", "success");
 
     } catch (error) {
         console.error("Error loading definition:", error);
         alert("Failed to load definition. See console for details.");
+        workspaceView.printAlert("Failed to load definition.", "danger");
     }
 });
 

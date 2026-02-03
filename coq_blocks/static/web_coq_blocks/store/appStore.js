@@ -35,12 +35,6 @@ export default class appStore extends Store {
             zIndexCount: 1,
 
             resizeMode: "Auto",
-            blockColors: ["rgb(255, 0, 0)", "rgb(0, 102, 255)", "rgb(255, 255, 0)",
-                "rgb(0, 128, 0)", "rgb(227, 117, 0)", "rgb(0, 238, 255)",
-                "rgb(234, 0, 255)", "rgb(111, 255, 0)", "rgb(170, 11, 64)",
-                "rgb(98, 47, 0)", "rgb(66, 0, 190)"],
-            blockColorsCount: 11,
-            plugInBlockPos: 0.6,
         });
 
         this.snapManager = snapManager;
@@ -117,13 +111,17 @@ export default class appStore extends Store {
 
     // ------------- Plug in block position ------------
 
-    getPlugInBlockPos() {
-        return this.getState().plugInBlockPos;
-    }
+    getDotYPosition() {
 
-    // ------------- Block colors -------------
-    getBlockColors() {
-        return this.getState().blockColors;
+        const BORDER_WIDTH = 2; // Border width of .block element in px
+        const PADDING_TOP = 20; // Must match WorkspaceView.LAYOUT_CONFIG
+        const ROW_HEIGHT = 50;  // Must match WorkspaceView.LAYOUT_CONFIG
+
+        const innerCenterY = PADDING_TOP + (ROW_HEIGHT / 2);
+
+        // Must include border width
+        return BORDER_WIDTH + innerCenterY;
+
     }
 
     // ------------------------------------------------------------------------
@@ -398,6 +396,7 @@ export default class appStore extends Store {
     handleBlockDrop(movedBlock) {
         const state = this.state;
         const prevSnaps = state.snappedBlocks; // Old snaps
+        const dotOffset = this.getDotYPosition();
 
         // 1. Keep previous snaps except those involving movedBlock
         const snapsToKeep = prevSnaps.filter(s => s.child !== movedBlock);
@@ -406,7 +405,7 @@ export default class appStore extends Store {
         const newConnection = this.snapManager.checkForSnap(
             state.blockObjects,
             state.snapTargets,
-            state.plugInBlockPos
+            dotOffset
         );
 
         // 3. Combine previous and new snaps

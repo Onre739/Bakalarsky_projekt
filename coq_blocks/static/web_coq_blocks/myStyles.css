@@ -26,9 +26,35 @@
     position: absolute;
     border: 2px solid;
     border-radius: 10px;
-    /* display: flex;
-    justify-content: center;
-    align-items: center; */
+
+    /* Dissables text select for dragging */
+    /* Safari / Chrome */
+    -webkit-user-select: none;
+
+    /* Firefox */
+    -moz-user-select: none;
+
+    /* IE 10+ */
+    -ms-user-select: none;
+
+    /* Standard */
+    user-select: none;
+
+    cursor: grab;
+}
+
+.block:active {
+    cursor: grabbing;
+}
+
+.block input {
+    /* Allows to write in inputs, should be possible defaultly, but just in case */
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+
+    cursor: text;
 }
 
 .block-dot,
@@ -38,15 +64,12 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    /* polovina šířky kruhu */
-    transform: translateY(-50%);
+
 }
 
 .block-plug {
     border: 2px solid;
     border-right-color: transparent;
-    /* background-color: #ffffff; */
-    top: 50%;
     right: -5px;
     z-index: 10;
     box-shadow: inset 5px 3px 5px rgba(0, 0, 0, 0.3);
@@ -58,8 +81,10 @@
     align-items: center;
     border: 2px solid;
     border-right-color: transparent;
-    top: 60%;
+    position: absolute;
+    /* top: 50%; */
     left: -28px;
+    /* transform: translateY(-50%); */
 }
 
 #accordionSetting {
