@@ -267,10 +267,16 @@ export default class WorkspaceView {
                 let rowHeight = this.LAYOUT_CONFIG.MIN_ROW_HEIGHT;
 
                 const snap = currentSnaps ? currentSnaps.find(s => s.plug === plug) : null;
+                const lastPlug = parentBlock.plugObjects[parentBlock.plugObjects.length - 1];
 
                 // If child exists, use its height
                 if (snap && snap.child) {
                     rowHeight = Math.max(this.LAYOUT_CONFIG.MIN_ROW_HEIGHT, snap.child.element.offsetHeight);
+
+                    // Last plug has extra padding space, blocks starts 30px above its row, so in the last row its extra
+                    if (plug === lastPlug) {
+                        rowHeight = rowHeight - this.LAYOUT_CONFIG.PADDING_TOP - this.LAYOUT_CONFIG.PADDING_BOTTOM;
+                    }
                 }
 
                 // Place plug, not in the center of the row, but in the center of default row height !
