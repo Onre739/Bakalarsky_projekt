@@ -12,7 +12,6 @@ export default class SnapManager {
      * @returns {boolean}
      */
     areTypesEqual(typeA, typeB) {
-        return true;
 
         // 1. Handling "any"
         if (typeA === "any" || typeB === "any") return true;
