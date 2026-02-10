@@ -6,7 +6,7 @@ export default class DefinitionLoader {
             throw new Error("Definition string is empty");
         }
 
-        let response = await fetch("http://127.0.0.1:8000/api/newdef/", {
+        let response = await fetch("/api/newdef/", {
             method: "POST",
             headers: { "Content-Type": "text/plain" },
             body: definitionString,
