@@ -2,7 +2,7 @@ grammar COQ;
 
 prog: inductiveDef+ EOF;
          
-inductiveDef: 'Inductive' NAME typeParameters* (':' ('Type' | 'Set'))? ':=' 
+inductiveDef: 'Inductive' NAME typeParameters* (':' 'Type')? ':=' 
               constructor+ '.';
 
 typeParameters: '(' NAME+ ':' 'Type' ')'
