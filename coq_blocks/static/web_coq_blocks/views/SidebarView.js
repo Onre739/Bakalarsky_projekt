@@ -162,52 +162,6 @@ export default class SidebarView {
             settingModalBody.appendChild(codeLabel);
             settingModalBody.appendChild(codeArea);
 
-            // --- 2.1.1 Generate inputs for each type parameter ---
-            let paramLabel = document.createElement("div");
-            paramLabel.innerText = "Parameters: ";
-            paramLabel.className = "form-label fw-bold mt-3";
-            settingModalBody.appendChild(paramLabel);
-
-            // Parameter check
-            const warnDiv = document.getElementById("settingModalWarnDiv");
-            if (!typeParameters || typeParameters.length === 0) {
-                let div = document.createElement("div");
-                div.innerText = "This type has no type parameters.";
-                settingModalBody.appendChild(div);
-
-                if (warnDiv) warnDiv.style.display = "none";
-            }
-            else {
-                if (warnDiv) warnDiv.style.display = "block";
-            }
-
-            typeParameters.forEach((param, index) => {
-                // Param structure: { "A": "hodnota" } nebo { "A": null }
-                const typeKey = Object.keys(param)[0];
-                const storedValue = param[typeKey];
-
-                let rowDiv = document.createElement("div");
-                rowDiv.className = "d-flex align-items-center mb-3";
-
-                let paramDivLabel = document.createElement("label");
-                paramDivLabel.innerText = `${typeKey}:`;
-                paramDivLabel.className = "form-label me-3 mb-0 text-nowrap";
-                paramDivLabel.htmlFor = `typeParamInput:${id}:${typeKey}:${index}`;
-
-                let paramDivInput = document.createElement("input");
-                paramDivInput.type = "text";
-                paramDivInput.className = "form-control";
-                paramDivInput.id = `typeParamInput:${id}:${typeKey}:${index}`;
-
-                if (storedValue !== null) {
-                    paramDivInput.value = storedValue;
-                }
-
-                rowDiv.appendChild(paramDivLabel);
-                rowDiv.appendChild(paramDivInput);
-                settingModalBody.appendChild(rowDiv);
-            });
-
             // --- 2.1.2 --- Color picker ---
             let colorLabel = document.createElement("label");
             colorLabel.innerText = "Block Color: ";
@@ -236,32 +190,11 @@ export default class SidebarView {
 
             // New listener
             newSaveBtn.addEventListener("click", () => {
-                // A) Collect updated parameters from inputs
-                const updatedParameters = typeParameters.map((param, idx) => {
-                    const typeKey = Object.keys(param)[0];
-
-                    // Find input by ID and get its value
-                    const input = document.getElementById(`typeParamInput:${id}:${typeKey}:${idx}`);
-                    const newValue = input.value.trim() === "" ? null : input.value.trim();
-
-                    // Return the updated parameter object
-                    return { [typeKey]: newValue };
-                });
-
-                // B) Get new color
+                // A) Get new color
                 const newColor = colorInput.value;
 
-                // C) Call Store to update
+                // B) Call Store to update
                 this.store.updateTypeColor(id, newColor);
-
-                // Check if parameters changed
-                const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
-                if (paramsChanged) {
-                    console.log("Parameters changed - updating definition and removing blocks.");
-                    this.store.updateTypeParameters(id, updatedParameters);
-                } else {
-                    console.log("Parameters unchanged - skipping block removal.");
-                }
             });
         });
 

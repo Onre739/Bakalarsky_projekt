@@ -171,6 +171,27 @@ class BaseBlock {
 
         deleteBtn.addEventListener("mousedown", (e) => e.stopPropagation());
         this.element.appendChild(deleteBtn);
+
+        // 3. Setup Settings Button
+        let settingBtn = document.createElement("div");
+        settingBtn.className = "settings-block-btn";
+        // settingBtn.style.display = "none"; // In CSS when hovering
+        settingBtn.title = "Nastavení parametrů instance bloku";
+
+        settingBtn.innerHTML = `
+            <svg class="text-dark" style="cursor: pointer; transition: transform 0.2s;"
+                 data-bs-toggle="modal" 
+                 data-bs-target="#settingModal" 
+                 onmouseover="this.style.transform='scale(1.1)'" 
+                 onmouseout="this.style.transform='scale(1)'"
+                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.86z"/>
+            </svg>`;
+
+
+        settingBtn.addEventListener("mousedown", (e) => e.stopPropagation());
+
+        this.element.appendChild(settingBtn);
     }
 
     /**
@@ -268,9 +289,20 @@ export class ConstructorBlock extends BaseBlock {
         this.blockName = `${typeName} : ${constructorObj.name}`; // Name of entire block
         this.returnTypeObj = null;
 
-        console.log("ConstructorBlock: Created for constructor:", this.constructorObj, "of type:", typeName, "with typeParameters:", typeParameters);
+        this.plugObjects = [];
+        this.plugsCount = 0;
+        this.dotObject = null;
 
-        // --- 1. Prepare type parameter map for substitution { "X": "nat", ... } ---
+        this.calculateReturnType();
+
+        console.log("ConstructorBlock: Created for constructor:", this.constructorObj, "of type:", typeName, "with typeParameters:", typeParameters);
+    }
+
+    /**
+     * Helper method: Creates and returns a map of type parameters for substitution (e.g., { "X": "nat" })
+     * @return {Object} Map of type parameters
+     */
+    getTypeParamMap() {
         const typeParamMap = {};
         if (Array.isArray(this.typeParameters)) {
             this.typeParameters.forEach(obj => {
@@ -279,13 +311,23 @@ export class ConstructorBlock extends BaseBlock {
                 if (v) typeParamMap[k] = v;
             });
         }
+        return typeParamMap;
+    }
 
-        // --- 2. Return type ---
+    /**
+     * Helper method: Calculates and sets the return type of the block (Dot)
+     */
+    calculateReturnType() {
         // If explicit return_type is given, use it, otherwise build from typeName and typeParameters
+        const typeParamMap = this.getTypeParamMap();
 
-        if (this.constructorObj.return_type && this.constructorObj.return_type.name !== "Unknown") { // Arrow style (explicit return_type)
+        // Arrow style (explicit return_type)
+        if (this.constructorObj.return_type && this.constructorObj.return_type.name !== "Unknown") {
             this.returnTypeObj = resolveTypeParams(this.constructorObj.return_type, typeParamMap); // Apply type parameter substitution
-        } else {  // Binder style (return_type not given)
+        }
+
+        // Binder style (return_type not given)
+        else {
 
             // Get name of type parameter and use it, if not given, use the key as placeholder
             // {X: "nat"} uses nat; {X: null} uses X
@@ -297,75 +339,67 @@ export class ConstructorBlock extends BaseBlock {
                     const key = Object.keys(p)[0];
                     const val = p[key];
 
-                    if (val && typeof val === 'object') { // If value is already an object
+                    if (val && typeof val === 'object') {                   // If value is already an object
                         paramArgs.push(JSON.parse(JSON.stringify(val)));
-                    }
-                    else if (val) { // If value is given as string, must create type object
-                        paramArgs.push({
-                            name: val,
-                            args: []
-                        });
-                    }
-                    else { // If value is not given, use key as placeholder
-                        paramArgs.push({
-                            name: key,
-                            args: []
-                        });
+                    } else if (val) {                                       // If value is given as string, must create type object
+                        paramArgs.push({ name: val, args: [] });
+                    } else {                                                // If value is not given, use key as placeholder
+                        paramArgs.push({ name: key, args: [] });
                     }
                 });
             }
-
-            this.returnTypeObj = {
-                name: typeName,
-                args: paramArgs
-            };
+            this.returnTypeObj = { name: this.typeName, args: paramArgs };
         }
+    }
+
+    /**
+     * Updates the block's type parameters and refreshes the plugs and dot accordingly
+     * @param {Array} newParams - New type parameters (e.g., [{ "X": "nat" }])
+     */
+    updatePolymorphicParams(newParams) {
+        this.typeParameters = newParams;
 
         this.plugObjects = [];
         this.plugsCount = 0;
-        this.dotObject = null;
+
+        // Znovu využijeme naši čistou metodu!
+        this.calculateReturnType();
+
+        this.element.innerHTML = "";
+        this.createElement();
     }
 
     createElement() {
-        // Initialize block element
         this.initBlockElement();
-
-        // Block name
         this.addBlockName(this.blockName);
 
         let newBlock = this.element;
 
-        // ------------------------ Dot
+        // 1. Dot
         let dot = new Dot(this.returnTypeObj, newBlock, this.color);
         dot.createElement(); // DOM element
         this.dotObject = dot;
 
-        // ------------------------ Plugs
+        // 2. Plugs
         // Map for substituting type parameters
-        const typeParamMap = {};
-        if (Array.isArray(this.typeParameters)) {
-            this.typeParameters.forEach(obj => {
-                const k = Object.keys(obj)[0];
-                const v = obj[k];
-                if (v) typeParamMap[k] = v;
-            });
-        }
+        const typeParamMap = this.getTypeParamMap();
 
         // Plug count
         let allPlugsData = [];
-
         const args = this.constructorObj.args || [];
 
         args.forEach(arg => {
             const resolvedType = resolveTypeParams(arg.type, typeParamMap);
 
+            // Binder style: (n m : nat)
             if (arg.names && arg.names.length > 0) {
-                // Binder style: (n m : nat)
                 arg.names.forEach(name => {
                     allPlugsData.push({ type: resolvedType, label: name });
                 });
-            } else {
-                // Arrow style: nat -> bool
+            }
+
+            // Arrow style: nat -> bool
+            else {
                 allPlugsData.push({ type: resolvedType, label: "" });
             }
         });

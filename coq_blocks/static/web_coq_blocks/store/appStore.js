@@ -320,35 +320,50 @@ export default class appStore extends Store {
         this.notify();
     }
 
-    updateTypeParameters(typeId, updatedParameters) {
-        // 1. New savedTypes with updated parameters
-        const newSavedTypes = this.state.savedTypes.map(item => {
-            if (item.id === typeId) {
-                return {
-                    ...item,
-                    typeParameters: updatedParameters
-                };
-            }
-            return item;
-        });
+    // updateTypeParameters(typeId, updatedParameters) {
+    //     // 1. New savedTypes with updated parameters
+    //     const newSavedTypes = this.state.savedTypes.map(item => {
+    //         if (item.id === typeId) {
+    //             return {
+    //                 ...item,
+    //                 typeParameters: updatedParameters
+    //             };
+    //         }
+    //         return item;
+    //     });
 
-        // 2. Save to localStorage
-        this.savedTypeManager.saveData(newSavedTypes);
+    //     // 2. Save to localStorage
+    //     this.savedTypeManager.saveData(newSavedTypes);
 
-        // 3. Update state
-        this.state.savedTypes = newSavedTypes;
+    //     // 3. Update state
+    //     this.state.savedTypes = newSavedTypes;
 
-        // 4. Remove blocks of this type from workspace
-        const blocksToRemove = this.state.blockObjects.filter(block =>
-            block.id.startsWith(typeId + ":")
-        );
+    //     // 4. Remove blocks of this type from workspace
+    //     const blocksToRemove = this.state.blockObjects.filter(block =>
+    //         block.id.startsWith(typeId + ":")
+    //     );
 
-        blocksToRemove.forEach(block => {
-            this.removeBlock(block);
-        });
+    //     blocksToRemove.forEach(block => {
+    //         this.removeBlock(block);
+    //     });
 
-        // 5. Notify views
-        this.notify();
+    //     // 5. Notify views
+    //     this.notify();
+    // }
+
+    /**
+     * Change parameters for a specific block instance on the canvas.
+     * @param {string} blockId - Id of the block to update
+     * @param {Array} newParameters - New parameters
+     */
+    updateBlockInstanceParameters(blockId, newParameters) {
+        const block = this.state.blockObjects.find(b => b.id === blockId);
+
+        if (block) {
+            block.updatePolymorphicParams(newParameters);
+
+            this.notify();
+        }
     }
 
     // -------------- InteractionController + WorkspaceView --------------

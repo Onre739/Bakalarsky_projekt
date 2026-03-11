@@ -42,7 +42,156 @@ export default class WorkspaceView {
         // 4. Export button control
         this.bindExportButtons(blockObjects);
 
+        // 5. Settings button control
+        this.settingsBtnClassControl(notSnappedBlocks, blockObjects);
+
     }
+
+    settingsBtnClassControl(notSnappedBlocks, blockObjects) {
+
+        // 1. Set for quick lookup
+        const notSnappedSet = new Set(notSnappedBlocks);
+
+        // 2. Traverse all blocks and add/remove settings button
+        blockObjects.forEach((blockObject) => {
+            let settingBtn = blockObject.element.querySelector(".settings-block-btn");
+            if (!settingBtn) return;
+
+            const shouldHaveButton = notSnappedSet.has(blockObject);
+
+            // Visibility control
+            if (shouldHaveButton) {
+                settingBtn.style.display = "flex";
+            } else {
+                settingBtn.style.display = "none";
+            }
+
+            // Listener control
+            if (!settingBtn.dataset.hasSettingsListener) {
+                settingBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    this.openLocalBlockSettings(blockObject);
+                });
+
+                // Custom flag to avoid multiple listeners
+                settingBtn.dataset.hasSettingsListener = "true";
+            }
+        });
+    }
+
+    openLocalBlockSettings(block) {
+        const typeParameters = block.typeParameters;
+
+        // Title
+        document.getElementById("settingModalTitle").innerText = `Parameter settings for block`;
+
+        // Reset body
+        let settingModalBody = document.getElementById("settingModalBody");
+        settingModalBody.innerHTML = "";
+
+        // Parameters label
+        let paramLabel = document.createElement("div");
+        paramLabel.innerText = "Parameters: ";
+        paramLabel.className = "form-label fw-bold mt-3";
+        settingModalBody.appendChild(paramLabel);
+
+        // Parameter check
+        const warnDiv = document.getElementById("settingModalWarnDiv");
+        if (!typeParameters || typeParameters.length === 0) {
+            let div = document.createElement("div");
+            div.innerText = "This type has no type parameters.";
+            settingModalBody.appendChild(div);
+
+            if (warnDiv) warnDiv.style.display = "none";
+        }
+        else {
+            if (warnDiv) warnDiv.style.display = "block";
+        }
+
+        // 1. Get saved types from the store to populate the selects
+        const savedTypes = this.store.getSavedTypes();
+        // Extrahujeme pouze jména typů (např. "nat", "bool", "list", "SuperTree")
+        // Zde v budoucnu můžeš přidat tu svou chytrou logiku na analýzu výskytů!
+        const availableTypeNames = savedTypes.map(t => t.name).filter(name => name);
+        // Přidáme i prázdnou možnost a základní typy, pokud nejsou v savedTypes
+        const optionsList = ["", "nat", "bool", ...availableTypeNames];
+
+
+        // 2. Select for each type parameter
+        typeParameters.forEach((param, index) => {
+            // Param structure: { "A": "value" } or { "A": null }
+            const typeKey = Object.keys(param)[0];
+            const storedValue = param[typeKey];
+
+            let rowDiv = document.createElement("div");
+            rowDiv.className = "d-flex align-items-center mb-3";
+
+            let paramDivLabel = document.createElement("label");
+            paramDivLabel.innerText = `${typeKey}:`;
+            paramDivLabel.className = "form-label me-3 mb-0 text-nowrap";
+            paramDivLabel.htmlFor = `typeParamSelect_${block.id}_${index}`;
+
+            // Create select element
+            let paramSelect = document.createElement("select");
+            paramSelect.className = "form-select";
+            paramSelect.id = `typeParamSelect_${block.id}_${index}`;
+
+            // Fill select with options
+            optionsList.forEach(optVal => {
+                let option = document.createElement("option");
+                option.value = optVal;
+                option.innerText = optVal === "" ? "-- Vyberte typ --" : optVal;
+
+                if (storedValue === optVal) {
+                    option.selected = true;
+                }
+                paramSelect.appendChild(option);
+            });
+
+            // Pokud blok už má nějakou specifickou hodnotu, která nebyla v seznamu (např. uživatel dříve napsal "list nat" ručně), 
+            // přidáme ji tam, aby nezmizela.
+            // if (storedValue && !optionsList.includes(storedValue)) {
+            //     let customOption = document.createElement("option");
+            //     customOption.value = storedValue;
+            //     customOption.innerText = storedValue;
+            //     customOption.selected = true;
+            //     paramSelect.appendChild(customOption);
+            // }
+
+            rowDiv.appendChild(paramDivLabel);
+            rowDiv.appendChild(paramSelect);
+            settingModalBody.appendChild(rowDiv);
+        });
+
+        // 3. New listener for Save button, to save parameters only for this block
+        const saveBtn = document.querySelector("#settingModalSaveBtn");
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+
+        newSaveBtn.addEventListener("click", () => {
+            console.log("Ukládám parametry pouze pro blok:", block.id);
+
+            if (typeParameters && typeParameters.length > 0) {
+                // A) Collect updated parameters from the selects
+                const updatedParameters = typeParameters.map((param, index) => {
+                    const typeKey = Object.keys(param)[0];
+                    const selectEl = document.getElementById(`typeParamSelect_${block.id}_${index}`);
+                    const newValue = selectEl.value === "" ? null : selectEl.value;
+                    return { [typeKey]: newValue };
+                });
+
+                // B) Check if parameters changed
+                const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
+
+                if (paramsChanged) {
+                    console.log(`Parameters changed for local block ${block.id} changed.`);
+
+                    this.store.updateBlockInstanceParameters(block.id, updatedParameters);
+                }
+            }
+        });
+    }
+
 
     bindExportButtons(blockObjects) {
         blockObjects.forEach(block => {

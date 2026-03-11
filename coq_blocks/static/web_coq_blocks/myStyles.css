@@ -13,12 +13,38 @@
     align-items: center;
 
     transition: transform 0.2s, background-color 0.2s;
-    z-index: 100;
+    /* z-index: 100; */
 }
 
 .delete-block-btn:hover {
     transform: scale(1.2);
 }
+
+.settings-block-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+
+    cursor: pointer;
+    color: #000;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    transition: transform 0.2s, background-color 0.2s;
+    /* z-index: 100; */
+}
+
+.settings-block-btn:hover {
+    transform: scale(1.2);
+}
+
+/* .block:hover .settings-block-btn {
+    display: flex !important;
+} */
 
 .block {
     min-width: 50px;
