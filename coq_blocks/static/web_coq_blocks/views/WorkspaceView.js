@@ -1,4 +1,5 @@
 import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/Block.js";
+import { formatType } from "../services/TypeUtils.js";
 export default class WorkspaceView {
     constructor(store, snapManager, exportCallback) {
         this.ground = document.getElementById("ground");
@@ -80,118 +81,228 @@ export default class WorkspaceView {
     }
 
     openLocalBlockSettings(block) {
-        const typeParameters = block.typeParameters;
 
-        // Title
-        document.getElementById("settingModalTitle").innerText = `Parameter settings for block`;
+        if (block instanceof DefinitionBlock) {
+            // Title
+            document.getElementById("settingModalTitle").innerText = `Name settings for Definition Block`;
 
-        // Reset body
-        let settingModalBody = document.getElementById("settingModalBody");
-        settingModalBody.innerHTML = "";
+            // Reset body
+            let settingModalBody = document.getElementById("settingModalBody");
+            settingModalBody.innerHTML = "";
 
-        // Parameters label
-        let paramLabel = document.createElement("div");
-        paramLabel.innerText = "Parameters: ";
-        paramLabel.className = "form-label fw-bold mt-3";
-        settingModalBody.appendChild(paramLabel);
+            // Name label
+            let nameLabel = document.createElement("div");
+            nameLabel.innerText = "Name: ";
+            nameLabel.className = "form-label fw-bold mt-3";
+            settingModalBody.appendChild(nameLabel);
 
-        // Parameter check
-        const warnDiv = document.getElementById("settingModalWarnDiv");
-        if (!typeParameters || typeParameters.length === 0) {
-            let div = document.createElement("div");
-            div.innerText = "This type has no type parameters.";
-            settingModalBody.appendChild(div);
+            // Name input
+            let nameInput = document.createElement("input");
+            nameInput.type = "text";
+            nameInput.className = "form-control";
+            nameInput.value = block.varName || "";
+            settingModalBody.appendChild(nameInput);
 
-            if (warnDiv) warnDiv.style.display = "none";
-        }
-        else {
-            if (warnDiv) warnDiv.style.display = "block";
-        }
+            // Note
+            let note = document.createElement("div");
+            note.innerText = "Note: Changing the name will affect name of definition when exporting.";
+            note.className = "form-text mt-2 fst-italic";
+            settingModalBody.appendChild(note);
 
-        // 1. Get saved types from the store to populate the selects
-        const savedTypes = this.store.getSavedTypes();
-        // Extrahujeme pouze jména typů (např. "nat", "bool", "list", "SuperTree")
-        // Zde v budoucnu můžeš přidat tu svou chytrou logiku na analýzu výskytů!
-        const availableTypeNames = savedTypes.map(t => t.name).filter(name => name);
-        // Přidáme i prázdnou možnost a základní typy, pokud nejsou v savedTypes
-        const optionsList = ["", "nat", "bool", ...availableTypeNames];
+            // New listener for Save button, to save name
+            const saveBtn = document.querySelector("#settingModalSaveBtn");
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
 
+            newSaveBtn.addEventListener("click", () => {
 
-        // 2. Select for each type parameter
-        typeParameters.forEach((param, index) => {
-            // Param structure: { "A": "value" } or { "A": null }
-            const typeKey = Object.keys(param)[0];
-            const storedValue = param[typeKey];
+                const newName = nameInput.value.trim();
 
-            let rowDiv = document.createElement("div");
-            rowDiv.className = "d-flex align-items-center mb-3";
-
-            let paramDivLabel = document.createElement("label");
-            paramDivLabel.innerText = `${typeKey}:`;
-            paramDivLabel.className = "form-label me-3 mb-0 text-nowrap";
-            paramDivLabel.htmlFor = `typeParamSelect_${block.id}_${index}`;
-
-            // Create select element
-            let paramSelect = document.createElement("select");
-            paramSelect.className = "form-select";
-            paramSelect.id = `typeParamSelect_${block.id}_${index}`;
-
-            // Fill select with options
-            optionsList.forEach(optVal => {
-                let option = document.createElement("option");
-                option.value = optVal;
-                option.innerText = optVal === "" ? "-- Vyberte typ --" : optVal;
-
-                if (storedValue === optVal) {
-                    option.selected = true;
+                if (newName.length === 0) {
+                    this.printAlert("Definition name cannot be empty.", "warning");
+                    return;
                 }
-                paramSelect.appendChild(option);
+
+                block.varName = newName;
+                this.printAlert(`Name of definition block ${block.id} updated to "${newName}".`, "success");
             });
+        }
 
-            // Pokud blok už má nějakou specifickou hodnotu, která nebyla v seznamu (např. uživatel dříve napsal "list nat" ručně), 
-            // přidáme ji tam, aby nezmizela.
-            // if (storedValue && !optionsList.includes(storedValue)) {
-            //     let customOption = document.createElement("option");
-            //     customOption.value = storedValue;
-            //     customOption.innerText = storedValue;
-            //     customOption.selected = true;
-            //     paramSelect.appendChild(customOption);
-            // }
+        else if (block instanceof ConstructorBlock) {
 
-            rowDiv.appendChild(paramDivLabel);
-            rowDiv.appendChild(paramSelect);
-            settingModalBody.appendChild(rowDiv);
-        });
+            const typeParameters = block.typeParameters;
 
-        // 3. New listener for Save button, to save parameters only for this block
-        const saveBtn = document.querySelector("#settingModalSaveBtn");
-        const newSaveBtn = saveBtn.cloneNode(true);
-        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+            // Title
+            document.getElementById("settingModalTitle").innerText = `Parameter settings for block`;
 
-        newSaveBtn.addEventListener("click", () => {
-            console.log("Ukládám parametry pouze pro blok:", block.id);
+            // Reset body
+            let settingModalBody = document.getElementById("settingModalBody");
+            settingModalBody.innerHTML = "";
 
-            if (typeParameters && typeParameters.length > 0) {
-                // A) Collect updated parameters from the selects
-                const updatedParameters = typeParameters.map((param, index) => {
-                    const typeKey = Object.keys(param)[0];
-                    const selectEl = document.getElementById(`typeParamSelect_${block.id}_${index}`);
-                    const newValue = selectEl.value === "" ? null : selectEl.value;
-                    return { [typeKey]: newValue };
+            // Parameters label
+            let paramLabel = document.createElement("div");
+            paramLabel.innerText = "Parameters: ";
+            paramLabel.className = "form-label fw-bold mt-3";
+            settingModalBody.appendChild(paramLabel);
+
+            // Parameter check
+            const warnDiv = document.getElementById("settingModalWarnDiv");
+            if (!typeParameters || typeParameters.length === 0) {
+                let div = document.createElement("div");
+                div.innerText = "This type has no type parameters.";
+                settingModalBody.appendChild(div);
+
+                if (warnDiv) warnDiv.style.display = "none";
+            }
+            else {
+                if (warnDiv) warnDiv.style.display = "block";
+            }
+
+            // Smart suggestions for type parameters
+            const availableTypes = this.getAvailableTypes(block, typeParameters);
+            const optionsList = Array.from(availableTypes.optionsList); // List of options for select, includes local parameters and smart suggestions
+            const smartSuggestionsMap = availableTypes.smartSuggestionsMap; // Map for saving original object type for smart suggestions
+
+            // Select for each type parameter
+            typeParameters.forEach((param, index) => {
+                // Param structure: { "A": "value" } or { "A": null }
+                const typeKey = Object.keys(param)[0];
+                const storedValue = param[typeKey];
+
+                let rowDiv = document.createElement("div");
+                rowDiv.className = "d-flex align-items-center mb-3";
+
+                let paramDivLabel = document.createElement("label");
+                paramDivLabel.innerText = `${typeKey}:`;
+                paramDivLabel.className = "form-label me-3 mb-0 text-nowrap";
+                paramDivLabel.htmlFor = `typeParamSelect_${block.id}_${index}`;
+
+                // Create select element
+                let paramSelect = document.createElement("select");
+                paramSelect.className = "form-select";
+                paramSelect.id = `typeParamSelect_${block.id}_${index}`;
+
+                // Fill select with options
+                optionsList.forEach(optVal => {
+                    let option = document.createElement("option");
+                    option.value = optVal;
+                    option.innerText = optVal === "" ? "-- Vyberte typ --" : optVal;
+
+                    if (storedValue === optVal) {
+                        option.selected = true;
+                    }
+                    paramSelect.appendChild(option);
                 });
 
-                // B) Check if parameters changed
-                const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
+                rowDiv.appendChild(paramDivLabel);
+                rowDiv.appendChild(paramSelect);
+                settingModalBody.appendChild(rowDiv);
+            });
 
-                if (paramsChanged) {
-                    console.log(`Parameters changed for local block ${block.id} changed.`);
+            // 3. New listener for Save button, to save parameters only for this block
+            const saveBtn = document.querySelector("#settingModalSaveBtn");
+            const newSaveBtn = saveBtn.cloneNode(true);
+            saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
 
-                    this.store.updateBlockInstanceParameters(block.id, updatedParameters);
+            newSaveBtn.addEventListener("click", () => {
+                console.log("Ukládám parametry pouze pro blok:", block.id);
+
+                if (typeParameters && typeParameters.length > 0) {
+                    // A) Collect updated parameters from the selects
+                    const updatedParameters = typeParameters.map((param, index) => {
+                        const typeKey = Object.keys(param)[0];
+                        const selectEl = document.getElementById(`typeParamSelect_${block.id}_${index}`);
+                        const selectedString = selectEl.value;
+
+                        let newValue = null;
+                        if (selectedString !== "") {
+                            if (smartSuggestionsMap.has(selectedString)) {
+                                newValue = smartSuggestionsMap.get(selectedString);
+                            } else {
+                                newValue = selectedString;
+                            }
+                        }
+
+                        return { [typeKey]: newValue };
+                    });
+
+                    // B) Check if parameters changed
+                    const paramsChanged = JSON.stringify(typeParameters) !== JSON.stringify(updatedParameters);
+
+                    if (paramsChanged) {
+                        console.log(`Parameters changed for local block ${block.id} changed.`);
+
+                        this.store.updateBlockInstanceParameters(block, updatedParameters);
+                    }
+                }
+            });
+        }
+    }
+
+    getAvailableTypes(block, typeParameters) {
+        const savedTypes = this.store.getSavedTypes();
+
+        const targetTypeName = block.typeName; // Name of current block (e.g., "list")
+        const smartSuggestionsMap = new Map(); // Map for saving original object type
+
+        // Recursive search, helper function
+        const findUsages = (node) => {
+            if (!node) return;
+
+            // If we find the target type with arguments, we can suggest those arguments as relevant for suggestions
+            if (node.name === targetTypeName && node.args && node.args.length > 0) {
+                node.args.forEach(arg => {
+                    const formattedStr = formatType(arg);
+                    if (!smartSuggestionsMap.has(formattedStr)) {
+                        // Save the original type object for this formatted string, to be able to replace type parameters later
+                        smartSuggestionsMap.set(formattedStr, JSON.parse(JSON.stringify(arg)));
+                    }
+                });
+            }
+
+            // Continue searching in arguments
+            if (node.args) {
+                node.args.forEach(child => findUsages(child));
+            }
+        };
+
+        // Search through all saved types and their constructors arguments to find usages of the current block's type
+        savedTypes.forEach(savedType => {
+
+            if (savedType.sort === "atomic") {
+                if (!smartSuggestionsMap.has(savedType.name)) {
+                    smartSuggestionsMap.set(savedType.name, savedType.name);
+                }
+            }
+
+            else if (savedType.sort === "clasic") {
+                if (savedType.constructors) {
+                    savedType.constructors.forEach(cons => {
+                        if (cons.args) {
+                            cons.args.forEach(arg => {
+                                findUsages(arg.type);
+                            });
+                        }
+                    });
                 }
             }
         });
-    }
 
+        // Name of local parameter names (e.g. "Key", "Value" from head)
+        const localParams = typeParameters.map(p => Object.keys(p)[0]);
+
+        // Union
+        const combinedOptions = new Set([
+            "",
+            ...localParams,
+            ...Array.from(smartSuggestionsMap.keys()).sort((a, b) => a.localeCompare(b)),
+        ]);
+
+        return {
+            optionsList: Array.from(combinedOptions),
+            smartSuggestionsMap: smartSuggestionsMap
+        };
+    }
 
     bindExportButtons(blockObjects) {
         blockObjects.forEach(block => {
@@ -289,6 +400,12 @@ export default class WorkspaceView {
                 }
 
             }
+            // If the block needs layout update (e.g., after parameter change)
+            else if (block.needsLayoutUpdate) {
+                this.initializeBlockLayout(block);
+
+                block.needsLayoutUpdate = false;
+            }
         });
     }
 
@@ -326,10 +443,11 @@ export default class WorkspaceView {
     constructorHorizontalResize(block) {
         let blockNameEl = block.element.querySelector(".blockName");
         let blockDeleteBtnEl = block.element.querySelector(".delete-block-btn");
+        let blockSettingsBtnEl = block.element.querySelector(".settings-block-btn");
 
         let nameWidth = blockNameEl ? blockNameEl.offsetWidth : 0;
 
-        let widestLabel = nameWidth + (blockDeleteBtnEl ? blockDeleteBtnEl.offsetWidth : 20);
+        let widestLabel = nameWidth + (blockDeleteBtnEl ? blockDeleteBtnEl.offsetWidth : 20) + (blockSettingsBtnEl ? blockSettingsBtnEl.offsetWidth : 20);
 
         // plug.width and dotLabelWidth are atributes computed in createElement
         let dotLabelWidth = block.dotObject ? block.dotObject.dotLabelWidth : 0;

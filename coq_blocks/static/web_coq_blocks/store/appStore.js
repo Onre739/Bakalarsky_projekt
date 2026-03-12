@@ -353,12 +353,10 @@ export default class appStore extends Store {
 
     /**
      * Change parameters for a specific block instance on the canvas.
-     * @param {string} blockId - Id of the block to update
+     * @param {Block} block - The block instance to update
      * @param {Array} newParameters - New parameters
      */
-    updateBlockInstanceParameters(blockId, newParameters) {
-        const block = this.state.blockObjects.find(b => b.id === blockId);
-
+    updateBlockInstanceParameters(block, newParameters) {
         if (block) {
             block.updatePolymorphicParams(newParameters);
 
