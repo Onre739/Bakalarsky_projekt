@@ -251,15 +251,16 @@ export class ConstructorBlock extends BaseBlock {
      * Helper method: Calculates and sets the return type of the block (Dot)
      */
     calculateReturnType() {
-        // If explicit return_type is given, use it, otherwise build from typeName and typeParameters
+        // If explicit returnType is given, use it, otherwise build from typeName and typeParameters
         const typeParamMap = this.getTypeParamMap();
 
-        // Arrow style (explicit return_type)
-        if (this.constructorObj.return_type && this.constructorObj.return_type.name !== "Unknown") {
-            this.returnTypeObj = resolveTypeParams(this.constructorObj.return_type, typeParamMap); // Apply type parameter substitution
+        // Arrow style (explicit returnType given)
+        const explicitReturnType = this.constructorObj.returnType;
+        if (explicitReturnType && explicitReturnType.name !== "Unknown") {
+            this.returnTypeObj = resolveTypeParams(explicitReturnType, typeParamMap); // Apply type parameter substitution
         }
 
-        // Binder style (return_type not given)
+        // Binder style (returnType not given)
         else {
 
             // Get name of type parameter and use it, if not given, use the key as placeholder

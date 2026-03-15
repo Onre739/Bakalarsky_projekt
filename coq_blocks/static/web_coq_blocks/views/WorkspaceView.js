@@ -58,7 +58,8 @@ export default class WorkspaceView {
             let settingBtn = blockObject.element.querySelector(".settings-block-btn");
             if (!settingBtn) return;
 
-            const shouldHaveButton = notSnappedSet.has(blockObject);
+            const shouldHaveButton = notSnappedSet.has(blockObject) &&
+                (blockObject instanceof DefinitionBlock || blockObject instanceof ConstructorBlock); // Disable settings for AtomicBlocks
 
             // Visibility control
             if (shouldHaveButton) {
