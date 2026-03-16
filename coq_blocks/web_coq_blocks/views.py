@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 import traceback
 
 from antlr import COQMain 
-from BlockClasses import *
+from block_classes import *
 
 def index(request):
     return render(request, 'web_coq_blocks/index.html', {})

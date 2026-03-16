@@ -1,4 +1,4 @@
-import { DefinitionBlock } from "../models/Block.js";
+import { DefinitionBlock } from "../models/block.js";
 
 export default class SnapManager {
     constructor() {

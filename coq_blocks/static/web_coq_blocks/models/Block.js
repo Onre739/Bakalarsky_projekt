@@ -1,4 +1,4 @@
-import { formatType, resolveTypeParams } from "../services/TypeUtils.js";
+import { formatType, resolveTypeParams } from "../services/type_utils.js";
 class Dot {
     constructor(typeObj, parentBlockEl, color) {
         this.typeObj = typeObj; // Data type object, JSON

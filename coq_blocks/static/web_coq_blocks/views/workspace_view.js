@@ -1,5 +1,5 @@
-import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/Block.js";
-import { formatType } from "../services/TypeUtils.js";
+import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/block.js";
+import { formatType } from "../services/type_utils.js";
 export default class WorkspaceView {
     constructor(store, snapManager, exportCallback) {
         this.ground = document.getElementById("ground");

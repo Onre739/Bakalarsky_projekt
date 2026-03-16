@@ -1,12 +1,12 @@
-import AppStore from "./store/appStore.js";
-import BlockFactory from "./factories/BlockFactory.js";
-import DefinitionLoader from "./services/DefinitionLoader.js";
-import COQExporter from "./services/COQExporter.js";
-import SavedTypeManager from "./services/SavedTypeManager.js";
-import InteractionController from './views/InteractionController.js';
-import SnapManager from './services/SnapManager.js';
-import WorkspaceView from './views/WorkspaceView.js';
-import SidebarView from './views/SidebarView.js';
+import AppStore from "./store/app_store.js";
+import BlockFactory from "./factories/block_factory.js";
+import DefinitionLoader from "./services/definition_loader.js";
+import COQExporter from "./services/coq_exporter.js";
+import SavedTypeManager from "./services/saved_type_manager.js";
+import InteractionController from './views/interaction_controller.js';
+import SnapManager from './services/snap_manager.js';
+import WorkspaceView from './views/workspace_view.js';
+import SidebarView from './views/sidebar_view.js';
 
 // ----- Initialize store and main components -----
 const snapManager = new SnapManager();

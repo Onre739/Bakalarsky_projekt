@@ -1,4 +1,4 @@
-import { Store } from './Store.js';
+import { Store } from './store.js';
 
 // Design pattern: Singleton Store for application state management
 export default class appStore extends Store {

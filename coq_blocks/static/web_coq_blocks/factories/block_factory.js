@@ -1,4 +1,4 @@
-import { ConstructorBlock, DefinitionBlock, AtomicBlock } from "../models/Block.js";
+import { ConstructorBlock, DefinitionBlock, AtomicBlock } from "../models/block.js";
 
 export default class BlockFactory {
     constructor() { }

@@ -1,7 +1,7 @@
 from .COQParser import COQParser
 from .COQVisitor import COQVisitor
 
-from BlockClasses import *
+from block_classes import *
 
 class MyVisitor(COQVisitor):
     # =========================================================================
