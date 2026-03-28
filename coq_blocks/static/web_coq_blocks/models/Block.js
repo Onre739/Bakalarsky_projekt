@@ -157,6 +157,7 @@ export class DefinitionBlock extends BaseBlock {
 
         // Block name
         this.addBlockName("Definition");
+        this.element.classList.add("definition-block-" + this.varName);
 
         let newBlock = this.element
 
@@ -310,6 +311,7 @@ export class ConstructorBlock extends BaseBlock {
     createElement() {
         this.initBlockElement();
         this.addBlockName(this.blockName);
+        this.element.classList.add("constructor-block-" + this.constructorName);
 
         let newBlock = this.element;
 
@@ -372,31 +374,115 @@ export class AtomicBlock extends BaseBlock {
     createElement() {
         // Initialize block element
         this.initBlockElement();
-        let newBlock = this.element;
+        this.element.classList.add("atomic-block-" + this.typeObj.name);
+
+        //let newBlock = this.element;
 
         // Block name
         this.addBlockName(this.typeObj.name);
 
-        // Input
+        let inputContainer = this.createInputUI();
+        inputContainer.style.position = "absolute";
+        inputContainer.style.right = "10px";
+        inputContainer.style.top = "30px";
+
+        this.element.appendChild(inputContainer);
+
+        // Dot
+        let dot = new Dot(this.typeObj, this.element, this.color);
+        dot.createElement(); // DOM element
+        this.dotObject = dot;
+    }
+
+    // Default text input (for the case where you create a generic AtomicBlock)
+    createInputUI() {
         let inputEl = document.createElement("input");
         inputEl.setAttribute("class", "form-control p-0");
         inputEl.setAttribute("maxlength", "12");
-        inputEl.setAttribute("id", "atomicInput");
-        inputEl.style.position = "absolute";
-        inputEl.style.right = "10px";
-        inputEl.style.top = "30px";
+        inputEl.setAttribute("type", "text");
+        // inputEl.setAttribute("id", "atomicInput");
+        inputEl.addEventListener("input", (e) => this.value = e.target.value);
+        return inputEl;
+    }
+}
 
-        newBlock.appendChild(inputEl);
-
-        // Dot
-        let dot = new Dot(this.typeObj, newBlock, this.color);
-        dot.createElement(); // DOM element
-        this.dotObject = dot;
-
-        // Input event listener
-        inputEl.addEventListener("input", () => {
-            this.value = inputEl.value;
-        });
+export class NatBlock extends AtomicBlock {
+    constructor(id, color) {
+        super("nat", id, color); // Type name is "nat"
+        this.value = "0"; // Default value
     }
 
+    createInputUI() {
+        let inputEl = document.createElement("input");
+        inputEl.setAttribute("type", "text");
+        inputEl.setAttribute("inputmode", "numeric"); // For mobiles numeric keyboard
+        inputEl.setAttribute("maxlength", "14");
+        inputEl.setAttribute("class", "form-control p-0");
+        inputEl.value = "0";
+        this.value = "0";
+
+        inputEl.addEventListener("input", (e) => {
+            // Only numbers allowed
+            let cleaned = e.target.value.replace(/\D/g, '');
+
+            // Remove leading zeros (e.g., "01" -> "1", "007" -> "7")
+            cleaned = cleaned.replace(/^0+(?=\d)/, '');
+
+            e.target.value = cleaned;
+
+            // If value is empty "" use 0
+            this.value = cleaned === "" ? "0" : cleaned;
+        });
+
+        inputEl.addEventListener("blur", (e) => {
+            if (e.target.value === "") {
+                e.target.value = "0";
+                this.value = "0";
+            }
+        });
+
+        return inputEl;
+    }
+}
+
+export class BoolBlock extends AtomicBlock {
+    constructor(id, color) {
+        super("bool", id, color); // Type name is "bool"
+        this.value = "true"; // Deafault value
+    }
+
+    createInputUI() {
+        let selectEl = document.createElement("select");
+        selectEl.setAttribute("class", "form-select p-0");
+
+        selectEl.innerHTML = `
+            <option value="true">true</option>
+            <option value="false">false</option>
+        `;
+
+        selectEl.addEventListener("change", (e) => {
+            this.value = e.target.value;
+        });
+        return selectEl;
+    }
+}
+
+export class StringBlock extends AtomicBlock {
+    constructor(id, color) {
+        super("string", id, color);
+        this.value = '""'; // Default value is an empty string in Coq
+    }
+
+    createInputUI() {
+        let inputEl = document.createElement("input");
+        inputEl.setAttribute("type", "text");
+        inputEl.setAttribute("maxlength", "30");
+        inputEl.setAttribute("class", "form-control p-0");
+
+        inputEl.addEventListener("input", (e) => {
+            // Automatically wrap the input value in quotes for Coq string syntax
+            this.value = `"${e.target.value}"`;
+        });
+        return inputEl;
+    }
 }

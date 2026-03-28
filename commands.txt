@@ -46,3 +46,7 @@ docker stop e8bbcdebb61c
 
 // odstranění containeru
 docker rm e8bbcdebb61c
+
+
+// ------- TESTS -------
+python manage.py test

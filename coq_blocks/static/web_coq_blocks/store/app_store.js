@@ -28,8 +28,11 @@ export default class appStore extends Store {
             // Array of ordered snapped blocks for size changes, NOT ORDERED BY PLUGS !!! (1,2,...)
             orderedSnappedBlocks: [],
 
-            // Saved types from SavedTypeManager
+            // Saved types from SavedTypeManager, constructor blocks
             savedTypes: [],
+
+            // Atomic types, default
+            atomicTypes: [],
 
             zIndexCount: 1,
 
@@ -42,6 +45,10 @@ export default class appStore extends Store {
 
         // Load saved types from SavedTypeManager into the state
         this.loadSavedTypes();
+
+        // Create atomic types
+        const atomicTypeNames = ["nat", "bool", "string"];
+        this.state.atomicTypes = atomicTypeNames.map(typeName => this.createAtomicType(typeName));
     }
 
     // Setter injection for BlockFactory (circular dependency)
@@ -49,7 +56,6 @@ export default class appStore extends Store {
         this.blockFactory = blockFactory;
     }
 
-    // ------------- Block counts (type / atomic / definition) -------------
     getTypeBlockCount(id) {
         const state = this.getState();
         return state.typeBlockCount.has(id) ? state.typeBlockCount.get(id) : 0;
@@ -64,7 +70,6 @@ export default class appStore extends Store {
         return this.getState().definitionBlockCount;
     }
 
-    // ------------- Z-index helper - returns current z index then increments it -------------
     getAndIncrementZIndex() {
         const state = this.getState();
         const z = state.zIndexCount;
@@ -73,7 +78,6 @@ export default class appStore extends Store {
         return z;
     }
 
-    // ------------- Block objects manipulation -------------
     getBlockObjects() {
         return this.getState().blockObjects;
     }
@@ -83,27 +87,25 @@ export default class appStore extends Store {
         return state.blockObjects.find(b => b.element === element);
     }
 
-    // ------------- Snap targets -------------
     getSnapTargets() {
         return this.getState().snapTargets;
     }
 
-    // ---------
     getSnappedBlocks() {
         return this.getState().snappedBlocks;
     }
 
-    // --------- Ordered snapped blocks -------------
     getOrderedSnappedBlocks() {
         return this.getState().orderedSnappedBlocks;
     }
 
-    // ------------- Saved types manipulation -------------
     getSavedTypes() {
         return this.getState().savedTypes;
     }
 
-    // ------------- Resize mode setter -------------
+    getAtomicTypes() {
+        return this.getState().atomicTypes;
+    }
     getResizeMode() {
         return this.getState().resizeMode;
     }
@@ -131,7 +133,7 @@ export default class appStore extends Store {
         this.notify();
     }
 
-    addAtomicType(name) {
+    createAtomicType(name) {
         // ID generation; crypto.randomUUID() or basic fallback
         const newId = self.crypto && self.crypto.randomUUID ? self.crypto.randomUUID() : 'atomic-' + Math.random().toString(36).substr(2, 9);
 
@@ -142,18 +144,11 @@ export default class appStore extends Store {
             sort: "atomic",
             color: "#808080",
             typeParameters: [], // No type parameters
-            constructors: []    // No constructors
+            constructors: [],    // No constructors
+            fullText: ""
         };
 
-        // Save to localStorage via SavedTypeManager
-        const newSavedType = this.savedTypeManager.addItem(
-            this.state.savedTypes,
-            atomicTypeObj,
-        );
-
-        // State update
-        this.state.savedTypes = newSavedType;
-        this.notify();
+        return atomicTypeObj
     }
 
     addSavedType(newTypeObj) {
@@ -301,37 +296,6 @@ export default class appStore extends Store {
 
         this.notify();
     }
-
-    // updateTypeParameters(typeId, updatedParameters) {
-    //     // 1. New savedTypes with updated parameters
-    //     const newSavedTypes = this.state.savedTypes.map(item => {
-    //         if (item.id === typeId) {
-    //             return {
-    //                 ...item,
-    //                 typeParameters: updatedParameters
-    //             };
-    //         }
-    //         return item;
-    //     });
-
-    //     // 2. Save to localStorage
-    //     this.savedTypeManager.saveData(newSavedTypes);
-
-    //     // 3. Update state
-    //     this.state.savedTypes = newSavedTypes;
-
-    //     // 4. Remove blocks of this type from workspace
-    //     const blocksToRemove = this.state.blockObjects.filter(block =>
-    //         block.id.startsWith(typeId + ":")
-    //     );
-
-    //     blocksToRemove.forEach(block => {
-    //         this.removeBlock(block);
-    //     });
-
-    //     // 5. Notify views
-    //     this.notify();
-    // }
 
     /**
      * Change parameters for a specific block instance on the canvas.

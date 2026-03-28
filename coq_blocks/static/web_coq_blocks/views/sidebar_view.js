@@ -5,6 +5,13 @@ export default class SidebarView {
         this.importedListEl = document.getElementById("importedTypesList");
         this.atomicListEl = document.getElementById("atomicTypesList");
 
+        // Render atomic types
+        this.store.getAtomicTypes().forEach(typeObj => {
+            if (typeObj.sort === "atomic") {
+                this.renderAtomicItem(typeObj);
+            }
+        });
+
         // Cache for change detection
         this.lastSavedTypesJson = "";
     }
@@ -28,12 +35,9 @@ export default class SidebarView {
 
         // Clear existing lists
         this.importedListEl.innerHTML = "";
-        this.atomicListEl.innerHTML = "";
 
         savedTypes.forEach(item => {
-            if (item.sort === "atomic") {
-                this.renderAtomicItem(item);
-            } else if (item.sort === "clasic") {
+            if (item.sort === "clasic") {
                 this.renderClasicItem(item);
             }
         });
@@ -41,6 +45,8 @@ export default class SidebarView {
     }
 
     renderAtomicItem(item) {
+        console.log("Rendering atomic type in sidebar:", item);
+
         const li = document.createElement("li");
         li.className = "list-group-item d-flex justify-content-between align-items-center border-0 pe-2";
 
@@ -59,15 +65,6 @@ export default class SidebarView {
                      <path fill-rule="evenodd" d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5"/>
                      <path d="m10.273 2.513-.921-.944.715-.698.622.637.89-.011a2.89 2.89 0 0 1 2.924 2.924l-.01.89.636.622a2.89 2.89 0 0 1 0 4.134l-.637.622.011.89a2.89 2.89 0 0 1-2.924 2.924l-.89-.01-.622.636a2.89 2.89 0 0 1-4.134 0l-.622-.637-.89.011a2.89 2.89 0 0 1-2.924-2.924l.01-.89-.636-.622a2.89 2.89 0 0 1 0-4.134l.637-.622-.011-.89a2.89 2.89 0 0 1 2.924-2.924l.89.01.622-.636a2.89 2.89 0 0 1 4.134 0l-.715.698a1.89 1.89 0 0 0-2.704 0l-.92.944-1.32-.016a1.89 1.89 0 0 0-1.911 1.912l.016 1.318-.944.921a1.89 1.89 0 0 0 0 2.704l.944.92-.016 1.32a1.89 1.89 0 0 0 1.912 1.911l1.318-.016.921.944a1.89 1.89 0 0 0 2.704 0l.92-.944 1.32.016a1.89 1.89 0 0 0 1.911-1.912l-.016-1.318.944-.921a1.89 1.89 0 0 0 0-2.704l-.944-.92.016-1.32a1.89 1.89 0 0 0-1.912-1.911z"/>
                 </svg>
-
-                <svg id="delete-btn-${item.id}" 
-                     class="delete-btn text-danger" 
-                     style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
-                     onmouseover="this.classList.replace('text-danger', 'text-danger-emphasis'); this.style.transform='scale(1.1)'" 
-                     onmouseout="this.classList.replace('text-danger-emphasis', 'text-danger'); this.style.transform='scale(1)'"
-                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                     <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                </svg>
             </div>
         `;
 
@@ -75,11 +72,6 @@ export default class SidebarView {
         const spawnBtn = li.querySelector(".spawn-btn");
         spawnBtn.addEventListener("click", () => {
             this.store.spawnAtomicBlock(item);
-        });
-
-        const deleteBtn = li.querySelector(".delete-btn");
-        deleteBtn.addEventListener("click", () => {
-            this.store.removeSavedType(item.id);
         });
 
         this.atomicListEl.appendChild(li);
@@ -102,7 +94,8 @@ export default class SidebarView {
         headerEl.className = "accordion-header d-flex align-items-center bg-light-subtle pe-2";
 
         headerEl.innerHTML = `
-            <button class="accordion-button collapsed px-3 py-2 bg-light-subtle text-success flex-grow-1" 
+            <button id="accordion-button-${typeName}"
+                    class="accordion-button collapsed px-3 py-2 bg-light-subtle text-success flex-grow-1" 
                     type="button" 
                     data-bs-toggle="collapse" 
                     data-bs-target="#collapse-${item.id}" 
@@ -226,7 +219,8 @@ export default class SidebarView {
             listItem.innerHTML = `
                 <div>${constructor.name}</div>
                 
-                <svg class="spawn-cons-btn text-success" 
+                <svg id="spawn-${typeName}-${constructor.name}-btn"
+                     class="spawn-cons-btn text-success" 
                      style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
                      onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
                      onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'"

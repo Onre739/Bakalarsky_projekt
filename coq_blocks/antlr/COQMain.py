@@ -8,6 +8,10 @@ from antlr4.error.ErrorListener import ErrorListener
 from antlr4.error.ErrorStrategy import BailErrorStrategy
 
 def process_coq_code(string):
+    # Fast test for empty input
+    if not string or string.strip() == "":
+        raise ValueError("Empty input data")
+
     input_stream = InputStream(string)
 
     lexer = COQLexer(input_stream)

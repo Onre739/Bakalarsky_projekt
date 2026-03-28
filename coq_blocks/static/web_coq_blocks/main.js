@@ -91,41 +91,4 @@ loadBtn.addEventListener("click", async () => {
     }
 });
 
-// ----- Atomic Type Creation button -----
-const atomicCreateBtn = document.getElementById("atomicCreateBtn");
-const atomicCreateInput = document.getElementById("atomicCreateInput");
-const atomicModalEl = document.getElementById("atomicTypeModal");
-const atomicModal = bootstrap.Modal.getInstance(atomicModalEl) || new bootstrap.Modal(atomicModalEl);
-
-atomicCreateBtn.addEventListener("click", () => {
-    const dataTypeName = atomicCreateInput.value.trim();
-
-    if (dataTypeName.length === 0) {
-        workspaceView.printAlert("Atomic type name cannot be empty.", "warning");
-
-        // Do not close the modal
-        return;
-    }
-
-    store.addAtomicType(dataTypeName);
-    workspaceView.printAlert(`Atomic type "${dataTypeName}" created successfully.`, "success");
-
-    atomicCreateInput.value = "";
-
-    // Close the modal
-    atomicModal.hide();
-});
-
 console.log("Application initialized.");
-
-// // ------------ Listeneři ------------
-
-// // Tlačítka pro změnu režimu
-// // document.getElementById("autoBtn").addEventListener("click", () => {
-// //     uiController.switchToAutomatic();
-// // });
-
-// // document.getElementById("manualBtn").addEventListener("click", () => {
-// //     uiController.switchToManual();
-// // });
-

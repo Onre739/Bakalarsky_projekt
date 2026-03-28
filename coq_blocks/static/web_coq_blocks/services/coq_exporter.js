@@ -1,4 +1,4 @@
-import { DefinitionBlock } from "../models/block.js";
+import { DefinitionBlock, AtomicBlock } from "../models/block.js";
 
 export default class COQExporter {
 
@@ -51,8 +51,8 @@ export default class COQExporter {
     traverseBlock(block, snappedBlocks) {
         // Object for tree representation for return
         let ret = {
-            // Auto-generated kind based on class name
-            kind: block.constructor.name,   // like "DefinitionBlock", "ConstructorBlock"
+            // Auto-generated kind based on class name (e.g., "DefinitionBlock", "ConstructorBlock", "AtomicBlock")
+            kind: (block instanceof AtomicBlock) ? "AtomicBlock" : block.constructor.name,
             block: block,
             children: []
         };
@@ -120,11 +120,18 @@ export default class COQExporter {
             }
             else if (def.kind === "ConstructorBlock") {
                 typeStr = this.formatType(def.block.returnTypeObj);
-                valueStr = def.block.constructorName;
 
-                if (children.length > 0) {
-                    valueStr += " " + children.join(" ");
+                // Skládáme jméno konstruktoru, typové argumenty a vnořené bloky
+                let parts = [def.block.constructorName];
+
+                if (def.block.returnTypeObj && def.block.returnTypeObj.args && def.block.returnTypeObj.args.length > 0) {
+                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg)).join(" "));
                 }
+                if (children.length > 0) {
+                    parts.push(children.join(" "));
+                }
+
+                valueStr = parts.join(" ");
             }
 
             return `: ${typeStr} := ${valueStr}`;
@@ -137,7 +144,19 @@ export default class COQExporter {
             }
             else {
                 // Constructor
-                return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
+                // Skládáme vnořený konstruktor stejným způsobem (jméno, typ, děti)
+                let parts = [def.block.constructorName];
+
+                if (def.block.returnTypeObj && def.block.returnTypeObj.args && def.block.returnTypeObj.args.length > 0) {
+                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg)).join(" "));
+                }
+                if (children.length > 0) {
+                    parts.push(children.join(" "));
+                }
+
+                return `(${parts.join(" ")})`;
+
+                //return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
             }
         }
     }

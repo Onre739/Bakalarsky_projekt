@@ -1,4 +1,6 @@
-import { ConstructorBlock, DefinitionBlock, AtomicBlock } from "../models/block.js";
+import {
+    ConstructorBlock, DefinitionBlock, AtomicBlock, NatBlock, BoolBlock, StringBlock
+} from "../models/block.js";
 
 export default class BlockFactory {
     constructor() { }
@@ -20,7 +22,17 @@ export default class BlockFactory {
      * @param {string} color 
      */
     createAtomicBlock(typeName, id, color) {
-        return new AtomicBlock(typeName, id, color);
+        switch (typeName) {
+            case "nat":
+                return new NatBlock(id, color);
+            case "bool":
+                return new BoolBlock(id, color);
+            case "string":
+                return new StringBlock(id, color);
+            default:
+                // Fallback to a generic AtomicBlock if the type is not recognized
+                return new AtomicBlock(typeName, id, color);
+        }
     }
 
     createDefinitionBlock(id) {

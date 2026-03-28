@@ -1,4 +1,4 @@
-import { DefinitionBlock, ConstructorBlock, AtomicBlock } from "../models/block.js";
+import { DefinitionBlock, ConstructorBlock, AtomicBlock, NatBlock, BoolBlock, StringBlock } from "../models/block.js";
 import { formatType } from "../services/type_utils.js";
 export default class WorkspaceView {
     constructor(store, snapManager, exportCallback) {
@@ -242,6 +242,8 @@ export default class WorkspaceView {
 
     getAvailableTypes(block, typeParameters) {
         const savedTypes = this.store.getSavedTypes();
+        const atomicTypes = this.store.getAtomicTypes();
+        const allTypes = [...savedTypes, ...atomicTypes];
 
         const targetTypeName = block.typeName; // Name of current block (e.g., "list")
         const smartSuggestionsMap = new Map(); // Map for saving original object type
@@ -268,7 +270,7 @@ export default class WorkspaceView {
         };
 
         // Search through all saved types and their constructors arguments to find usages of the current block's type
-        savedTypes.forEach(savedType => {
+        allTypes.forEach(savedType => {
 
             if (savedType.sort === "atomic") {
                 if (!smartSuggestionsMap.has(savedType.name)) {
@@ -476,22 +478,34 @@ export default class WorkspaceView {
      */
     atomicHorizontalResize(block) {
         const input = block.element.querySelector("input");
+        const select = block.element.querySelector("select");
         const nameEl = block.element.querySelector(".blockName"); // Pro jistotu, kdyby tam ještě byl
 
-        if (!input) return;
+        const activeEl = input || select;
+        if (!activeEl) return;
 
-        // 1. Calculate input text width
+        // 1. Calculate text width
         // Canvas method for accurate text width measurement
         const context = document.createElement("canvas").getContext("2d");
-        context.font = getComputedStyle(input).font;
-        const text = input.value || input.placeholder || "";
+        context.font = getComputedStyle(activeEl).font;
+
+        let text = "";
+        let extraPadding = 0;
+
+        if (input) { // For NatBlock and StringBlock
+            text = input.value || input.placeholder || "";
+        } else if (select) { // For BoolBlock
+            text = select.options[select.selectedIndex]?.text || select.value || "";
+            extraPadding = 40;
+        }
+
         const textWidth = context.measureText(text).width;
 
-        // 2. Set input width (min 50px, max 200px, padding cca 10px)
-        const inputNewWidth = Math.max(50, textWidth + 10);
-        const inputNewWidthLimited = Math.min(inputNewWidth, 200);
+        // 2. Set element width (min 50px, max 200px, padding cca 10px)
+        const newWidth = Math.max(50, textWidth + extraPadding);
+        const newWidthLimited = Math.min(newWidth, 200);
 
-        input.style.width = `${inputNewWidthLimited}px`;
+        activeEl.style.width = `${newWidthLimited}px`;
 
         // 3. Get widths of other elements
         const nameWidth = nameEl ? nameEl.offsetWidth : 0;
@@ -504,7 +518,7 @@ export default class WorkspaceView {
 
         // 5. Calculate final block width
         const widthForDot = dotLabelWidth;
-        const widthForInput = inputNewWidthLimited + 20; // Input + padding of block 
+        const widthForInput = newWidthLimited + 20; // Input + padding of block 
         const widthForName = nameWidth + 60; // Name + padding
 
         const blockWidth = Math.max(widthForName, widthForInput, widthForDot + widthForInput);
