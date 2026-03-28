@@ -58,20 +58,36 @@ export default class WorkspaceView {
             let settingBtn = blockObject.element.querySelector(".settings-block-btn");
             if (!settingBtn) return;
 
-            const shouldHaveButton = notSnappedSet.has(blockObject) &&
-                (blockObject instanceof DefinitionBlock || blockObject instanceof ConstructorBlock); // Disable settings for AtomicBlocks
+            const supportsSettings = blockObject instanceof DefinitionBlock || blockObject instanceof ConstructorBlock;
 
-            // Visibility control
-            if (shouldHaveButton) {
-                settingBtn.style.display = "flex";
-            } else {
+            if (!supportsSettings) {
                 settingBtn.style.display = "none";
+                return;
+            }
+
+            settingBtn.style.display = "flex";
+            const isNotSnapped = notSnappedSet.has(blockObject);
+
+            // Visibility / Disabled control
+            if (isNotSnapped) {
+                settingBtn.style.opacity = "1";
+                settingBtn.style.pointerEvents = "auto";
+                settingBtn.style.cursor = "pointer";
+                settingBtn.title = "Nastavení parametrů instance bloku";
+            } else {
+                settingBtn.style.opacity = "0.4";
+                settingBtn.style.pointerEvents = "none";
+                settingBtn.style.cursor = "not-allowed";
+                settingBtn.title = "Nelze měnit nastavení připojeného bloku";
             }
 
             // Listener control
             if (!settingBtn.dataset.hasSettingsListener) {
                 settingBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
+                    // Just in case CSS fails
+                    if (settingBtn.style.pointerEvents === "none") return
+
                     this.openLocalBlockSettings(blockObject);
                 });
 
@@ -298,11 +314,11 @@ export default class WorkspaceView {
         const combinedOptions = new Set([
             "",
             ...localParams,
-            ...Array.from(smartSuggestionsMap.keys()).sort((a, b) => a.localeCompare(b)),
+            ...Array.from(smartSuggestionsMap.keys()),
         ]);
 
         return {
-            optionsList: Array.from(combinedOptions),
+            optionsList: Array.from(combinedOptions).sort((a, b) => a.localeCompare(b)), // Sorted alphabetically
             smartSuggestionsMap: smartSuggestionsMap
         };
     }
@@ -336,13 +352,21 @@ export default class WorkspaceView {
             let deleteBtn = blockObject.element.querySelector(".delete-block-btn");
             if (!deleteBtn) return;
 
-            const shouldHaveButton = notSnappedSet.has(blockObject);
+            const shouldBeEnabled = notSnappedSet.has(blockObject);
 
-            // Visibility control
-            if (shouldHaveButton) {
+            // Enabled/Disabled control via CSS
+            if (shouldBeEnabled) {
                 deleteBtn.style.display = "flex";
+                deleteBtn.style.opacity = "1";
+                deleteBtn.style.pointerEvents = "auto";
+                deleteBtn.style.cursor = "pointer";
+                deleteBtn.title = "Delete this block";
             } else {
-                deleteBtn.style.display = "none";
+                deleteBtn.style.display = "flex";
+                deleteBtn.style.opacity = "0.4";
+                deleteBtn.style.pointerEvents = "none"; // Disables click events!
+                deleteBtn.style.cursor = "not-allowed"; // Mouse cursor icon
+                deleteBtn.title = "Cannot delete snapped block";
             }
 
             // Listener control
@@ -496,7 +520,7 @@ export default class WorkspaceView {
             text = input.value || input.placeholder || "";
         } else if (select) { // For BoolBlock
             text = select.options[select.selectedIndex]?.text || select.value || "";
-            extraPadding = 40;
+            extraPadding = 35;
         }
 
         const textWidth = context.measureText(text).width;

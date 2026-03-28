@@ -95,7 +95,10 @@ class BaseBlock {
         // 2. Setup Delete Button
         let deleteBtn = document.createElement("div");
         deleteBtn.className = "delete-block-btn";
-        deleteBtn.style.display = "none";
+
+        deleteBtn.style.display = "flex";
+        deleteBtn.style.opacity = "1";
+        deleteBtn.style.cursor = "pointer";
         deleteBtn.title = "Delete this block";
 
         deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
@@ -108,7 +111,6 @@ class BaseBlock {
         // 3. Setup Settings Button
         let settingBtn = document.createElement("div");
         settingBtn.className = "settings-block-btn";
-        // settingBtn.style.display = "none"; // In CSS when hovering
         settingBtn.title = "Nastavení parametrů instance bloku";
 
         settingBtn.innerHTML = `
