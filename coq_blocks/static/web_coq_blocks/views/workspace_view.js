@@ -260,6 +260,7 @@ export default class WorkspaceView {
         const savedTypes = this.store.getSavedTypes();
         const atomicTypes = this.store.getAtomicTypes();
         const allTypes = [...savedTypes, ...atomicTypes];
+        const allBlocksOnCanvas = this.store.getBlockObjects();
 
         const targetTypeName = block.typeName; // Name of current block (e.g., "list")
         const smartSuggestionsMap = new Map(); // Map for saving original object type
@@ -285,15 +286,13 @@ export default class WorkspaceView {
             }
         };
 
-        // Search through all saved types and their constructors arguments to find usages of the current block's type
+        // 1. Search through all static definitions to find usages of the current block's type
         allTypes.forEach(savedType => {
-
             if (savedType.sort === "atomic") {
                 if (!smartSuggestionsMap.has(savedType.name)) {
                     smartSuggestionsMap.set(savedType.name, savedType.name);
                 }
             }
-
             else if (savedType.sort === "clasic") {
                 if (savedType.constructors) {
                     savedType.constructors.forEach(cons => {
@@ -306,6 +305,51 @@ export default class WorkspaceView {
                 }
             }
         });
+
+        // 2. Search through all live blocks
+        allBlocksOnCanvas.forEach(canvasBlock => {
+
+            // Skip the current block
+            if (canvasBlock.id === block.id) return;
+
+            if (canvasBlock instanceof ConstructorBlock) {
+
+                // Příklad: block je `list`, hledáme co do něj dát. 
+                // canvasBlock je `SuperTree`. 
+                // My ale chceme, aby se nám do listu nabídl `SuperTree nat bool`.
+
+                let typeObj = { name: canvasBlock.typeName, args: [] };
+
+                if (canvasBlock.typeParameters) {
+                    canvasBlock.typeParameters.forEach(param => {
+                        const key = Object.keys(param)[0];
+                        const val = param[key];
+                        // If param has no value, we still want to offer it with deafault args (e.g. `A` in `list A`)
+                        if (val === null || val === undefined || val === "") {
+                            typeObj.args.push({ name: key, args: [] });
+                        } else if (typeof val === 'string') {
+                            // Je to odkaz na parametr nebo jednoduchý typ (musíme zjistit, jestli má args v původním mapě)
+                            if (smartSuggestionsMap.has(val)) {
+                                typeObj.args.push(smartSuggestionsMap.get(val));
+                            } else {
+                                typeObj.args.push({ name: val, args: [] });
+                            }
+                        } else {
+                            typeObj.args.push(val);
+                        }
+                    });
+                }
+
+                // Naformátujeme to pro zobrazení
+                const formattedStr = formatType(typeObj);
+
+                // A přidáme do našeptávače!
+                if (!smartSuggestionsMap.has(formattedStr)) {
+                    smartSuggestionsMap.set(formattedStr, typeObj);
+                }
+            }
+        });
+
 
         // Name of local parameter names (e.g. "Key", "Value" from head)
         const localParams = typeParameters.map(p => Object.keys(p)[0]);
@@ -520,7 +564,7 @@ export default class WorkspaceView {
             text = input.value || input.placeholder || "";
         } else if (select) { // For BoolBlock
             text = select.options[select.selectedIndex]?.text || select.value || "";
-            extraPadding = 35;
+            extraPadding = 25;
         }
 
         const textWidth = context.measureText(text).width;

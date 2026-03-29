@@ -456,6 +456,7 @@ export class BoolBlock extends AtomicBlock {
     createInputUI() {
         let selectEl = document.createElement("select");
         selectEl.setAttribute("class", "form-select p-0");
+        selectEl.style.backgroundPosition = "right 2px center";
 
         selectEl.innerHTML = `
             <option value="true">true</option>

@@ -76,24 +76,34 @@ export default class COQExporter {
         return ret;
     }
 
-    // Help function to format type objects
-    // {name: "list", args: [{name: "nat"}]} -> "list nat"
-    formatType(typeObj) {
-        if (!typeObj) return "?";
-        if (typeof typeObj === 'string') return typeObj;
+    /**
+     * Help function to format type objects
+     * {name: "list", args: [{name: "nat"}]} -> "list nat"
+     * @param {Object} typeObj - Type object (e.g., { name: "list", args: [...] })
+     * @param {boolean} needsParens - Whether the result should be wrapped in parentheses (default: false)
+     */
+    formatType(typeObj, needsParens = false) {
+        if (!typeObj) return "Unknown";
+        if (typeof typeObj === "string") return typeObj;
+        const name = typeObj.name || "Unknown";
 
         // If no arguments, return just the name
         if (!typeObj.args || typeObj.args.length === 0) {
-            return typeObj.name;
+            return name;
         }
 
         // Recursively for arguments. If an argument is complex, put it in parentheses
-        const formattedArgs = typeObj.args.map(arg => {
-            const str = this.formatType(arg);
-            return (arg.args && arg.args.length > 0) ? `(${str})` : str;
-        });
+        const argsString = typeObj.args.map(arg => this.formatType(arg, true)).join(" ");
+        const result = `${name} ${argsString}`;
 
-        return `${typeObj.name} ${formattedArgs.join(" ")}`;
+        return needsParens ? `(${result})` : result;
+
+        // const formattedArgs = typeObj.args.map(arg => {
+        //     const str = this.formatType(arg);
+        //     return (arg.args && arg.args.length > 0) ? `(${str})` : str;
+        // });
+
+        // return `${typeObj.name} ${formattedArgs.join(" ")}`;
     }
 
     // Recursive stringification of the definition object
@@ -121,11 +131,11 @@ export default class COQExporter {
             else if (def.kind === "ConstructorBlock") {
                 typeStr = this.formatType(def.block.returnTypeObj);
 
-                // Skládáme jméno konstruktoru, typové argumenty a vnořené bloky
+                // Constructor
                 let parts = [def.block.constructorName];
 
                 if (def.block.returnTypeObj && def.block.returnTypeObj.args && def.block.returnTypeObj.args.length > 0) {
-                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg)).join(" "));
+                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg, true)).join(" "));
                 }
                 if (children.length > 0) {
                     parts.push(children.join(" "));
@@ -140,23 +150,23 @@ export default class COQExporter {
         // Inner values (i > 1) -> Parantheses
         else {
             if (def.kind === "AtomicBlock") {
-                return `(${def.block.value})`;
+                const val = String(def.block.value);
+                return val.includes(" ") ? `(${val})` : val;
             }
             else {
                 // Constructor
-                // Skládáme vnořený konstruktor stejným způsobem (jméno, typ, děti)
                 let parts = [def.block.constructorName];
 
                 if (def.block.returnTypeObj && def.block.returnTypeObj.args && def.block.returnTypeObj.args.length > 0) {
-                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg)).join(" "));
+                    parts.push(def.block.returnTypeObj.args.map(arg => this.formatType(arg, true)).join(" "));
                 }
                 if (children.length > 0) {
                     parts.push(children.join(" "));
                 }
 
-                return `(${parts.join(" ")})`;
-
-                //return `(${def.block.constructorName}${children.length ? " " + children.join(" ") : ""})`;
+                // Add ( ) if there are blank spaces in the result
+                const joinedParts = parts.join(" ");
+                return joinedParts.includes(" ") ? `(${joinedParts})` : joinedParts;
             }
         }
     }
