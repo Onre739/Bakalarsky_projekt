@@ -52,10 +52,28 @@ export default class SidebarView {
 
         const typeName = item.name ? item.name : "Unknown";
 
+        let dangerBtnHTML = "";
+        if (typeName === "string") {
+            dangerBtnHTML = `
+                <svg id="warning-btn-${item.id}"
+                     data-bs-toggle="popover" data-bs-title="Don't forget to add:" 
+                     data-bs-content="Require Import String.<br>Open Scope string_scope."
+                     data-bs-placement="top" 
+                     data-bs-html="true" 
+                     data-bs-trigger="click"
+                     class="text-warning" 
+                     style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
+                     xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                     <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                     <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+                </svg>
+            `;
+        }
+
         li.innerHTML = `
             <div>${typeName}</div>
-            
             <div class="d-flex align-items-center gap-2">
+                ${dangerBtnHTML}
                 <svg id="spawn-btn-${item.id}" 
                      class="spawn-btn text-success" 
                      style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
@@ -68,13 +86,33 @@ export default class SidebarView {
             </div>
         `;
 
+        this.atomicListEl.appendChild(li);
+
+        // Initialize popover for string type
+        if (typeName === "string") {
+            const warningBtn = li.querySelector(`#warning-btn-${item.id}`);
+            if (warningBtn) {
+                new bootstrap.Popover(warningBtn, {
+                    customClass: 'warn-popover'
+                });
+
+                warningBtn.addEventListener('show.bs.popover', () => {
+                    warningBtn.classList.replace('text-warning', 'text-warning-emphasis');
+                    warningBtn.style.transform = 'scale(1.1)';
+                });
+
+                warningBtn.addEventListener('hide.bs.popover', () => {
+                    warningBtn.classList.replace('text-warning-emphasis', 'text-warning');
+                    warningBtn.style.transform = 'scale(1)';
+                });
+            }
+        }
+
         // Listeners
-        const spawnBtn = li.querySelector(".spawn-btn");
+        const spawnBtn = li.querySelector(`#spawn-btn-${item.id}`);
         spawnBtn.addEventListener("click", () => {
             this.store.spawnAtomicBlock(item);
         });
-
-        this.atomicListEl.appendChild(li);
     }
 
     renderClasicItem(item) {
@@ -110,9 +148,9 @@ export default class SidebarView {
                      data-bs-toggle="modal" 
                      data-bs-target="#settingModal" 
                      onmouseover="this.classList.replace('text-secondary', 'text-dark'); this.style.transform='scale(1.1)'" 
-                     onmouseout="this.classList.replace('text-dark', 'text-secondary'); this.style.transform='scale(1)'"
-                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.86z"/>
+                     onmouseout="this.classList.replace('text-dark', 'text-secondary'); this.style.transform='scale(1)'" 
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-sliders" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z"/>
                 </svg>
 
                 <svg class="delete-type-btn text-danger" style="cursor: pointer; transition: color 0.2s;"

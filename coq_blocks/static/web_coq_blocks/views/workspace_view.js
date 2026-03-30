@@ -265,6 +265,9 @@ export default class WorkspaceView {
         const targetTypeName = block.typeName; // Name of current block (e.g., "list")
         const smartSuggestionsMap = new Map(); // Map for saving original object type
 
+        // Name of local parameter names (e.g. "Key", "Value" from head)
+        const localParams = typeParameters.map(p => Object.keys(p)[0]);
+
         // Recursive search, helper function
         const findUsages = (node) => {
             if (!node) return;
@@ -286,14 +289,46 @@ export default class WorkspaceView {
             }
         };
 
-        // 1. Search through all static definitions to find usages of the current block's type
+        // 1. Search through all static definitions
         allTypes.forEach(savedType => {
+            // A) If it's an atomic type, we can suggest it directly
             if (savedType.sort === "atomic") {
                 if (!smartSuggestionsMap.has(savedType.name)) {
                     smartSuggestionsMap.set(savedType.name, savedType.name);
                 }
-            }
-            else if (savedType.sort === "clasic") {
+            } else if (savedType.sort === "clasic") {
+                // B) Suggest type with default parameters
+                const typeParamsOfSavedType = Array.isArray(savedType.typeParameters) ? savedType.typeParameters : [];
+
+                const defaultTypeObj = {
+                    name: savedType.name,
+                    args: []
+                };
+
+                typeParamsOfSavedType.forEach(param => {
+                    const key = Object.keys(param)[0];
+                    const val = param[key];
+
+                    if (val === null || val === undefined || val === "") {
+                        defaultTypeObj.args.push({ name: key, args: [] });
+                    } else if (typeof val === 'string') {
+                        if (smartSuggestionsMap.has(val)) {
+                            defaultTypeObj.args.push(smartSuggestionsMap.get(val));
+                        } else {
+                            defaultTypeObj.args.push({ name: val, args: [] });
+                        }
+                    } else {
+                        defaultTypeObj.args.push(val);
+                    }
+                });
+
+                const formattedDefaultType = formatType(defaultTypeObj);
+                if (!smartSuggestionsMap.has(formattedDefaultType)) {
+                    smartSuggestionsMap.set(formattedDefaultType, defaultTypeObj);
+                }
+
+                // C) Suggest types that are used as arguments for this type in other type constructors
+                // Some constructor has: list (option (SuperTree Key Value))) -> for type list suggest: option (SuperTree Key Value)
                 if (savedType.constructors) {
                     savedType.constructors.forEach(cons => {
                         if (cons.args) {
@@ -340,19 +375,13 @@ export default class WorkspaceView {
                     });
                 }
 
-                // Naformátujeme to pro zobrazení
                 const formattedStr = formatType(typeObj);
 
-                // A přidáme do našeptávače!
                 if (!smartSuggestionsMap.has(formattedStr)) {
                     smartSuggestionsMap.set(formattedStr, typeObj);
                 }
             }
         });
-
-
-        // Name of local parameter names (e.g. "Key", "Value" from head)
-        const localParams = typeParameters.map(p => Object.keys(p)[0]);
 
         // Union
         const combinedOptions = new Set([
