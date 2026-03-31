@@ -156,23 +156,62 @@ export default class WorkspaceView {
             let settingModalBody = document.getElementById("settingModalBody");
             settingModalBody.innerHTML = "";
 
-            // Parameters label
-            let paramLabel = document.createElement("div");
-            paramLabel.innerText = "Parameters: ";
-            paramLabel.className = "form-label fw-bold mt-3";
-            settingModalBody.appendChild(paramLabel);
+            let infoNoteBtnHTML = "";
+            let noParamDiv = "";
 
             // Parameter check
-            const warnDiv = document.getElementById("settingModalWarnDiv");
             if (!typeParameters || typeParameters.length === 0) {
-                let div = document.createElement("div");
-                div.innerText = "This type has no type parameters.";
-                settingModalBody.appendChild(div);
-
-                if (warnDiv) warnDiv.style.display = "none";
+                noParamDiv = "This type has no type parameters."
+            } else {
+                infoNoteBtnHTML = `
+                    <svg id="info-btn-${block.id}"
+                        data-bs-toggle="popover" data-bs-title="Smart Suggestions" 
+                        data-bs-content="Smart suggestions include:<br>&bull; All atomic types<br>&bull; Local parameters<br>&bull; <strong>Types of all spawned blocks</strong>"
+                        data-bs-placement="top" 
+                        data-bs-html="true" 
+                        data-bs-trigger="click"
+                        class="text-info ms-2" 
+                        style="cursor: pointer; transition: transform 0.1s, color 0.2s;" 
+                        xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                        <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                    </svg>
+                `;
             }
-            else {
-                if (warnDiv) warnDiv.style.display = "block";
+
+            // Parameters label
+            let paramLabel = document.createElement("div");
+            paramLabel.className = "form-label fw-bold mt-3 d-flex align-items-center";
+            paramLabel.innerHTML = `
+                <div>
+                    <div class="d-flex align-items-center">
+                        Parameters:
+                        ${infoNoteBtnHTML}
+                    </div>
+                    <span class="fw-normal text-muted">${noParamDiv}</span>
+                </div>
+            `;
+            settingModalBody.appendChild(paramLabel);
+
+            // Initialize popover for info button
+            if (infoNoteBtnHTML !== "") {
+                const infoSvgElement = document.getElementById(`info-btn-${block.id}`);
+
+                if (infoSvgElement) {
+                    new bootstrap.Popover(infoSvgElement, {
+                        customClass: 'info-popover'
+                    });
+
+                    infoSvgElement.addEventListener('show.bs.popover', () => {
+                        infoSvgElement.classList.replace('text-info', 'text-info-emphasis');
+                        infoSvgElement.style.transform = 'scale(1.1)';
+                    });
+
+                    infoSvgElement.addEventListener('hide.bs.popover', () => {
+                        infoSvgElement.classList.replace('text-info-emphasis', 'text-info');
+                        infoSvgElement.style.transform = 'scale(1)';
+                    });
+                }
             }
 
             // Smart suggestions for type parameters
@@ -257,9 +296,7 @@ export default class WorkspaceView {
     }
 
     getAvailableTypes(block, typeParameters) {
-        const savedTypes = this.store.getSavedTypes();
         const atomicTypes = this.store.getAtomicTypes();
-        const allTypes = [...savedTypes, ...atomicTypes];
         const allBlocksOnCanvas = this.store.getBlockObjects();
 
         const targetTypeName = block.typeName; // Name of current block (e.g., "list")
@@ -289,54 +326,11 @@ export default class WorkspaceView {
             }
         };
 
-        // 1. Search through all static definitions
-        allTypes.forEach(savedType => {
-            // A) If it's an atomic type, we can suggest it directly
+        // 1. Add Atomic typeds to smart suggestions
+        atomicTypes.forEach(savedType => {
             if (savedType.sort === "atomic") {
                 if (!smartSuggestionsMap.has(savedType.name)) {
                     smartSuggestionsMap.set(savedType.name, savedType.name);
-                }
-            } else if (savedType.sort === "clasic") {
-                // B) Suggest type with default parameters
-                const typeParamsOfSavedType = Array.isArray(savedType.typeParameters) ? savedType.typeParameters : [];
-
-                const defaultTypeObj = {
-                    name: savedType.name,
-                    args: []
-                };
-
-                typeParamsOfSavedType.forEach(param => {
-                    const key = Object.keys(param)[0];
-                    const val = param[key];
-
-                    if (val === null || val === undefined || val === "") {
-                        defaultTypeObj.args.push({ name: key, args: [] });
-                    } else if (typeof val === 'string') {
-                        if (smartSuggestionsMap.has(val)) {
-                            defaultTypeObj.args.push(smartSuggestionsMap.get(val));
-                        } else {
-                            defaultTypeObj.args.push({ name: val, args: [] });
-                        }
-                    } else {
-                        defaultTypeObj.args.push(val);
-                    }
-                });
-
-                const formattedDefaultType = formatType(defaultTypeObj);
-                if (!smartSuggestionsMap.has(formattedDefaultType)) {
-                    smartSuggestionsMap.set(formattedDefaultType, defaultTypeObj);
-                }
-
-                // C) Suggest types that are used as arguments for this type in other type constructors
-                // Some constructor has: list (option (SuperTree Key Value))) -> for type list suggest: option (SuperTree Key Value)
-                if (savedType.constructors) {
-                    savedType.constructors.forEach(cons => {
-                        if (cons.args) {
-                            cons.args.forEach(arg => {
-                                findUsages(arg.type);
-                            });
-                        }
-                    });
                 }
             }
         });

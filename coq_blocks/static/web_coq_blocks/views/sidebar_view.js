@@ -174,7 +174,7 @@ export default class SidebarView {
             let settingModalBody = document.getElementById("settingModalBody");
             settingModalBody.innerHTML = "";
 
-            // --- 2.1.0 Original Definiton ---
+            // --- 2.1.1 Original Definiton ---
             let codeLabel = document.createElement("label");
             codeLabel.innerText = "Original Definition: ";
             codeLabel.className = "form-label fw-bold";
