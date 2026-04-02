@@ -12,9 +12,9 @@ import SidebarView from './views/sidebar_view.js';
 const snapManager = new SnapManager();
 const savedTypeManager = new SavedTypeManager();
 const definitionLoader = new DefinitionLoader();
-const coqExporter = new COQExporter();
 
 const store = new AppStore(snapManager, savedTypeManager, null);
+const coqExporter = new COQExporter(store);
 
 const blockFactory = new BlockFactory(store);
 store.setBlockFactory(blockFactory);
@@ -68,6 +68,55 @@ if (clearPlaygroundBtn) {
         }
     });
 }
+
+// ----- Global Settings button -----
+const globalSettingModalSaveBtn = document.getElementById("globalSettingModalSaveBtn");
+const forceExplicitAtCheckbox = document.getElementById("forceExplicitAtCheckbox");
+const globalSettingModal = document.getElementById("globalSettingModal");
+const globalSettingBtn = document.getElementById("globalSettingBtn");
+
+const syncGlobalSettingsModal = () => {
+    if (forceExplicitAtCheckbox) {
+        forceExplicitAtCheckbox.checked = store.getForceExplicitAt();
+    }
+};
+
+// Initialize checkbox state from store
+syncGlobalSettingsModal();
+
+if (globalSettingBtn) {
+    globalSettingBtn.addEventListener("click", syncGlobalSettingsModal);
+}
+
+if (globalSettingModal) {
+    globalSettingModal.addEventListener("show.bs.modal", syncGlobalSettingsModal);
+}
+
+if (globalSettingModalSaveBtn && forceExplicitAtCheckbox) {
+    globalSettingModalSaveBtn.addEventListener("click", () => {
+        store.setForceExplicitAt(forceExplicitAtCheckbox.checked);
+        workspaceView.printAlert("Global settings updated.", "success");
+    });
+}
+
+const infoGlobalAtBtnHTML = document.getElementById("info-global-at-btn");
+if (infoGlobalAtBtnHTML) {
+    new bootstrap.Popover(infoGlobalAtBtnHTML, {
+        customClass: 'info-popover',
+        trigger: 'hover'
+    });
+
+    infoGlobalAtBtnHTML.addEventListener('show.bs.popover', () => {
+        infoGlobalAtBtnHTML.classList.replace('text-info', 'text-info-emphasis');
+        infoGlobalAtBtnHTML.style.transform = 'scale(1.1)';
+    });
+
+    infoGlobalAtBtnHTML.addEventListener('hide.bs.popover', () => {
+        infoGlobalAtBtnHTML.classList.replace('text-info-emphasis', 'text-info');
+        infoGlobalAtBtnHTML.style.transform = 'scale(1)';
+    });
+}
+
 // ----- Classic Type Creation button -----
 const loadBtn = document.getElementById("loadBtn");
 const defInput = document.getElementById("defInput");

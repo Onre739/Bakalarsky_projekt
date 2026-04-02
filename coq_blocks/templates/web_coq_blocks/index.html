@@ -172,19 +172,24 @@
                         
 
                         <svg id="globalSettingBtn"
-                            class="text-secondary" 
+                            class="text-secondary"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#globalSettingModal" 
                             style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
                             onmouseover="this.classList.replace('text-secondary', 'text-secondary-emphasis'); this.style.transform='scale(1.1)'" 
                             onmouseout="this.classList.replace('text-secondary-emphasis', 'text-secondary'); this.style.transform='scale(1)'"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
                             <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
                             <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+                            <title>Global Settings</title>
                         </svg>
                     </div>
 
                     <div>
                         <svg id="infoBtn"
                             class="text-success"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#infoModal" 
                             style="cursor: pointer; transition: transform 0.1s, color 0.2s;"
                             onmouseover="this.classList.replace('text-success', 'text-success-emphasis'); this.style.transform='scale(1.1)'" 
                             onmouseout="this.classList.replace('text-success-emphasis', 'text-success'); this.style.transform='scale(1)'" 
@@ -242,6 +247,87 @@
                 <div class="modal-footer p-1">
                     <button id="loadBtn" class="btn btn-success" data-bs-dismiss="modal">Create</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Setting Modal -->
+    <div class="modal fade" id="globalSettingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="globalSettingModalTitle">Global Settings</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="globalSettingModalBody">
+                    <h6>Export Settings:
+                    </h6>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="forceExplicitAtCheckbox" checked>
+                        <label class="form-check-label d-flex align-items-center">
+                            Force explicit arguments with @
+                            <svg id="info-global-at-btn"
+                                data-bs-toggle="popover" data-bs-title="Force explicit arguments with @" 
+                                data-bs-content="While the parser supports implicit types, the code generator exclusively outputs explicit arguments. Enabling this setting prepends the @ symbol, forcing Coq to correctly evaluate the explicit arguments regardless of their original implicit/explicit definition."
+                                data-bs-placement="right"
+                                data-bs-html="true" 
+                                data-bs-trigger="click"
+                                class="text-info ms-2" 
+                                style="cursor: pointer; transition: transform 0.1s, color 0.2s;" 
+                                xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-info-square" viewBox="0 0 16 16">
+                                <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                                <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+                            </svg>
+                        </label>
+                    </div>
+
+                </div>
+                <div class="modal-footer p-1">
+                    <button type="button" class="btn btn-success" id="globalSettingModalSaveBtn" data-bs-dismiss="modal">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="min-width: 900px; max-width: calc(100vw - 24rem); height: 90vh;">
+            <div class="modal-content" style="min-width: 900px; max-width: none; height: 90vh; overflow: hidden;">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="infoModalTitle">VisualCOQ Interface Overview</h1>  
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 d-flex flex-column" id="infoModalBody" style="overflow: hidden; height: calc(90vh - 100px);">
+
+                    <div id="infoCarousel" class="carousel carousel-dark slide flex-grow-1" style="min-height: 0;">
+                        <!-- <div class="carousel-indicators" style="bottom: 12px; margin-bottom: 0;">
+                            <button type="button" data-bs-target="#infoCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#infoCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                            <button type="button" data-bs-target="#infoCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                        </div> -->
+                        <div class="carousel-inner h-100 overflow-hidden">
+                            <div class="carousel-item active h-100">
+                                <img src="static/VCOQtut1.png" class="d-block w-100 h-100" style="object-fit: contain;" alt="Slide 1">
+                            </div>
+                            <div class="carousel-item h-100">
+                                <img src="static/VCOQtut1.png" class="d-block w-100 h-100" style="object-fit: contain;" alt="Slide 2">
+                            </div>
+                            <div class="carousel-item h-100">
+                                <img src="static/VCOQtut1.png" class="d-block w-100 h-100" style="object-fit: contain;" alt="Slide 3">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#infoCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#infoCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

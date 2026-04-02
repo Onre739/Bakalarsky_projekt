@@ -2,6 +2,9 @@ import { DefinitionBlock, AtomicBlock } from "../models/block.js";
 import { formatType } from "./type_utils.js";
 
 export default class COQExporter {
+    constructor(store) {
+        this.store = store;
+    }
 
     export(blockObjects, snappedBlocks) {
 
@@ -81,7 +84,7 @@ export default class COQExporter {
     stringifyDefinition(def, i) {
         let children = def.children.map(p => this.stringifyDefinition(p, i + 1));
 
-        const forceExplicit = true; // globalSettings.forceExplicitAt
+        const forceExplicit = this.store ? this.store.getForceExplicitAt() : true;
         const isPolymorphic = def.kind === "ConstructorBlock" &&
             def.block.returnTypeObj &&
             def.block.returnTypeObj.args &&

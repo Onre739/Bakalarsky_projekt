@@ -34,6 +34,9 @@ export default class appStore extends Store {
             // Atomic types, default
             atomicTypes: [],
 
+            // Whether to add '@' prefix to polymorphic types during export
+            forceExplicitAt: true,
+
             zIndexCount: 1,
 
             resizeMode: "Auto",
@@ -108,6 +111,14 @@ export default class appStore extends Store {
     }
     getResizeMode() {
         return this.getState().resizeMode;
+    }
+
+    getForceExplicitAt() {
+        return this.getState().forceExplicitAt;
+    }
+
+    setForceExplicitAt(value) {
+        this.getState().forceExplicitAt = value;
     }
 
     // ------------- Plug in block position ------------
@@ -197,6 +208,7 @@ export default class appStore extends Store {
 
         // 4. Create instance via BlockFactory
         const newBlock = this.blockFactory.createAtomicBlock(typeItem.name, blockId, color);
+        newBlock.element.style.zIndex = this.getAndIncrementZIndex();
 
         // 5. Save
         this.state.blockObjects.push(newBlock);
@@ -223,6 +235,7 @@ export default class appStore extends Store {
             blockId,
             color
         );
+        newBlock.element.style.zIndex = this.getAndIncrementZIndex();
 
         // 5. Save
         this.state.blockObjects.push(newBlock);
@@ -232,6 +245,7 @@ export default class appStore extends Store {
     spawnDefinitionBlock() {
         const id = `defBlock:${this.state.definitionBlockCount++}`;
         const newBlock = this.blockFactory.createDefinitionBlock(id);
+        newBlock.element.style.zIndex = this.getAndIncrementZIndex();
         this.state.blockObjects.push(newBlock);
         this.notify();
     }

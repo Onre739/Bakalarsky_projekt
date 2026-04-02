@@ -85,8 +85,6 @@ class BaseBlock {
      * - Delete Button 
      */
     initBlockElement() {
-        this.element.style.zIndex = 1000; // Initial high z-index for spawning
-
         // 1. Setup Main Element
         this.element.setAttribute("id", this.id);
         this.element.className = "block draggable";

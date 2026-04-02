@@ -69,16 +69,17 @@ export default class WorkspaceView {
             const isNotSnapped = notSnappedSet.has(blockObject);
 
             // Visibility / Disabled control
-            if (isNotSnapped) {
+
+            if (isNotSnapped || blockObject instanceof DefinitionBlock) {
                 settingBtn.style.opacity = "1";
                 settingBtn.style.pointerEvents = "auto";
                 settingBtn.style.cursor = "pointer";
-                settingBtn.title = "Nastavení parametrů instance bloku";
+                settingBtn.title = blockObject instanceof DefinitionBlock ? "Setting for this Definition block" : "Parameters settings for this block";
             } else {
                 settingBtn.style.opacity = "0.4";
                 settingBtn.style.pointerEvents = "none";
                 settingBtn.style.cursor = "not-allowed";
-                settingBtn.title = "Nelze měnit nastavení připojeného bloku";
+                settingBtn.title = "Cannot modify settings of a connected block";
             }
 
             // Listener control
