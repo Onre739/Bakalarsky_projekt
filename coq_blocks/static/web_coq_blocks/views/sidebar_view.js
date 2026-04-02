@@ -93,7 +93,8 @@ export default class SidebarView {
             const warningBtn = li.querySelector(`#warning-btn-${item.id}`);
             if (warningBtn) {
                 new bootstrap.Popover(warningBtn, {
-                    customClass: 'warn-popover'
+                    customClass: 'warn-popover',
+                    trigger: 'hover'
                 });
 
                 warningBtn.addEventListener('show.bs.popover', () => {

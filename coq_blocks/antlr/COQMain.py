@@ -5,7 +5,6 @@ from .COQParser import COQParser
 from .MyVisitor import MyVisitor
 
 from antlr4.error.ErrorListener import ErrorListener
-from antlr4.error.ErrorStrategy import BailErrorStrategy
 
 def process_coq_code(string):
     # Fast test for empty input
@@ -21,7 +20,6 @@ def process_coq_code(string):
     parser.removeErrorListeners()
     error_listener = CollectingErrorListener()
     parser.addErrorListener(error_listener)
-    parser._errHandler = BailErrorStrategy()
 
     tree = parser.prog()
 

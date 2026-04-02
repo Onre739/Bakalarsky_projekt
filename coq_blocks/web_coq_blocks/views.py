@@ -31,7 +31,7 @@ def new_definition(request):
         return Response(json_data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        print("Error in new_definition:")
-        traceback.print_exc()
-        
-        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        msg = str(e)
+        if not msg:
+            msg = f"Unexpected error: {type(e).__name__}"
+        return Response({"error": msg}, status=status.HTTP_400_BAD_REQUEST)

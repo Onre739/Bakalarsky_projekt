@@ -12,9 +12,24 @@ export default class DefinitionLoader {
             body: definitionString,
         });
 
-        if (!response.ok) throw new Error("Network response was not ok");
+        const responseText = await response.text();
 
-        let data = JSON.parse(await response.text());
+        if (!response.ok) {
+            let msg = response.statusText || "Failed to load definition";
+            try {
+                const errData = JSON.parse(responseText);
+                if (errData && errData.error) {
+                    msg = errData.error;
+                }
+            } catch {
+                if (responseText && responseText.trim().length > 0) {
+                    msg = responseText;
+                }
+            }
+            throw new Error(msg);
+        }
+
+        const data = JSON.parse(responseText);
         return data;
     }
 

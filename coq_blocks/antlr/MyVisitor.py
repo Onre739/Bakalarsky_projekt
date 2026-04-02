@@ -3,6 +3,11 @@ from .COQVisitor import COQVisitor
 
 from block_classes import *
 
+COQ_RESERVED = {
+    "Type", "Prop", "Set", "match", "with", "end", "fun", "forall",
+    "let", "in", "if", "then", "else", "return", "Inductive",
+    "Definition", "Fixpoint", "Record", "Class", "Instance", "Axiom", "Lemma", "Theorem"
+}
 class MyVisitor(COQVisitor):
     # =========================================================================
     # 1. Parsing types (recursive with args)
@@ -105,6 +110,11 @@ class MyVisitor(COQVisitor):
 
     def visitInductiveDef(self, ctx: COQParser.InductiveDefContext):
         type_name = ctx.NAME().getText()
+        
+        # Reserved word check
+        if type_name in COQ_RESERVED:
+            raise ValueError(f"Semantic error: Cannot use reserved word '{type_name}' as a type name.")
+
         print(f"Processing inductive type: {type_name}")
 
         # Original text extraction
@@ -121,6 +131,14 @@ class MyVisitor(COQVisitor):
                 # visitTypeParameters returns list, we need to extend
                 params_list = self.visit(tp_ctx)
                 type_parameters.extend(params_list)
+        
+        # Reserved word check for type parameters and duplicate check
+        for p in type_parameters:
+            if p in COQ_RESERVED:
+                raise ValueError(f"Semantic error: Cannot use reserved word '{p}' as a type parameter.")
+        
+        if len(type_parameters) != len(set(type_parameters)):
+            raise ValueError(f"Semantic error: Type '{type_name}' has duplicate type parameters.")
 
         # 2. Constructors
         all_constructors = []
@@ -128,8 +146,40 @@ class MyVisitor(COQVisitor):
         if ctx.constructor():
             for c_ctx in ctx.constructor():
                 all_constructors.append(self.visit(c_ctx))
+
+        # Reserved word check for constructor names and duplicate check
+        for c in all_constructors:
+            if c.name in COQ_RESERVED:
+                raise ValueError(f"Semantic error: Cannot use reserved word '{c.name}' as a constructor name.")
+            
+            # Reserved word check for argument names in binder notation
+            for arg in c.args:
+                for arg_name in arg.names:
+                    if arg_name in COQ_RESERVED:
+                        raise ValueError(f"Semantic error: Cannot use reserved word '{arg_name}' as a variable name in constructor '{c.name}'.")
+
+        constructor_names = [c.name for c in all_constructors]
+        if len(constructor_names) != len(set(constructor_names)):
+            raise ValueError(f"Semantic error: Type '{type_name}' has duplicate constructor names.")
+
+        # 3. Semantic checks of return types for arrow constructors
+        for c in all_constructors:
+            if c.syntax_style == "arrow" and c.return_type:
+                # A) Check if the return type name matches the inductive type name (e.g., returns 'idk')
+                if c.return_type.name != type_name:
+                    raise ValueError(f"Semantic error: Constructor '{c.name}' must return '{type_name}', but returns '{c.return_type.name}'.")
                 
-        # 3. Final assembly
+                # B) Check the exact match of parameters (count and names)
+                actual_args = [arg.name for arg in c.return_type.args]
+                
+                if actual_args != type_parameters:
+                    # Assemble the expected and actual texts for the error message
+                    expected = f"{type_name} {' '.join(type_parameters)}".strip()
+                    actual = f"{c.return_type.name} {' '.join(actual_args)}".strip()
+                    
+                    raise ValueError(f"Semantic error in constructor '{c.name}': Return type does not contain the correct parameters. Expected '{expected}', but found '{actual}'.")
+                
+        # 4. Final assembly
         return CoqInductiveType(
             name=type_name,
             type_parameters=type_parameters,

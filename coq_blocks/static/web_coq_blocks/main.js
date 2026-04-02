@@ -135,8 +135,8 @@ loadBtn.addEventListener("click", async () => {
 
     } catch (error) {
         console.error("Error loading definition:", error);
-        alert("Failed to load definition. See console for details.");
-        workspaceView.printAlert("Failed to load definition.", "danger");
+        //alert("Failed to load definition. See console for details.");
+        workspaceView.printAlert(error.message, "danger");
     }
 });
 
