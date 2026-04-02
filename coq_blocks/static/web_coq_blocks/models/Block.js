@@ -352,11 +352,6 @@ export class ConstructorBlock extends BaseBlock {
             plugObject.createElement();
             this.plugObjects.push(plugObject);
         });
-
-        // CSS class for single plug
-        if (this.plugsCount == 1) {
-            newBlock.classList.add("1plug");
-        }
     }
 }
 

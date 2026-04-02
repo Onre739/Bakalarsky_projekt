@@ -284,4 +284,40 @@ export default class SidebarView {
         // Append to main list
         this.importedListEl.appendChild(typeEl);
     }
+
+    /**
+     * Prints the export result into the export result list.
+     * @param {string} str - The COQ string to display.
+     */
+    showExportResult(str) {
+        let li = document.createElement("li");
+        li.className = "list-group-item";
+        li.textContent = str;
+
+        // Smart copy to clipboard on click
+        li.style.cursor = "pointer";
+        li.title = "Click to copy to clipboard";
+
+        li.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(li.textContent);
+
+                // Visual feedback for successful copy
+                const originalBg = li.style.backgroundColor;
+                li.style.backgroundColor = "#d4edda"; // Bootstrap success
+
+                setTimeout(() => {
+                    li.style.backgroundColor = originalBg;
+                }, 500);
+
+            } catch (err) {
+                console.error("Copy failed: ", err);
+            }
+        });
+
+        const resultList = document.getElementById("result");
+        if (resultList) {
+            resultList.appendChild(li);
+        }
+    }
 }

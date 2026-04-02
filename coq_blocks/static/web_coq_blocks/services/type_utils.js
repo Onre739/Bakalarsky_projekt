@@ -1,24 +1,3 @@
-
-// /**
-//  * Recursively formats a type for display (e.g., on a Plug or Dot label)
-//  * @param {Object|string} typeObj - JSON type object (e.g. {name: "list", args: [...]}) or string "nat"
-//  * @returns {string} Formatted string (e.g. "list nat")
-//  */
-// export function formatType(typeObj) {
-//     if (!typeObj) return "?";
-//     if (typeof typeObj === 'string') return typeObj; // If it's already a string, return it
-//     if (!typeObj.args || typeObj.args.length === 0) return typeObj.name; // If no arguments, return just the name
-
-//     // Recursively format arguments, if an argument is complex, put it in parentheses
-//     const formattedArgs = typeObj.args.map(arg => {
-//         const str = formatType(arg);
-//         return (arg.args && arg.args.length > 0) ? `(${str})` : str;
-//     });
-//     return `${typeObj.name} ${formattedArgs.join(" ")}`;
-// };
-
-
-
 /**
  * Help function to format type objects
  * {name: "list", args: [{name: "nat"}]} -> "list nat"
@@ -45,9 +24,6 @@ export function formatType(typeObj, needsParens = false, forceExplicit = false) 
 
     return needsParens ? `(${result})` : result;
 }
-
-
-
 
 /**
  * Recursively replaces type parameters

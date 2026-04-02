@@ -27,7 +27,7 @@ const handleSingleExport = (rootBlock) => {
         const coqString = coqExporter.exportSingle(rootBlock, allSnaps);
 
         if (coqString) {
-            workspaceView.showExportResult(coqString);
+            sidebarView.showExportResult(coqString);
             workspaceView.printAlert("Export successful!!", "success");
 
             const showExportsBtn = document.getElementById('showExportsBtn');
